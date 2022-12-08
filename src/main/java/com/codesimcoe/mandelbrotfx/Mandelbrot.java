@@ -11,10 +11,15 @@ import javafx.scene.paint.Color;
 
 public class Mandelbrot {
 
+    private static final double ZOOM_FACTOR = 2;
+
     private final Pane root;
 
+    // Image size, in pixels
     private final int width;
     private final int height;
+
+    // Max algorithm iterations
     private final int max;
 
     // Center
@@ -24,13 +29,17 @@ public class Mandelbrot {
     // Region size
     private double regionSize;
 
+    // Image
     private final PixelWriter pixelWriter;
-
-    private final int[] colors;
-
     private final int[] imagePixels;
 
-    public Mandelbrot(final int width, final int height, final int max) {
+    // Cached images (int argb values)
+    private final int[] colors;
+
+    public Mandelbrot(
+        final int width,
+        final int height,
+        final int max) {
 
         this.width = width;
         this.height = height;
@@ -69,11 +78,12 @@ public class Mandelbrot {
             }
         });
 
+        // Zoom in and out
         this.root.setOnScroll(e -> {
             if (e.getDeltaY() > 0) {
-                this.regionSize /= 2;
+                this.zoomOut();
             } else {
-                this.regionSize *= 2;
+                this.zoomIn();
             }
 
             this.update();
@@ -89,12 +99,26 @@ public class Mandelbrot {
         final double y) {
 
         // Pixels to value
-        this.xc = -this.regionSize / 2 + this.regionSize * x / this.width + this.xc;
-        this.yc = -this.regionSize / 2 + this.regionSize * y / this.height + this.yc;
+        this.xc = this.xc - this.regionSize / 2 + this.regionSize * x / this.width;
+        this.yc = this.yc - this.regionSize / 2 + this.regionSize * y / this.height;
 
         this.update();
     }
 
+    private void zoomIn() {
+        this.regionSize *= ZOOM_FACTOR;
+    }
+
+    private void zoomOut() {
+        this.regionSize /= ZOOM_FACTOR;
+    }
+
+    /**
+     * Set the region we are looking at, defined by its center (xc, yc) and its size
+     * @param xc
+     * @param yc
+     * @param regionSize
+     */
     public void setRegion(
         final double xc,
         final double yc,
