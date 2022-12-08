@@ -17,12 +17,13 @@ public class MandelbrotMain extends Application {
         int height = 1000;
         int max = 255;
 
-        MandelbrotUI ui = new MandelbrotUI(width, height, max);
+        Mandelbrot mandelbrot = new Mandelbrot(width, height, max);
 
-        Scene scene = new Scene(ui.getRoot(), width, height);
+        Scene scene = new Scene(mandelbrot.getRoot(), width, height);
         primaryStage.setScene(scene);
         primaryStage.show();
-        
-        ui.update();
+
+        mandelbrot.setRegion(-0.5, 0, 2);
+        mandelbrot.update();
     }
 }
