@@ -99,8 +99,8 @@ public class Mandelbrot {
         final double y) {
 
         // Pixels to value
-        this.xc = this.xc - this.regionSize / 2 + this.regionSize * x / this.width;
-        this.yc = this.yc - this.regionSize / 2 + this.regionSize * y / this.height;
+        this.xc = this.xPixelsToValue(x);
+        this.yc = this.yPixelsToValue(y);
 
         this.update();
     }
@@ -111,6 +111,14 @@ public class Mandelbrot {
 
     private void zoomOut() {
         this.regionSize /= ZOOM_FACTOR;
+    }
+    
+    private double xPixelsToValue(final double x) {
+        return this.xc - this.regionSize / 2 + this.regionSize * x / this.width;
+    }
+    
+    private double yPixelsToValue(final double y) {
+        return this.yc - this.regionSize / 2 + this.regionSize * y / this.height;
     }
 
     /**
@@ -158,9 +166,10 @@ public class Mandelbrot {
 
         // Parallelize computations
         IntStream.range(0, this.width).parallel().forEach(x -> {
-            IntStream.range(0, this.height).parallel().forEach(y -> {
-                double x0 = this.xc - this.regionSize / 2 + this.regionSize * x / this.width;
-                double y0 = this.yc - this.regionSize / 2 + this.regionSize * y / this.height;
+            double x0 = this.xPixelsToValue(x);
+            
+            IntStream.range(0, this.height).forEach(y -> {
+                double y0 = this.yPixelsToValue(y);
 
                 int mand = this.compute(x0, y0);
                 int color = this.colors[mand];
