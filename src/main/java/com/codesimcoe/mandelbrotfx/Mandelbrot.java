@@ -157,15 +157,18 @@ public class Mandelbrot {
         long start = System.currentTimeMillis();
 
         // Parallelize computations
-        IntStream.range(0, this.width).parallel().forEach(x -> {
-            IntStream.range(0, this.height).parallel().forEach(y -> {
+        IntStream.range(0, this.width)
+            .parallel()
+            .forEach(x -> {
                 double x0 = this.xc - this.regionSize / 2 + this.regionSize * x / this.width;
-                double y0 = this.yc - this.regionSize / 2 + this.regionSize * y / this.height;
 
-                int mand = this.compute(x0, y0);
-                int color = this.colors[mand];
-                this.imagePixels[y * this.height + x] = color;
-            });
+                for (int y = 0; y < this.height; y++) {
+                    double y0 = this.yc - this.regionSize / 2 + this.regionSize * y / this.height;
+
+                    int iterations = this.compute(x0, y0);
+                    int color = this.colors[iterations];
+                    this.imagePixels[y * this.height + x] = color;
+                }
         });
 
         // Draw image
