@@ -19,7 +19,7 @@ public class MandelbrotMain extends Application {
 
         Mandelbrot mandelbrot = new Mandelbrot(width, height, max);
 
-        Scene scene = new Scene(mandelbrot.getRoot(), width, height);
+        Scene scene = new Scene(mandelbrot.getRoot(), width + Configuration.SETTINGS_WIDTH, height);
         primaryStage.setScene(scene);
         primaryStage.show();
 

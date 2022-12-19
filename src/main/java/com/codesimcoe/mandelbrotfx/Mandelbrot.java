@@ -2,18 +2,26 @@ package com.codesimcoe.mandelbrotfx;
 
 import java.util.stream.IntStream;
 
-import javafx.scene.image.ImageView;
+import javafx.beans.property.Property;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+/**
+ * Aims at having a fast rendering, at the cost of low precision
+ */
 public class Mandelbrot {
 
     private static final double ZOOM_FACTOR = 2;
 
-    private final Pane root;
+    private final BorderPane root;
 
     // Image size, in pixels
     private final int width;
@@ -29,12 +37,21 @@ public class Mandelbrot {
     // Region size
     private double regionSize;
 
-    // Image
-    private final PixelWriter pixelWriter;
+    // Mandelbrot set result
+    // Iterations are store for each pixel
+    private final int[][] iterationsPixels;
+
+    // Image pixel content
     private final int[] imagePixels;
 
-    // Cached images (int argb values)
+    // Canvas graphics context
+    private final GraphicsContext graphicsContext;
+    private final PixelWriter pixelWriter;
+
+    // Cached colors (int argb values)
     private final int[] colors;
+
+    private final Configuration configuration;
 
     public Mandelbrot(
         final int width,
@@ -45,15 +62,38 @@ public class Mandelbrot {
         this.height = height;
         this.max = max;
 
+        this.iterationsPixels = new int[this.width][this.height];
+
+        this.configuration = Configuration.getInstance();
+
         // Image
         this.imagePixels = new int[width * height];
-        WritableImage image = new WritableImage(width, height);
-        this.pixelWriter = image.getPixelWriter();
+        Canvas canvas = new Canvas(width, height);
 
-        ImageView imageView = new ImageView(image);
-        this.root = new Pane(imageView);
+        this.graphicsContext = canvas.getGraphicsContext2D();
+        this.pixelWriter = this.graphicsContext.getPixelWriter();
 
-        // Initialize and cache all availableColors
+        // Settings
+        Label colorOffsetLabel = new Label("Color offset");
+        Slider colorOffsetSlider = this.newSlider(0, max, 0, 64, this.configuration.getColorOffsetProperty());
+        this.configuration.getColorOffsetProperty().addListener((observable, oldValue, newValue) -> {
+            this.computeColors();
+            this.drawImage();
+        });
+
+        VBox settingsBox = new VBox(
+            5,
+            colorOffsetLabel,
+            colorOffsetSlider
+        );
+        settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
+
+        // Assemble (border pane)
+        this.root = new BorderPane();
+        this.root.setCenter(canvas);
+        this.root.setRight(settingsBox);
+
+        // Initialize and cache all available colors
         this.colors = new int[max + 1];
         for (int i = 0; i <= max; i++) {
             double hue = 360 * i / max;
@@ -65,9 +105,9 @@ public class Mandelbrot {
             int g = (int) (color.getGreen() * 255);
             int b = (int) (color.getBlue() * 255);
 
-            int rgb = (a << 24) | (r << 16) | (g << 8) | b;
+            int argb = (a << 24) | (r << 16) | (g << 8) | b;
 
-            this.colors[i] = rgb;
+            this.colors[i] = argb;
         }
 
         // Actions
@@ -113,10 +153,12 @@ public class Mandelbrot {
         this.regionSize /= ZOOM_FACTOR;
     }
 
+    // Concert a pixel abscissa position to "real" mathematical value
     private double xPixelsToValue(final double x) {
         return this.xc - this.regionSize / 2 + this.regionSize * x / this.width;
     }
 
+    // Concert a pixel ordinate position to "real" mathematical value
     private double yPixelsToValue(final double y) {
         return this.yc - this.regionSize / 2 + this.regionSize * y / this.height;
     }
@@ -137,32 +179,35 @@ public class Mandelbrot {
         this.yc = yc;
     }
 
-    private int compute(double re, double im) {
+    // Escape computation
+    private int compute(final double x0, final double y0) {
 
-        double re0 = re;
-        double im0 = im;
+        double x = 0;
+        double y = 0;
 
-        for (int i = 0; i < this.max; i++) {
+        // Squared values
+        double x2 = 0;
+        double y2 = 0;
 
-            double squaredNorm = re * re + im * im;
-            if (squaredNorm > 4) {
-                // Divergence
-                return i;
-            }
+        // Iteration
+        int i = 0;
 
-            // Complex number product formula
-            // (x + yi)(x + yi) = x2 + y2 + 2xyi
-            double newRe = re * re - im * im + re0;
-            im = 2 * re * im + im0;
-            re = newRe;
+        while (x2 + y2 <= 4 && i < this.max) {
+
+            y = 2 * x * y + y0;
+            x = x2 - y2 + x0;
+
+            x2 = x * x;
+            y2 = y * y;
+            i++;
         }
 
-        return this.max;
+        return i;
     }
 
     public void update() {
 
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
 
         // Parallelize computations
         IntStream.range(0, this.width)
@@ -173,12 +218,38 @@ public class Mandelbrot {
                 for (int y = 0; y < this.height; y++) {
                     double y0 = this.yPixelsToValue(y);
 
+                    // Compute iterations
                     int iterations = this.compute(x0, y0);
-                    int color = this.colors[iterations];
-                    this.imagePixels[y * this.height + x] = color;
+
+                    // Store result for this pixel
+                    this.iterationsPixels[x][y] = iterations;
                 }
         });
 
+        this.computeColors();
+        this.drawImage();
+    }
+
+    private void computeColors() {
+        // Determine color
+        // Apply offset
+        int color;
+        for (int x = 0; x < this.width; x++) {
+            for (int y = 0; y < this.height; y++) {
+                int iterations = this.iterationsPixels[x][y];
+                if (iterations == this.max) {
+                    color = this.colors[this.max];
+                } else {
+                    int colorIndex = (iterations + this.configuration.getColorOffsetProperty().intValue()) % this.max;
+                    color = this.colors[colorIndex];
+                }
+
+                this.imagePixels[y * this.height + x] = color;
+            }
+        }
+    }
+
+    private void drawImage() {
         // Draw image
         this.pixelWriter.setPixels(
             0,
@@ -191,7 +262,43 @@ public class Mandelbrot {
             this.width
         );
 
-        long elapsed = System.currentTimeMillis() - start;
-        System.out.println(elapsed + "ms");
+        // Info (zoom and centering)
+        // Draw shadow
+        this.graphicsContext.setStroke(Color.BLACK);
+        this.graphicsContext.strokeText("region's size: " + this.regionSize, 4, 15);
+        this.graphicsContext.strokeText("x: " + this.xc, 4, 35);
+        this.graphicsContext.strokeText("y: " + this.yc, 4, 55);
+
+        // Draw plain text
+        this.graphicsContext.setStroke(Color.WHITE);
+        this.graphicsContext.strokeText("region's size: " + this.regionSize, 5, 16);
+        this.graphicsContext.strokeText("x: " + this.xc, 5, 36);
+        this.graphicsContext.strokeText("y: " + this.yc, 5, 56);
+
+//        long elapsed = System.currentTimeMillis() - start;
+//        System.out.println(elapsed + "ms");
+    }
+
+    private Slider newSlider(
+        final double min,
+        final double max,
+        final int minorTickCount,
+        final int majorTickUnit,
+        final Property<Number> property) {
+
+        Slider slider = new Slider();
+
+        slider.setMin(min);
+        slider.setMax(max);
+
+        slider.setMinorTickCount(minorTickCount);
+        slider.setMajorTickUnit(majorTickUnit);
+
+        slider.setShowTickMarks(true);
+        slider.setShowTickLabels(true);
+
+        slider.valueProperty().bindBidirectional(property);
+
+        return slider;
     }
 }
