@@ -1,3 +1,3 @@
 # Minimalistic Mandelbrot set explorer
 
-![Mandelbrot preview](https://github.com/CodeSimcoe/https://github.com/CodeSimcoe/MandelbrotFx/blob/main/picture.png?raw=true)
+![Mandelbrot preview](https://github.com/CodeSimcoe/MandelbrotFx/blob/main/picture.png?raw=true)
