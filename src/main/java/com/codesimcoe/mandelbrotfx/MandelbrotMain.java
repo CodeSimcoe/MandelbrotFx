@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.function.Predicate;
+
 public class MandelbrotMain extends Application {
 
     public static void main(final String[] args) {
@@ -11,10 +13,10 @@ public class MandelbrotMain extends Application {
     }
 
     @Override
-    public void start(final Stage primaryStage) throws Exception {
+    public void start(final Stage primaryStage) {
 
-        int width = 1000;
-        int height = 1000;
+        int width = 1_000;
+        int height = 1_000;
         int max = 255;
 
         Mandelbrot mandelbrot = new Mandelbrot(width, height, max);

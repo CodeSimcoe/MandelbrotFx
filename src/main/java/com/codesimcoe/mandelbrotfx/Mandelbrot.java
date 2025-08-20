@@ -96,7 +96,7 @@ public class Mandelbrot {
         // Initialize and cache all available colors
         this.colors = new int[max + 1];
         for (int i = 0; i <= max; i++) {
-            double hue = 360 * i / max;
+            double hue = 360.0 * i / max;
             double brightness = (i == max) ? 0 : 1;
             Color color = Color.hsb(hue, 1, brightness);
 
@@ -207,8 +207,6 @@ public class Mandelbrot {
 
     public void update() {
 
-//        long start = System.currentTimeMillis();
-
         // Parallelize computations
         IntStream.range(0, this.width)
             .parallel()
@@ -274,9 +272,6 @@ public class Mandelbrot {
         this.graphicsContext.strokeText("region's size: " + this.regionSize, 5, 16);
         this.graphicsContext.strokeText("x: " + this.xc, 5, 36);
         this.graphicsContext.strokeText("y: " + this.yc, 5, 56);
-
-//        long elapsed = System.currentTimeMillis() - start;
-//        System.out.println(elapsed + "ms");
     }
 
     private Slider newSlider(
