@@ -5,10 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa3a929a-ecd2-408c-b403-d62db9f43cc1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/pic5.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Configuration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/MandelbrotMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/MandelbrotMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic1.png" beforeDir="false" afterPath="$PROJECT_DIR$/pic1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic2.png" beforeDir="false" afterPath="$PROJECT_DIR$/pic2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic3.png" beforeDir="false" afterPath="$PROJECT_DIR$/pic3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic4.png" beforeDir="false" afterPath="$PROJECT_DIR$/pic4.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +52,9 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="2XXmMvmmbFonWTbXSjquTfh4WzG" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -56,7 +62,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.MandelbrotMain.executor": "Debug",
+    "Application.MandelbrotMain.executor": "Run",
     "Attach to process.localhost:5005.executor": "ProcessAttachDebug",
     "Maven.mandelbrot-fx [clean].executor": "Run",
     "Maven.mandelbrot-fx [compile].executor": "Run",
