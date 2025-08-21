@@ -15,12 +15,11 @@ public class MandelbrotMain extends Application {
 
     int width = 1_000;
     int height = 1_000;
-    int max = 255;
 
     Mandelbrot mandelbrot = new Mandelbrot(
       width,
       height,
-      max
+      Configuration.DEFAULT_MAX_ITERATIONS
     );
 
     Scene scene = new Scene(mandelbrot.getRoot(), width + Configuration.SETTINGS_WIDTH, height);
