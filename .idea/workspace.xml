@@ -5,16 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa3a929a-ecd2-408c-b403-d62db9f43cc1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pic2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pic3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pic4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/NamedFractal.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/Fractal.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/JuliaFractal.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/MandelbrotFractal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/picture.png" beforeDir="false" afterPath="$PROJECT_DIR$/pic1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic1.png" beforeDir="false" afterPath="$PROJECT_DIR$/pic1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Configuration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/MandelbrotMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/MandelbrotMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+        <option value="Record" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -33,6 +51,9 @@
 }</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="OptimizeOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
@@ -55,6 +76,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "code.cleanup.on.save": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
@@ -62,7 +84,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.lookFeel"
+    "settings.editor.selected.configurable": "Errors"
   }
 }]]></component>
   <component name="RunManager">
@@ -84,7 +106,7 @@
       <module name="mandelbrot-fx" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.codesimcoe.mandelbrotfx.*" />
+          <option name="PATTERN" value="com.codesimcoe.mandelbrotfx.fractal.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
