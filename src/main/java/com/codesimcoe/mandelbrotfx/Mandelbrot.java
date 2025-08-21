@@ -3,13 +3,16 @@ package com.codesimcoe.mandelbrotfx;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -34,6 +37,9 @@ public class Mandelbrot {
 
   // Used fractal algorithm
   private final ObjectProperty<NamedFractal> fractal = new SimpleObjectProperty<>();
+
+  // Display position
+  private final BooleanProperty displayPosition = new SimpleBooleanProperty(true);
 
   // Image size, in pixels
   private final int width;
@@ -124,13 +130,19 @@ public class Mandelbrot {
     Button resetPositionButton = new Button("Reset position");
     resetPositionButton.setOnAction(_ -> this.reset());
 
+    // Display position
+    CheckBox displayPositionCheckBox = new CheckBox("Display position / scale");
+    displayPositionCheckBox.selectedProperty().bindBidirectional(this.displayPosition);
+    displayPositionCheckBox.selectedProperty().addListener((_, _, _) -> this.drawImage());
+
     VBox settingsBox = new VBox(
       5,
       fractalAlgorithmLabel,
       fractalComboBox,
       colorOffsetLabel,
       colorOffsetSlider,
-      resetPositionButton
+      resetPositionButton,
+      displayPositionCheckBox
     );
     settingsBox.setPadding(new Insets(5));
     settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
@@ -285,18 +297,20 @@ public class Mandelbrot {
       this.width
     );
 
-    // Info (zoom and centering)
-    // Draw shadow
-    this.graphicsContext.setStroke(Color.BLACK);
-    this.graphicsContext.strokeText("region's size: " + this.regionSize, 4, 15);
-    this.graphicsContext.strokeText("x: " + this.xc, 4, 35);
-    this.graphicsContext.strokeText("y: " + this.yc, 4, 55);
+    if (this.displayPosition.get()) {
+      // Info (zoom and centering)
+      // Draw shadow
+      this.graphicsContext.setStroke(Color.BLACK);
+      this.graphicsContext.strokeText("region's size: " + this.regionSize, 4, 15);
+      this.graphicsContext.strokeText("x: " + this.xc, 4, 35);
+      this.graphicsContext.strokeText("y: " + this.yc, 4, 55);
 
-    // Draw plain text
-    this.graphicsContext.setStroke(Color.WHITE);
-    this.graphicsContext.strokeText("region's size: " + this.regionSize, 5, 16);
-    this.graphicsContext.strokeText("x: " + this.xc, 5, 36);
-    this.graphicsContext.strokeText("y: " + this.yc, 5, 56);
+      // Draw plain text
+      this.graphicsContext.setStroke(Color.WHITE);
+      this.graphicsContext.strokeText("region's size: " + this.regionSize, 5, 16);
+      this.graphicsContext.strokeText("x: " + this.xc, 5, 36);
+      this.graphicsContext.strokeText("y: " + this.yc, 5, 56);
+    }
   }
 
   private Slider newSlider(
