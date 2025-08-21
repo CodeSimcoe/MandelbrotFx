@@ -3,8 +3,10 @@ package com.codesimcoe.mandelbrotfx;
 import java.util.stream.IntStream;
 
 import javafx.beans.property.Property;
+import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.PixelFormat;
@@ -81,11 +83,20 @@ public class Mandelbrot {
             this.drawImage();
         });
 
+        // Reset
+        Button resetPositionButton = new Button("Reset position");
+        resetPositionButton.setOnAction(_ -> {
+            this.setRegion(-0.5, 0, 2);
+            this.update();
+        });
+
         VBox settingsBox = new VBox(
             5,
             colorOffsetLabel,
-            colorOffsetSlider
+            colorOffsetSlider,
+            resetPositionButton
         );
+        settingsBox.setPadding(new Insets(5));
         settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
 
         // Assemble (border pane)
@@ -121,9 +132,9 @@ public class Mandelbrot {
         // Zoom in and out
         this.root.setOnScroll(e -> {
             if (e.getDeltaY() > 0) {
-                this.zoomOut();
-            } else {
                 this.zoomIn();
+            } else {
+                this.zoomOut();
             }
 
             this.update();
@@ -146,11 +157,11 @@ public class Mandelbrot {
     }
 
     private void zoomIn() {
-        this.regionSize *= ZOOM_FACTOR;
+        this.regionSize /= ZOOM_FACTOR;
     }
 
     private void zoomOut() {
-        this.regionSize /= ZOOM_FACTOR;
+        this.regionSize *= ZOOM_FACTOR;
     }
 
     // Concert a pixel abscissa position to "real" mathematical value
@@ -165,9 +176,6 @@ public class Mandelbrot {
 
     /**
      * Set the region we are looking at, defined by its center (xc, yc) and its size
-     * @param xc
-     * @param yc
-     * @param regionSize
      */
     public void setRegion(
         final double xc,
