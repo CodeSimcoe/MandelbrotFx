@@ -8,6 +8,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.13.4</junit.version>
         <javafx.version>24.0.2</javafx.version>
+        <jmh.version>1.37</jmh.version>
     </properties>
 
     <dependencies>
@@ -26,6 +27,19 @@
             <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-generator-annprocess -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -35,24 +49,13 @@
                 <version>3.14.0</version>
                 <configuration>
                     <release>24</release>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>MandelbrotFx/com.codesimcoe.mandelbrotfx.MandelbrotMain</mainClass>
-                    <options>
-                        <option>--enable-preview</option>
-                    </options>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.openjdk.jmh</groupId>
+                            <artifactId>jmh-generator-annprocess</artifactId>
+                            <version>${jmh.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>

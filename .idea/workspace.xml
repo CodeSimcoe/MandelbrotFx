@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa3a929a-ecd2-408c-b403-d62db9f43cc1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/music/ambient-1.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/music/ambient-2.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/music/Music.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/benchmark/MandelbrotBenchmark.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
@@ -65,6 +63,8 @@
   "keyToString": {
     "Application.MandelbrotMain.executor": "Run",
     "Attach to process.localhost:5005.executor": "ProcessAttachDebug",
+    "Jmh.MandelbrotBenchmark.*.executor": "Run",
+    "Jmh.MandelbrotBenchmark.computeMandelbrotParallel$.executor": "Run",
     "Maven.mandelbrot-fx [clean].executor": "Run",
     "Maven.mandelbrot-fx [compile].executor": "Run",
     "Maven.mandelbrot-fx [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
@@ -81,7 +81,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "Errors"
+    "settings.editor.selected.configurable": "inlay.hints"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -96,7 +96,7 @@
       <recent name="com.codesimcoe.mandelbrotfx.palette" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.MandelbrotMain">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="MandelbrotFx" />
       <method v="2">
@@ -123,9 +123,23 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="MandelbrotBenchmark.*" type="jmh-id" temporary="true" program-parameters="com.codesimcoe.mandelbrotfx.benchmark.MandelbrotBenchmark.*" working-dir="$MODULE_WORKING_DIR$" benchmark-type="CLASS" benchmark-class="com.codesimcoe.mandelbrotfx.benchmark.MandelbrotBenchmark" isAlternativeJrePathEnabled="false">
+      <module name="mandelbrot-fx" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MandelbrotBenchmark.computeMandelbrotParallel$" type="jmh-id" temporary="true" program-parameters="com.codesimcoe.mandelbrotfx.benchmark.MandelbrotBenchmark.computeMandelbrotParallel$" working-dir="$MODULE_WORKING_DIR$" benchmark-type="METHOD" benchmark-class="com.codesimcoe.mandelbrotfx.benchmark.MandelbrotBenchmark" isAlternativeJrePathEnabled="false">
+      <module name="mandelbrot-fx" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.MandelbrotMain" />
+        <item itemvalue="Jmh.MandelbrotBenchmark.*" />
+        <item itemvalue="Jmh.MandelbrotBenchmark.computeMandelbrotParallel$" />
       </list>
     </recent_temporary>
   </component>

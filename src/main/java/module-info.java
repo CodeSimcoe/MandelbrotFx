@@ -3,6 +3,8 @@ module MandelbrotFx {
   requires javafx.controls;
   requires javafx.media;
 
+  requires jmh.core;
+
   exports com.codesimcoe.mandelbrotfx;
   exports com.codesimcoe.mandelbrotfx.fractal;
 }

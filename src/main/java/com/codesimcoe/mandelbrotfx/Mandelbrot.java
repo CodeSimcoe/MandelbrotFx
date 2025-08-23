@@ -13,10 +13,12 @@ import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
 import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.SpectrumColorPalette;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
@@ -76,6 +78,8 @@ public class Mandelbrot {
 
   // Music
   private final ObjectProperty<NamedMusic> musicProperty = new SimpleObjectProperty<>();
+
+  private final DoubleProperty musicVolumeProperty = new SimpleDoubleProperty(0.5);
 
   // Image size, in pixels
   private final int width;
@@ -188,7 +192,7 @@ public class Mandelbrot {
 
     // Max iterations
     Label maxIterationsLabel = new Label("Max iterations");
-    Slider maxIterationsSlider = this.newSlider(1, 1_000, 0, 100, this.max);
+    Slider maxIterationsSlider = newSlider(0, 1_000, 100, this.max);
     this.max.addListener((_, _, newValue) -> {
       this.colors = this.colorPalette.get().computeColors(newValue.intValue());
       this.computeColors();
@@ -197,7 +201,7 @@ public class Mandelbrot {
 
     // Color offset
     Label colorOffsetLabel = new Label("Color offset");
-    Slider colorOffsetSlider = this.newSlider(0, max, 0, 64, this.colorOffsetProperty);
+    Slider colorOffsetSlider = newSlider(0, max, 64, this.colorOffsetProperty);
     this.colorOffsetProperty.addListener((_, _, _) -> {
       this.computeColors();
       this.drawImage();
@@ -226,15 +230,18 @@ public class Mandelbrot {
       this.createMediaPlayer();
     });
 
-    Button playPauseButton = new Button("Play");
-    playPauseButton.setOnAction(e -> {
+    Label musicVolumeLabel = new Label("Volume");
+    Slider musicVolumeSlider = newSlider(0, 1, .25, this.musicVolumeProperty);
+
+    Button playPauseButton = new Button("▶ Play");
+    playPauseButton.setOnAction(_ -> {
       if (this.musicPlaying) {
         this.mediaPlayer.pause();
-        playPauseButton.setText("Play");
+        playPauseButton.setText("▶ Play");
         this.musicPlaying = false;
       } else {
         this.mediaPlayer.play();
-        playPauseButton.setText("Pause");
+        playPauseButton.setText("⏸ Pause");
         this.musicPlaying = true;
       }
     });
@@ -258,6 +265,8 @@ public class Mandelbrot {
 
       ambientMusicLabel,
       musicSelectionComboBox,
+      musicVolumeLabel,
+      musicVolumeSlider,
       playPauseButton
     );
     settingsBox.setPadding(new Insets(5));
@@ -281,16 +290,32 @@ public class Mandelbrot {
 
     // Zoom in and out
     canvas.setOnScroll(e -> {
+      double mouseX = e.getX();
+      double mouseY = e.getY();
+
+      // Step 1: fractal coordinates under mouse before zoom
+      double fxBefore = this.xPixelsToValue(mouseX);
+      double fyBefore = this.yPixelsToValue(mouseY);
+
+      // Step 2: zoom
       if (e.getDeltaY() > 0) {
         this.zoomIn();
       } else {
-        if (this.regionSize < Configuration.MAX_REGION_SIZE) {
-          this.zoomOut();
-        }
+        if (this.regionSize >= Configuration.MAX_REGION_SIZE) return;
+        this.zoomOut();
       }
+
+      // Step 3: fractal coordinates under mouse after zoom
+      double fxAfter = this.xPixelsToValue(mouseX);
+      double fyAfter = this.yPixelsToValue(mouseY);
+
+      // Step 4: adjust center so the point stays under the mouse
+      this.xc += fxBefore - fxAfter;
+      this.yc += fyBefore - fyAfter;
 
       this.update();
     });
+
   }
 
   private void reset() {
@@ -350,21 +375,18 @@ public class Mandelbrot {
     int max = this.max.get();
 
     // Parallelize computations
-    IntStream.range(0, this.width)
+    // Cache locality : order matters
+    IntStream.range(0, this.height)
       .parallel()
-      .forEach(x -> {
-        double x0 = this.xPixelsToValue(x);
-
-        for (int y = 0; y < this.height; y++) {
-          double y0 = this.yPixelsToValue(y);
-
-          // Compute iterations
+      .forEach(y -> {
+        double y0 = this.yPixelsToValue(y);
+        for (int x = 0; x < this.width; x++) {
+          double x0 = this.xPixelsToValue(x);
           int iterations = algorithm.compute(x0, y0, max);
-
-          // Store result for this pixel
           this.iterationsPixels[x][y] = iterations;
         }
       });
+
 
     this.computeColors();
     this.drawImage();
@@ -373,6 +395,8 @@ public class Mandelbrot {
   private void computeColors() {
 
     int max = this.max.get();
+
+    if (max == 0) return;
 
     // Determine color
     // Apply offset
@@ -421,11 +445,10 @@ public class Mandelbrot {
     }
   }
 
-  private Slider newSlider(
+  private static Slider newSlider(
     final double min,
     final double max,
-    final int minorTickCount,
-    final int majorTickUnit,
+    final double majorTickUnit,
     final Property<Number> property) {
 
     Slider slider = new Slider();
@@ -433,7 +456,7 @@ public class Mandelbrot {
     slider.setMin(min);
     slider.setMax(max);
 
-    slider.setMinorTickCount(minorTickCount);
+    slider.setMinorTickCount(0);
     slider.setMajorTickUnit(majorTickUnit);
 
     slider.setShowTickMarks(true);
@@ -447,6 +470,7 @@ public class Mandelbrot {
   private void createMediaPlayer() {
     this.mediaPlayer = new MediaPlayer(this.musicProperty.get().media());
     this.mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+    this.mediaPlayer.volumeProperty().bind(this.musicVolumeProperty);
     if (this.musicPlaying) {
       this.mediaPlayer.play();
     }
