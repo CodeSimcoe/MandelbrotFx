@@ -10,6 +10,7 @@ public final class Configuration {
   public static final double MAX_REGION_SIZE = 64;
 
   public static final int DEFAULT_MAX_ITERATIONS = 255;
+  public static final double DEFAULT_ZOOM_FACTOR = 2;
 
   private Configuration() {
     //

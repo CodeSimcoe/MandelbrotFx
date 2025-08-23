@@ -34,30 +34,15 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
-import java.io.File;
 import java.util.stream.IntStream;
 
 /**
  * Aims at having a fast rendering, at the cost of low precision
  */
 public class Mandelbrot {
-
-  record NamedMusic(String name, Media media) implements Named {
-    NamedMusic(final String name, final String path) {
-      this(name, new Media(new File(path).toURI().toString()));
-    }
-
-    @Override
-    public String getName() {
-      return this.name;
-    }
-  }
-
-  private static final double ZOOM_FACTOR = 2;
 
   private final BorderPane root;
 
@@ -69,6 +54,12 @@ public class Mandelbrot {
 
   // Display position
   private final BooleanProperty displayPosition = new SimpleBooleanProperty(true);
+
+  // Zoom mode
+  private final ObjectProperty<ZoomMode> zoomModeProperty = new SimpleObjectProperty<>(ZoomMode.CENTER);
+
+  // Zoom factor
+  private final DoubleProperty zoomFactorProperty = new SimpleDoubleProperty(Configuration.DEFAULT_ZOOM_FACTOR);
 
   // Max algorithm iterations
   private final IntegerProperty max = new SimpleIntegerProperty();
@@ -177,6 +168,26 @@ public class Mandelbrot {
     fractalComboBox.valueProperty().bindBidirectional(this.fractal);
     fractalComboBox.valueProperty().addListener((_, _, _) -> this.reset());
 
+    // Max iterations
+    Label maxIterationsLabel = new Label("Max iterations");
+    Slider maxIterationsSlider = newSlider(0, 1_000, 100, this.max);
+    this.max.addListener((_, _, newValue) -> {
+      this.colors = this.colorPalette.get().computeColors(newValue.intValue());
+      this.computeColors();
+      this.update();
+    });
+
+    // Zoom mode
+    Label zoomModeLabel = new Label("Zoom mode");
+    ComboBox<ZoomMode> zoomModeComboBox = new ComboBox<>();
+    zoomModeComboBox.setConverter(new NamedConverter<>());
+    zoomModeComboBox.getItems().setAll(ZoomMode.values());
+    zoomModeComboBox.valueProperty().bindBidirectional(this.zoomModeProperty);
+
+    // Zoom factor
+    Label zoomFactorLabel = new Label("Zoom factor");
+    Slider zoomFactorSlider = newSlider(1, 4, 1, this.zoomFactorProperty);
+
     // Color palette
     Label colorPaletteLabel = new Label("Color palette");
     ComboBox<ColorPalette> colorPaletteComboBox = new ComboBox<>();
@@ -188,15 +199,6 @@ public class Mandelbrot {
       this.colors = newValue.computeColors(this.max.get());
       this.computeColors();
       this.drawImage();
-    });
-
-    // Max iterations
-    Label maxIterationsLabel = new Label("Max iterations");
-    Slider maxIterationsSlider = newSlider(0, 1_000, 100, this.max);
-    this.max.addListener((_, _, newValue) -> {
-      this.colors = this.colorPalette.get().computeColors(newValue.intValue());
-      this.computeColors();
-      this.update();
     });
 
     // Color offset
@@ -251,11 +253,17 @@ public class Mandelbrot {
       fractalAlgorithmLabel,
       fractalComboBox,
 
-      colorPaletteLabel,
-      colorPaletteComboBox,
-
       maxIterationsLabel,
       maxIterationsSlider,
+
+      zoomModeLabel,
+      zoomModeComboBox,
+
+      zoomFactorLabel,
+      zoomFactorSlider,
+
+      colorPaletteLabel,
+      colorPaletteComboBox,
 
       colorOffsetLabel,
       colorOffsetSlider,
@@ -290,32 +298,49 @@ public class Mandelbrot {
 
     // Zoom in and out
     canvas.setOnScroll(e -> {
-      double mouseX = e.getX();
-      double mouseY = e.getY();
 
-      // Step 1: fractal coordinates under mouse before zoom
-      double fxBefore = this.xPixelsToValue(mouseX);
-      double fyBefore = this.yPixelsToValue(mouseY);
-
-      // Step 2: zoom
-      if (e.getDeltaY() > 0) {
-        this.zoomIn();
-      } else {
-        if (this.regionSize >= Configuration.MAX_REGION_SIZE) return;
-        this.zoomOut();
+      boolean zoomIn = e.getDeltaY() > 0;
+      if (!zoomIn && this.regionSize >= Configuration.MAX_REGION_SIZE) {
+        // Prevent zooming out too far
+        return;
       }
 
-      // Step 3: fractal coordinates under mouse after zoom
-      double fxAfter = this.xPixelsToValue(mouseX);
-      double fyAfter = this.yPixelsToValue(mouseY);
-
-      // Step 4: adjust center so the point stays under the mouse
-      this.xc += fxBefore - fxAfter;
-      this.yc += fyBefore - fyAfter;
+      switch (this.zoomModeProperty.get()) {
+        case CENTER -> this.zoomOnCenter(zoomIn);
+        case POINTER -> this.zoomOnPointer(e.getX(), e.getY(), zoomIn);
+      }
 
       this.update();
     });
+  }
 
+  private void zoomOnCenter(final boolean zoomIn) {
+    if (zoomIn) {
+      this.zoomIn();
+    } else {
+      this.zoomOut();
+    }
+  }
+
+  private void zoomOnPointer(final double mouseX, final double mouseY, final boolean zoomIn) {
+    // Step 1: fractal coordinates under mouse before zoom
+    double fxBefore = this.xPixelsToValue(mouseX);
+    double fyBefore = this.yPixelsToValue(mouseY);
+
+    // Step 2: zoom
+    if (zoomIn) {
+      this.zoomIn();
+    } else {
+      this.zoomOut();
+    }
+
+    // Step 3: fractal coordinates under mouse after zoom
+    double fxAfter = this.xPixelsToValue(mouseX);
+    double fyAfter = this.yPixelsToValue(mouseY);
+
+    // Step 4: adjust center so the point stays under the mouse
+    this.xc += fxBefore - fxAfter;
+    this.yc += fyBefore - fyAfter;
   }
 
   private void reset() {
@@ -339,11 +364,11 @@ public class Mandelbrot {
   }
 
   private void zoomIn() {
-    this.regionSize /= ZOOM_FACTOR;
+    this.regionSize /= this.zoomFactorProperty.get();
   }
 
   private void zoomOut() {
-    this.regionSize *= ZOOM_FACTOR;
+    this.regionSize *= this.zoomFactorProperty.get();
   }
 
   // Concert a pixel abscissa position to "real" mathematical value
