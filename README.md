@@ -24,3 +24,4 @@ Multiple fractal algorithms are available :
 ![](pictures/pic7.png)
 ![](pictures/pic8.png)
 ![](pictures/pic9.png)
+![](pictures/pic10.png)

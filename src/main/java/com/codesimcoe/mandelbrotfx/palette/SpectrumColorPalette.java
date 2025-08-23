@@ -2,13 +2,18 @@ package com.codesimcoe.mandelbrotfx.palette;
 
 import javafx.scene.paint.Color;
 
-public enum SpectrumColorPalette implements ColorPalette {
+public class SpectrumColorPalette implements ColorPalette {
 
-  INSTANCE;
+  private static final Color[] KEY_COLORS = { Color.RED, Color.GREEN, Color.BLUE, Color.BLACK };
 
   @Override
   public String getName() {
     return "Spectrum";
+  }
+
+  @Override
+  public Color[] getKeyColors() {
+    return KEY_COLORS;
   }
 
   @Override

@@ -1,6 +1,5 @@
 package com.codesimcoe.mandelbrotfx;
 
-import com.codesimcoe.mandelbrotfx.component.PaletteButtonCell;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
 import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
@@ -110,8 +109,8 @@ public class Mandelbrot {
 
     // Color palettes
     ColorPalette[] palettes = {
-      SpectrumColorPalette.INSTANCE,
-      GrayscaleColorPalette.INSTANCE,
+      new SpectrumColorPalette(),
+      new GrayscaleColorPalette(),
       GradientColorPalettes.BLUE_ORANGE,
       GradientColorPalettes.OCEAN,
       GradientColorPalettes.SUNSET,
@@ -149,7 +148,6 @@ public class Mandelbrot {
     ComboBox<ColorPalette> colorPaletteComboBox = new ComboBox<>();
     colorPaletteComboBox.setConverter(new NamedConverter<>());
     PaletteCellFactory.apply(colorPaletteComboBox);
-    colorPaletteComboBox.setButtonCell(new PaletteButtonCell());
     colorPaletteComboBox.getItems().setAll(palettes);
     colorPaletteComboBox.valueProperty().bindBidirectional(this.colorPalette);
     colorPaletteComboBox.valueProperty().addListener((_, _, newValue) -> {
@@ -213,7 +211,7 @@ public class Mandelbrot {
     this.colors = this.colorPalette.get().computeColors(max);
 
     // Actions
-    this.root.setOnMousePressed(e -> {
+    canvas.setOnMousePressed(e -> {
       if (e.isPrimaryButtonDown()) {
         // Move
         this.move(e.getX(), e.getY());
@@ -221,11 +219,13 @@ public class Mandelbrot {
     });
 
     // Zoom in and out
-    this.root.setOnScroll(e -> {
+    canvas.setOnScroll(e -> {
       if (e.getDeltaY() > 0) {
         this.zoomIn();
       } else {
-        this.zoomOut();
+        if (this.regionSize < Configuration.MAX_REGION_SIZE) {
+          this.zoomOut();
+        }
       }
 
       this.update();

@@ -10,6 +10,11 @@ public record GradientColorPalette(String name, Color[] keyColors) implements Co
   }
 
   @Override
+  public Color[] getKeyColors() {
+    return this.keyColors;
+  }
+
+  @Override
   public int[] computeColors(final int numColors) {
     // Generate a smooth gradient with as many colors as iterations
     Color[] gradient = this.createSmoothGradient(numColors + 1);

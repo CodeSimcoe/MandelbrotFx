@@ -1,12 +1,19 @@
 package com.codesimcoe.mandelbrotfx.palette;
 
-public enum GrayscaleColorPalette implements ColorPalette {
+import javafx.scene.paint.Color;
 
-  INSTANCE;
+public class GrayscaleColorPalette implements ColorPalette {
+
+  private static final Color[] KEY_COLORS = { Color.WHITE, Color.GRAY, Color.BLACK };
 
   @Override
   public String getName() {
     return "Grayscale";
+  }
+
+  @Override
+  public Color[] getKeyColors() {
+    return KEY_COLORS;
   }
 
   @Override
