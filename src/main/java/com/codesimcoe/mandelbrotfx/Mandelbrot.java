@@ -1,11 +1,13 @@
 package com.codesimcoe.mandelbrotfx;
 
+import com.codesimcoe.mandelbrotfx.component.PaletteButtonCell;
+import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
-import com.codesimcoe.mandelbrotfx.palette.BlueOrangeGradientColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
-import com.codesimcoe.mandelbrotfx.palette.OceanGradientColorPalette;
+import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
+import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.SpectrumColorPalette;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -103,8 +105,15 @@ public class Mandelbrot {
     // Color palettes
     ColorPalette[] palettes = {
       SpectrumColorPalette.INSTANCE,
-      OceanGradientColorPalette.INSTANCE,
-      BlueOrangeGradientColorPalette.INSTANCE
+      GrayscaleColorPalette.INSTANCE,
+      GradientColorPalettes.BLUE_ORANGE,
+      GradientColorPalettes.OCEAN,
+      GradientColorPalettes.SUNSET,
+      GradientColorPalettes.NEON,
+      GradientColorPalettes.NATURE,
+      GradientColorPalettes.COFFEE,
+      GradientColorPalettes.TROPICAL,
+      GradientColorPalettes.MOON
     };
     this.colorPalette.set(palettes[0]);
 
@@ -133,6 +142,8 @@ public class Mandelbrot {
     Label colorPaletteLabel = new Label("Color palette");
     ComboBox<ColorPalette> colorPaletteComboBox = new ComboBox<>();
     colorPaletteComboBox.setConverter(new NamedConverter<>());
+    PaletteCellFactory.apply(colorPaletteComboBox);
+    colorPaletteComboBox.setButtonCell(new PaletteButtonCell());
     colorPaletteComboBox.getItems().setAll(palettes);
     colorPaletteComboBox.valueProperty().bindBidirectional(this.colorPalette);
     colorPaletteComboBox.valueProperty().addListener((_, _, newValue) -> {

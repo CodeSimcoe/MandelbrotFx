@@ -2,13 +2,11 @@ package com.codesimcoe.mandelbrotfx.palette;
 
 import javafx.scene.paint.Color;
 
-public enum BlueOrangeGradientColorPalette implements ColorPalette {
-
-  INSTANCE;
+public record GradientColorPalette(String name, Color[] keyColors) implements ColorPalette {
 
   @Override
   public String getName() {
-    return "Blue-Orange gradient";
+    return this.name;
   }
 
   @Override
@@ -33,23 +31,16 @@ public enum BlueOrangeGradientColorPalette implements ColorPalette {
 
   private Color[] createSmoothGradient(final int numColors) {
     Color[] gradient = new Color[numColors];
-    Color[] keyColors = {
-        Color.rgb(0, 7, 100),    // Deep blue
-        Color.rgb(32, 107, 203), // Lighter blue
-        Color.rgb(237, 255, 255),// Near white
-        Color.rgb(255, 170, 0),  // Orange
-        Color.rgb(0, 2, 0)       // Near black/greenish
-    };
 
     for (int i = 0; i < numColors; i++) {
-      double position = (double) i / (numColors - 1) * (keyColors.length - 1);
+      double position = (double) i / (numColors - 1) * (this.keyColors.length - 1);
       int index = (int) position;
       double fraction = position - index;
 
-      if (index >= keyColors.length - 1) {
-        gradient[i] = keyColors[keyColors.length - 1];
+      if (index >= this.keyColors.length - 1) {
+        gradient[i] = this.keyColors[this.keyColors.length - 1];
       } else {
-        gradient[i] = keyColors[index].interpolate(keyColors[index + 1], fraction);
+        gradient[i] = this.keyColors[index].interpolate(this.keyColors[index + 1], fraction);
       }
     }
     return gradient;

@@ -1,5 +1,8 @@
 # Minimalistic Mandelbrot / Julia Set explorer
 
+Left click : move to pointed position
+Mouse wheel : Zoom in / out
+
 ![](pic1.png)
 ![](pic2.png)
 ![](pic3.png)
