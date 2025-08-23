@@ -5,18 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa3a929a-ecd2-408c-b403-d62db9f43cc1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Named.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/NamedConverter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/BlueOrangeGradientColorPalette.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/ColorPalette.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/OceanGradientColorPalette.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/SpectrumColorPalette.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/NamedFractal.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/Fractal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/Fractal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/JuliaFractal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/JuliaFractal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/MandelbrotFractal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/MandelbrotFractal.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pic6.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
