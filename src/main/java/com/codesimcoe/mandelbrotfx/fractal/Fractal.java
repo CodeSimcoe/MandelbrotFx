@@ -1,5 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-public sealed interface Fractal permits MandelbrotFractal, JuliaFractal {
+import com.codesimcoe.mandelbrotfx.Named;
+
+public interface Fractal extends Named {
   int compute(double x, double y, int max);
 }

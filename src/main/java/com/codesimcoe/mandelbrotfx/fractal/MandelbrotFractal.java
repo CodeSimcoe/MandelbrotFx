@@ -5,6 +5,11 @@ public enum MandelbrotFractal implements Fractal {
   INSTANCE;
 
   @Override
+  public String getName() {
+    return "Mandelbrot";
+  }
+
+  @Override
   public int compute(final double x0, final double y0, final int max) {
 
     double x = 0;

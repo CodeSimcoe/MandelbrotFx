@@ -1,6 +1,11 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-public record JuliaFractal(double x0, double y0) implements Fractal {
+public record JuliaFractal(String name, double x0, double y0) implements Fractal {
+
+  @Override
+  public String getName() {
+    return this.name;
+  }
 
   @Override
   public int compute(final double x, final double y, final int max) {

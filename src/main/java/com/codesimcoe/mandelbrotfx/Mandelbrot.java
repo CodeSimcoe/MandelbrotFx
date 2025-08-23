@@ -3,6 +3,10 @@ package com.codesimcoe.mandelbrotfx;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.palette.BlueOrangeGradientColorPalette;
+import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
+import com.codesimcoe.mandelbrotfx.palette.OceanGradientColorPalette;
+import com.codesimcoe.mandelbrotfx.palette.SpectrumColorPalette;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -24,7 +28,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.util.StringConverter;
 
 import java.util.stream.IntStream;
 
@@ -38,7 +41,10 @@ public class Mandelbrot {
   private final BorderPane root;
 
   // Used fractal algorithm
-  private final ObjectProperty<NamedFractal> fractal = new SimpleObjectProperty<>();
+  private final ObjectProperty<Fractal> fractal = new SimpleObjectProperty<>();
+
+  // Used color palette
+  private final ObjectProperty<ColorPalette> colorPalette = new SimpleObjectProperty<>();
 
   // Display position
   private final BooleanProperty displayPosition = new SimpleBooleanProperty(true);
@@ -80,19 +86,27 @@ public class Mandelbrot {
     final int max) {
 
     // Fractals
-    NamedFractal[] fractals = {
-      new NamedFractal("Mandelbrot", MandelbrotFractal.INSTANCE),
-      new NamedFractal("Julia - Dragon", new JuliaFractal(-0.8, 0.156)),
-      new NamedFractal("Julia - Rabbit", new JuliaFractal(-0.123, 0.745)),
-      new NamedFractal("Julia - Feather", new JuliaFractal(-0.4, 0.6)),
-      new NamedFractal("Julia - Spiral", new JuliaFractal(0.285, 0.01)),
-      new NamedFractal("Julia - Seahorse tail", new JuliaFractal(-0.70176, -0.3842)),
-      new NamedFractal("Julia - Siegel Disk", new JuliaFractal(-0.391, -0.587)),
-      new NamedFractal("Julia - San Marco", new JuliaFractal(-0.75, 0)),
-      new NamedFractal("Julia - Dendrite", new JuliaFractal(0, 1)),
+    Fractal[] fractals = {
+      MandelbrotFractal.INSTANCE,
+      new JuliaFractal("Julia - Dragon", -0.8, 0.156),
+      new JuliaFractal("Julia - Rabbit", -0.123, 0.745),
+      new JuliaFractal("Julia - Feather", -0.4, 0.6),
+      new JuliaFractal("Julia - Spiral", 0.285, 0.01),
+      new JuliaFractal("Julia - Seahorse tail", -0.70176, -0.3842),
+      new JuliaFractal("Julia - Siegel Disk", -0.391, -0.587),
+      new JuliaFractal("Julia - San Marco", -0.75, 0),
+      new JuliaFractal("Julia - Dendrite", 0, 1)
     };
 
     this.fractal.set(fractals[0]);
+
+    // Color palettes
+    ColorPalette[] palettes = {
+      SpectrumColorPalette.INSTANCE,
+      OceanGradientColorPalette.INSTANCE,
+      BlueOrangeGradientColorPalette.INSTANCE
+    };
+    this.colorPalette.set(palettes[0]);
 
     this.width = width;
     this.height = height;
@@ -109,27 +123,29 @@ public class Mandelbrot {
 
     // Algorithm
     Label fractalAlgorithmLabel = new Label("Algorithm");
-    ComboBox<NamedFractal> fractalComboBox = new ComboBox<>();
-    fractalComboBox.setConverter(new StringConverter<>() {
-      @Override
-      public String toString(final NamedFractal namedFractal) {
-        return namedFractal.name();
-      }
-
-      @Override
-      public NamedFractal fromString(final String s) {
-        return null;
-      }
-    });
-    fractalComboBox.getItems().addAll(fractals);
+    ComboBox<Fractal> fractalComboBox = new ComboBox<>();
+    fractalComboBox.setConverter(new NamedConverter<>());
+    fractalComboBox.getItems().setAll(fractals);
     fractalComboBox.valueProperty().bindBidirectional(this.fractal);
     fractalComboBox.valueProperty().addListener((_, _, _) -> this.reset());
+
+    // Color palette
+    Label colorPaletteLabel = new Label("Color palette");
+    ComboBox<ColorPalette> colorPaletteComboBox = new ComboBox<>();
+    colorPaletteComboBox.setConverter(new NamedConverter<>());
+    colorPaletteComboBox.getItems().setAll(palettes);
+    colorPaletteComboBox.valueProperty().bindBidirectional(this.colorPalette);
+    colorPaletteComboBox.valueProperty().addListener((_, _, newValue) -> {
+      this.colors = newValue.computeColors(this.max.get());
+      this.computeColors();
+      this.drawImage();
+    });
 
     // Max iterations
     Label maxIterationsLabel = new Label("Max iterations");
     Slider maxIterationsSlider = this.newSlider(1, 1_000, 0, 100, this.max);
     this.max.addListener((_, _, newValue) -> {
-      this.colors = initializeColors(newValue.intValue());
+      this.colors = this.colorPalette.get().computeColors(newValue.intValue());
       this.computeColors();
       this.update();
     });
@@ -155,10 +171,16 @@ public class Mandelbrot {
       5,
       fractalAlgorithmLabel,
       fractalComboBox,
+
+      colorPaletteLabel,
+      colorPaletteComboBox,
+
       maxIterationsLabel,
       maxIterationsSlider,
+
       colorOffsetLabel,
       colorOffsetSlider,
+
       resetPositionButton,
       displayPositionCheckBox
     );
@@ -171,7 +193,7 @@ public class Mandelbrot {
     this.root.setRight(settingsBox);
 
     // Initialize and cache all available colors
-    this.colors = initializeColors(max);
+    this.colors = this.colorPalette.get().computeColors(max);
 
     // Actions
     this.root.setOnMousePressed(e -> {
@@ -191,25 +213,6 @@ public class Mandelbrot {
 
       this.update();
     });
-  }
-
-  private static int[] initializeColors(final int max) {
-    int[] colors = new int[max + 1];
-    for (int i = 0; i <= max; i++) {
-      double hue = 360.0 * i / max;
-      double brightness = (i == max) ? 0 : 1;
-      Color color = Color.hsb(hue, 1, brightness);
-
-      int a = 255;
-      int r = (int) (color.getRed() * 255);
-      int g = (int) (color.getGreen() * 255);
-      int b = (int) (color.getBlue() * 255);
-
-      int argb = (a << 24) | (r << 16) | (g << 8) | b;
-
-      colors[i] = argb;
-    }
-    return colors;
   }
 
   private void reset() {
@@ -265,7 +268,7 @@ public class Mandelbrot {
 
   public void update() {
 
-    Fractal algorithm = this.fractal.get().fractal();
+    Fractal algorithm = this.fractal.get();
     int max = this.max.get();
 
     // Parallelize computations
