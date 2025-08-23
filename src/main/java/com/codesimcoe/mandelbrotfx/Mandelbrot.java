@@ -2,9 +2,12 @@ package com.codesimcoe.mandelbrotfx;
 
 import com.codesimcoe.mandelbrotfx.component.PaletteButtonCell;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
+import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
+import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.TricornFractal;
 import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
 import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
@@ -90,6 +93,9 @@ public class Mandelbrot {
     // Fractals
     Fractal[] fractals = {
       MandelbrotFractal.INSTANCE,
+      BurningShipFractal.INSTANCE,
+      TricornFractal.INSTANCE,
+      CelticFractal.INSTANCE,
       new JuliaFractal("Julia - Dragon", -0.8, 0.156),
       new JuliaFractal("Julia - Rabbit", -0.123, 0.745),
       new JuliaFractal("Julia - Feather", -0.4, 0.6),
@@ -97,7 +103,7 @@ public class Mandelbrot {
       new JuliaFractal("Julia - Seahorse tail", -0.70176, -0.3842),
       new JuliaFractal("Julia - Siegel Disk", -0.391, -0.587),
       new JuliaFractal("Julia - San Marco", -0.75, 0),
-      new JuliaFractal("Julia - Dendrite", 0, 1)
+      new JuliaFractal("Julia - Dendrite", 0, 1),
     };
 
     this.fractal.set(fractals[0]);
