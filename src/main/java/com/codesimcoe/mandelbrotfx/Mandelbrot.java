@@ -7,6 +7,7 @@ import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.TricornFractal;
+import com.codesimcoe.mandelbrotfx.music.Music;
 import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
 import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
@@ -31,14 +32,28 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
+import java.io.File;
 import java.util.stream.IntStream;
 
 /**
  * Aims at having a fast rendering, at the cost of low precision
  */
 public class Mandelbrot {
+
+  record NamedMusic(String name, Media media) implements Named {
+    NamedMusic(final String name, final String path) {
+      this(name, new Media(new File(path).toURI().toString()));
+    }
+
+    @Override
+    public String getName() {
+      return this.name;
+    }
+  }
 
   private static final double ZOOM_FACTOR = 2;
 
@@ -58,6 +73,9 @@ public class Mandelbrot {
 
   // Color offset
   private final IntegerProperty colorOffsetProperty = new SimpleIntegerProperty();
+
+  // Music
+  private final ObjectProperty<NamedMusic> musicProperty = new SimpleObjectProperty<>();
 
   // Image size, in pixels
   private final int width;
@@ -83,6 +101,10 @@ public class Mandelbrot {
 
   // Cached colors (int argb values)
   private int[] colors;
+
+  // Media player
+  private MediaPlayer mediaPlayer;
+  private boolean musicPlaying = false;
 
   public Mandelbrot(
     final int width,
@@ -127,6 +149,14 @@ public class Mandelbrot {
     this.max.set(max);
 
     this.iterationsPixels = new int[this.width][this.height];
+
+    // Music
+    NamedMusic[] musics = {
+      new NamedMusic("Ambient 1", Music.MUSIC_AMBIENT_1),
+      new NamedMusic("Ambient 2", Music.MUSIC_AMBIENT_2)
+    };
+    this.musicProperty.set(musics[0]);
+    this.createMediaPlayer();
 
     // Image
     this.imagePixels = new int[width * height];
@@ -182,6 +212,33 @@ public class Mandelbrot {
     displayPositionCheckBox.selectedProperty().bindBidirectional(this.displayPosition);
     displayPositionCheckBox.selectedProperty().addListener((_, _, _) -> this.drawImage());
 
+    // Music
+    Label ambientMusicLabel = new Label("Ambient music");
+
+    // ComboBox to select music
+    ComboBox<NamedMusic> musicSelectionComboBox = new ComboBox<>();
+    musicSelectionComboBox.getItems().setAll(musics);
+    musicSelectionComboBox.valueProperty().bindBidirectional(this.musicProperty);
+    musicSelectionComboBox.setConverter(new NamedConverter<>());
+    musicSelectionComboBox.setOnAction(_ -> {
+      // Stop current track
+      this.mediaPlayer.stop();
+      this.createMediaPlayer();
+    });
+
+    Button playPauseButton = new Button("Play");
+    playPauseButton.setOnAction(e -> {
+      if (this.musicPlaying) {
+        this.mediaPlayer.pause();
+        playPauseButton.setText("Play");
+        this.musicPlaying = false;
+      } else {
+        this.mediaPlayer.play();
+        playPauseButton.setText("Pause");
+        this.musicPlaying = true;
+      }
+    });
+
     VBox settingsBox = new VBox(
       5,
       fractalAlgorithmLabel,
@@ -197,7 +254,11 @@ public class Mandelbrot {
       colorOffsetSlider,
 
       resetPositionButton,
-      displayPositionCheckBox
+      displayPositionCheckBox,
+
+      ambientMusicLabel,
+      musicSelectionComboBox,
+      playPauseButton
     );
     settingsBox.setPadding(new Insets(5));
     settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
@@ -381,5 +442,13 @@ public class Mandelbrot {
     slider.valueProperty().bindBidirectional(property);
 
     return slider;
+  }
+
+  private void createMediaPlayer() {
+    this.mediaPlayer = new MediaPlayer(this.musicProperty.get().media());
+    this.mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+    if (this.musicPlaying) {
+      this.mediaPlayer.play();
+    }
   }
 }

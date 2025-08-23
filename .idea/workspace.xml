@@ -5,17 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa3a929a-ecd2-408c-b403-d62db9f43cc1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pictures/pic10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/music/ambient-1.mp3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/music/ambient-2.mp3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/music/Music.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Configuration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/component/PaletteButtonCell.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/component/PaletteCellFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/component/PaletteCellFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/ColorPalette.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/ColorPalette.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/GradientColorPalette.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/GradientColorPalette.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/GrayscaleColorPalette.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/GrayscaleColorPalette.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/SpectrumColorPalette.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/palette/SpectrumColorPalette.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,30 +61,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.MandelbrotMain.executor&quot;: &quot;Run&quot;,
-    &quot;Attach to process.localhost:5005.executor&quot;: &quot;ProcessAttachDebug&quot;,
-    &quot;Maven.mandelbrot-fx [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.mandelbrot-fx [compile].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.mandelbrot-fx [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/clem/repositories/MandelbrotFx&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.MandelbrotMain.executor": "Run",
+    "Attach to process.localhost:5005.executor": "ProcessAttachDebug",
+    "Maven.mandelbrot-fx [clean].executor": "Run",
+    "Maven.mandelbrot-fx [compile].executor": "Run",
+    "Maven.mandelbrot-fx [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "code.cleanup.on.save": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/clem/repositories/MandelbrotFx/music",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "Errors"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\clem\repositories\MandelbrotFx\music" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\clem\repositories\MandelbrotFx\pictures" />
       <recent name="C:\Users\clem\repositories\MandelbrotFx" />
