@@ -12,6 +12,9 @@ public final class Configuration {
   public static final int DEFAULT_MAX_ITERATIONS = 255;
   public static final double DEFAULT_ZOOM_FACTOR = 2;
 
+  public static final ZoomMode DEFAULT_ZOOM_MODE = ZoomMode.POINTER;
+  public static final double DEFAULT_MUSIC_VOLUME = .5;
+
   private Configuration() {
     //
   }

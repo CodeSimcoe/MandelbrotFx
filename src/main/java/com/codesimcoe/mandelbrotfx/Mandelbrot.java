@@ -1,11 +1,13 @@
 package com.codesimcoe.mandelbrotfx;
 
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
+import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
 import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.PhoenixFractal;
 import com.codesimcoe.mandelbrotfx.fractal.TricornFractal;
 import com.codesimcoe.mandelbrotfx.music.Music;
 import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
@@ -56,7 +58,7 @@ public class Mandelbrot {
   private final BooleanProperty displayPosition = new SimpleBooleanProperty(true);
 
   // Zoom mode
-  private final ObjectProperty<ZoomMode> zoomModeProperty = new SimpleObjectProperty<>(ZoomMode.CENTER);
+  private final ObjectProperty<ZoomMode> zoomModeProperty = new SimpleObjectProperty<>(Configuration.DEFAULT_ZOOM_MODE);
 
   // Zoom factor
   private final DoubleProperty zoomFactorProperty = new SimpleDoubleProperty(Configuration.DEFAULT_ZOOM_FACTOR);
@@ -70,7 +72,7 @@ public class Mandelbrot {
   // Music
   private final ObjectProperty<NamedMusic> musicProperty = new SimpleObjectProperty<>();
 
-  private final DoubleProperty musicVolumeProperty = new SimpleDoubleProperty(0.5);
+  private final DoubleProperty musicVolumeProperty = new SimpleDoubleProperty(Configuration.DEFAULT_MUSIC_VOLUME);
 
   // Image size, in pixels
   private final int width;
@@ -110,6 +112,7 @@ public class Mandelbrot {
     Fractal[] fractals = {
       MandelbrotFractal.INSTANCE,
       BurningShipFractal.INSTANCE,
+      BuffaloFractal.INSTANCE,
       TricornFractal.INSTANCE,
       CelticFractal.INSTANCE,
       new JuliaFractal("Julia - Dragon", -0.8, 0.156),
@@ -120,6 +123,9 @@ public class Mandelbrot {
       new JuliaFractal("Julia - Siegel Disk", -0.391, -0.587),
       new JuliaFractal("Julia - San Marco", -0.75, 0),
       new JuliaFractal("Julia - Dendrite", 0, 1),
+      new PhoenixFractal("Phoenix 0.56667", 0.56667),
+      new PhoenixFractal("Phoenix 0.75", 0.75),
+      new PhoenixFractal("Phoenix 1", 1)
     };
 
     this.fractal.set(fractals[0]);

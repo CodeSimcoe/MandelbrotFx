@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa3a929a-ecd2-408c-b403-d62db9f43cc1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/NamedMusic.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/ZoomMode.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/BuffaloFractal.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/PhoenixFractal.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Configuration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" afterDir="false" />
@@ -19,10 +19,10 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Record" />
         <option value="Interface" />
-        <option value="Class" />
         <option value="Enum" />
+        <option value="Record" />
+        <option value="Class" />
       </list>
     </option>
   </component>
