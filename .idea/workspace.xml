@@ -5,15 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fa3a929a-ecd2-408c-b403-d62db9f43cc1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pic7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pic8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pic9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/BurningShipFractal.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/CelticFractal.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/fractal/TricornFractal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/codesimcoe/mandelbrotfx/Mandelbrot.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic1.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic2.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic3.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic4.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic4.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic5.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic6.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic6.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic7.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic7.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic8.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic8.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pic9.png" beforeDir="false" afterPath="$PROJECT_DIR$/pictures/pic9.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,6 +88,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\clem\repositories\MandelbrotFx\pictures" />
       <recent name="C:\Users\clem\repositories\MandelbrotFx" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">

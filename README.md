@@ -15,12 +15,12 @@ Multiple fractal algorithms are available :
 
 ## Gallery
 
-![](pic1.png)
-![](pic2.png)
-![](pic3.png)
-![](pic4.png)
-![](pic5.png)
-![](pic6.png)
-![](pic7.png)
-![](pic8.png)
-![](pic9.png)
+![](pictures/pic1.png)
+![](pictures/pic2.png)
+![](pictures/pic3.png)
+![](pictures/pic4.png)
+![](pictures/pic5.png)
+![](pictures/pic6.png)
+![](pictures/pic7.png)
+![](pictures/pic8.png)
+![](pictures/pic9.png)
