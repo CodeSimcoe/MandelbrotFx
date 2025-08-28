@@ -26,7 +26,6 @@ public class MandelbrotMain extends Application {
     primaryStage.setScene(scene);
     primaryStage.show();
 
-    mandelbrot.setRegion(Configuration.DEFAULT_XC, Configuration.DEFAULT_YC, Configuration.DEFAULT_SIZE);
     mandelbrot.update();
   }
 }

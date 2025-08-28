@@ -14,30 +14,32 @@ import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
 import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.SpectrumColorPalette;
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.paint.Color;
+import javafx.util.converter.NumberStringConverter;
 
 import java.util.stream.IntStream;
 
@@ -54,8 +56,12 @@ public class Mandelbrot {
   // Used color palette
   private final ObjectProperty<ColorPalette> colorPalette = new SimpleObjectProperty<>();
 
-  // Display position
-  private final BooleanProperty displayPosition = new SimpleBooleanProperty(true);
+  // Region
+  private final RegionProperty regionProperty = new RegionProperty(
+    new SimpleDoubleProperty(),
+    new SimpleDoubleProperty(),
+    new SimpleDoubleProperty()
+  );
 
   // Zoom mode
   private final ObjectProperty<ZoomMode> zoomModeProperty = new SimpleObjectProperty<>(Configuration.DEFAULT_ZOOM_MODE);
@@ -71,19 +77,11 @@ public class Mandelbrot {
 
   // Music
   private final ObjectProperty<NamedMusic> musicProperty = new SimpleObjectProperty<>();
-
   private final DoubleProperty musicVolumeProperty = new SimpleDoubleProperty(Configuration.DEFAULT_MUSIC_VOLUME);
 
   // Image size, in pixels
   private final int width;
   private final int height;
-
-  // Center
-  private double xc;
-  private double yc;
-
-  // Region size
-  private double regionSize;
 
   // Mandelbrot set result
   // Iterations are store for each pixel
@@ -92,8 +90,6 @@ public class Mandelbrot {
   // Image pixel content
   private final int[] imagePixels;
 
-  // Canvas graphics context
-  private final GraphicsContext graphicsContext;
   private final PixelWriter pixelWriter;
 
   // Cached colors (int argb values)
@@ -128,7 +124,9 @@ public class Mandelbrot {
       new PhoenixFractal("Phoenix 1", 1)
     };
 
-    this.fractal.set(fractals[0]);
+    Fractal selectedFractal = fractals[0];
+    this.fractal.set(selectedFractal);
+    this.regionProperty.update(selectedFractal.getDefaultRegion());
 
     // Color palettes
     ColorPalette[] palettes = {
@@ -152,10 +150,10 @@ public class Mandelbrot {
     this.iterationsPixels = new int[this.width][this.height];
 
     // Music
-    NamedMusic[] musics = {
-      new NamedMusic("Ambient 1", Music.MUSIC_AMBIENT_1),
-      new NamedMusic("Ambient 2", Music.MUSIC_AMBIENT_2)
-    };
+    NamedMusic[] musics = Music.MUSICS.entrySet()
+      .stream()
+      .map(e -> new NamedMusic(e.getKey(), e.getValue()))
+      .toArray(NamedMusic[]::new);
     this.musicProperty.set(musics[0]);
     this.createMediaPlayer();
 
@@ -163,128 +161,10 @@ public class Mandelbrot {
     this.imagePixels = new int[width * height];
     Canvas canvas = new Canvas(width, height);
 
-    this.graphicsContext = canvas.getGraphicsContext2D();
-    this.pixelWriter = this.graphicsContext.getPixelWriter();
+    // Canvas graphics context
+    this.pixelWriter = canvas.getGraphicsContext2D().getPixelWriter();
 
-    // Algorithm
-    Label fractalAlgorithmLabel = new Label("Algorithm");
-    ComboBox<Fractal> fractalComboBox = new ComboBox<>();
-    fractalComboBox.setConverter(new NamedConverter<>());
-    fractalComboBox.getItems().setAll(fractals);
-    fractalComboBox.valueProperty().bindBidirectional(this.fractal);
-    fractalComboBox.valueProperty().addListener((_, _, _) -> this.reset());
-
-    // Max iterations
-    Label maxIterationsLabel = new Label("Max iterations");
-    Slider maxIterationsSlider = newSlider(0, 1_000, 100, this.max);
-    this.max.addListener((_, _, newValue) -> {
-      this.colors = this.colorPalette.get().computeColors(newValue.intValue());
-      this.computeColors();
-      this.update();
-    });
-
-    // Zoom mode
-    Label zoomModeLabel = new Label("Zoom mode");
-    ComboBox<ZoomMode> zoomModeComboBox = new ComboBox<>();
-    zoomModeComboBox.setConverter(new NamedConverter<>());
-    zoomModeComboBox.getItems().setAll(ZoomMode.values());
-    zoomModeComboBox.valueProperty().bindBidirectional(this.zoomModeProperty);
-
-    // Zoom factor
-    Label zoomFactorLabel = new Label("Zoom factor");
-    Slider zoomFactorSlider = newSlider(1, 4, 1, this.zoomFactorProperty);
-
-    // Color palette
-    Label colorPaletteLabel = new Label("Color palette");
-    ComboBox<ColorPalette> colorPaletteComboBox = new ComboBox<>();
-    colorPaletteComboBox.setConverter(new NamedConverter<>());
-    PaletteCellFactory.apply(colorPaletteComboBox);
-    colorPaletteComboBox.getItems().setAll(palettes);
-    colorPaletteComboBox.valueProperty().bindBidirectional(this.colorPalette);
-    colorPaletteComboBox.valueProperty().addListener((_, _, newValue) -> {
-      this.colors = newValue.computeColors(this.max.get());
-      this.computeColors();
-      this.drawImage();
-    });
-
-    // Color offset
-    Label colorOffsetLabel = new Label("Color offset");
-    Slider colorOffsetSlider = newSlider(0, max, 64, this.colorOffsetProperty);
-    this.colorOffsetProperty.addListener((_, _, _) -> {
-      this.computeColors();
-      this.drawImage();
-    });
-
-    // Reset
-    Button resetPositionButton = new Button("Reset position");
-    resetPositionButton.setOnAction(_ -> this.reset());
-
-    // Display position
-    CheckBox displayPositionCheckBox = new CheckBox("Display position / scale");
-    displayPositionCheckBox.selectedProperty().bindBidirectional(this.displayPosition);
-    displayPositionCheckBox.selectedProperty().addListener((_, _, _) -> this.drawImage());
-
-    // Music
-    Label ambientMusicLabel = new Label("Ambient music");
-
-    // ComboBox to select music
-    ComboBox<NamedMusic> musicSelectionComboBox = new ComboBox<>();
-    musicSelectionComboBox.getItems().setAll(musics);
-    musicSelectionComboBox.valueProperty().bindBidirectional(this.musicProperty);
-    musicSelectionComboBox.setConverter(new NamedConverter<>());
-    musicSelectionComboBox.setOnAction(_ -> {
-      // Stop current track
-      this.mediaPlayer.stop();
-      this.createMediaPlayer();
-    });
-
-    Label musicVolumeLabel = new Label("Volume");
-    Slider musicVolumeSlider = newSlider(0, 1, .25, this.musicVolumeProperty);
-
-    Button playPauseButton = new Button("▶ Play");
-    playPauseButton.setOnAction(_ -> {
-      if (this.musicPlaying) {
-        this.mediaPlayer.pause();
-        playPauseButton.setText("▶ Play");
-        this.musicPlaying = false;
-      } else {
-        this.mediaPlayer.play();
-        playPauseButton.setText("⏸ Pause");
-        this.musicPlaying = true;
-      }
-    });
-
-    VBox settingsBox = new VBox(
-      5,
-      fractalAlgorithmLabel,
-      fractalComboBox,
-
-      maxIterationsLabel,
-      maxIterationsSlider,
-
-      zoomModeLabel,
-      zoomModeComboBox,
-
-      zoomFactorLabel,
-      zoomFactorSlider,
-
-      colorPaletteLabel,
-      colorPaletteComboBox,
-
-      colorOffsetLabel,
-      colorOffsetSlider,
-
-      resetPositionButton,
-      displayPositionCheckBox,
-
-      ambientMusicLabel,
-      musicSelectionComboBox,
-      musicVolumeLabel,
-      musicVolumeSlider,
-      playPauseButton
-    );
-    settingsBox.setPadding(new Insets(5));
-    settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
+    VBox settingsBox = this.buildSettingsBox(fractals, palettes, musics);
 
     // Assemble (border pane)
     this.root = new BorderPane();
@@ -306,7 +186,7 @@ public class Mandelbrot {
     canvas.setOnScroll(e -> {
 
       boolean zoomIn = e.getDeltaY() > 0;
-      if (!zoomIn && this.regionSize >= Configuration.MAX_REGION_SIZE) {
+      if (!zoomIn && this.regionProperty.size().get() >= Configuration.MAX_REGION_SIZE) {
         // Prevent zooming out too far
         return;
       }
@@ -345,12 +225,12 @@ public class Mandelbrot {
     double fyAfter = this.yPixelsToValue(mouseY);
 
     // Step 4: adjust center so the point stays under the mouse
-    this.xc += fxBefore - fxAfter;
-    this.yc += fyBefore - fyAfter;
+    this.regionProperty.xc().set(this.regionProperty.xc().get() + (fxBefore - fxAfter));
+    this.regionProperty.yc().set(this.regionProperty.yc().get() + (fyBefore - fyAfter));
   }
 
   private void reset() {
-    this.setRegion(Configuration.DEFAULT_XC, Configuration.DEFAULT_YC, Configuration.DEFAULT_SIZE);
+    this.regionProperty.update(this.fractal.get().getDefaultRegion());
     this.update();
   }
 
@@ -362,42 +242,36 @@ public class Mandelbrot {
     final double x,
     final double y) {
 
-    // Pixels to value
-    this.xc = this.xPixelsToValue(x);
-    this.yc = this.yPixelsToValue(y);
+    this.regionProperty.xc().set(this.xPixelsToValue(x));
+    this.regionProperty.yc().set(this.yPixelsToValue(y));
 
     this.update();
   }
 
   private void zoomIn() {
-    this.regionSize /= this.zoomFactorProperty.get();
+    this.regionProperty.size().set(
+      this.regionProperty.size().get() / this.zoomFactorProperty.get()
+    );
   }
 
   private void zoomOut() {
-    this.regionSize *= this.zoomFactorProperty.get();
+    this.regionProperty.size().set(
+      this.regionProperty.size().get() * this.zoomFactorProperty.get()
+    );
   }
 
-  // Concert a pixel abscissa position to "real" mathematical value
+  // Convert a pixel abscissa position to a "real" mathematical value
   private double xPixelsToValue(final double x) {
-    return this.xc - this.regionSize / 2 + this.regionSize * x / this.width;
+    double xc   = this.regionProperty.xc().get();
+    double size = this.regionProperty.size().get();
+    return xc - size * 0.5 + size * x / this.width;
   }
 
   // Concert a pixel ordinate position to "real" mathematical value
   private double yPixelsToValue(final double y) {
-    return this.yc - this.regionSize / 2 + this.regionSize * y / this.height;
-  }
-
-  /**
-   * Set the region we are looking at, defined by its center (xc, yc) and its size
-   */
-  public void setRegion(
-    final double xc,
-    final double yc,
-    final double regionSize) {
-
-    this.regionSize = regionSize;
-    this.xc = xc;
-    this.yc = yc;
+    double yc   = this.regionProperty.yc().get();
+    double size = this.regionProperty.size().get();
+    return yc - size * 0.5 + size * y / this.height;
   }
 
   public void update() {
@@ -417,7 +291,6 @@ public class Mandelbrot {
           this.iterationsPixels[x][y] = iterations;
         }
       });
-
 
     this.computeColors();
     this.drawImage();
@@ -459,21 +332,6 @@ public class Mandelbrot {
       0,
       this.width
     );
-
-    if (this.displayPosition.get()) {
-      // Info (zoom and centering)
-      // Draw shadow
-      this.graphicsContext.setStroke(Color.BLACK);
-      this.graphicsContext.strokeText("region's size: " + this.regionSize, 4, 15);
-      this.graphicsContext.strokeText("x: " + this.xc, 4, 35);
-      this.graphicsContext.strokeText("y: " + this.yc, 4, 55);
-
-      // Draw plain text
-      this.graphicsContext.setStroke(Color.WHITE);
-      this.graphicsContext.strokeText("region's size: " + this.regionSize, 5, 16);
-      this.graphicsContext.strokeText("x: " + this.xc, 5, 36);
-      this.graphicsContext.strokeText("y: " + this.yc, 5, 56);
-    }
   }
 
   private static Slider newSlider(
@@ -505,5 +363,168 @@ public class Mandelbrot {
     if (this.musicPlaying) {
       this.mediaPlayer.play();
     }
+  }
+
+  private VBox buildSettingsBox(
+    final Fractal[] fractals,
+    final ColorPalette[] palettes,
+    final NamedMusic[] musics) {
+
+    // Algorithm
+    ComboBox<Fractal> fractalComboBox = new ComboBox<>();
+    fractalComboBox.setConverter(new NamedConverter<>());
+    fractalComboBox.getItems().setAll(fractals);
+    fractalComboBox.valueProperty().bindBidirectional(this.fractal);
+    fractalComboBox.valueProperty().addListener((_, _, _) -> this.reset());
+
+    // Max iterations
+    Slider maxIterationsSlider = newSlider(0, 1_000, 100, this.max);
+    this.max.addListener((_, _, newValue) -> {
+      this.colors = this.colorPalette.get().computeColors(newValue.intValue());
+      this.computeColors();
+      this.update();
+    });
+    TitledPane algorithmPane = buildTitledPane(
+      "∑ Algorithm",
+      fractalComboBox,
+      new Label("Max iterations"),
+      maxIterationsSlider
+    );
+
+    // Zoom
+    ComboBox<ZoomMode> zoomModeComboBox = new ComboBox<>();
+    zoomModeComboBox.setConverter(new NamedConverter<>());
+    zoomModeComboBox.getItems().setAll(ZoomMode.values());
+    zoomModeComboBox.valueProperty().bindBidirectional(this.zoomModeProperty);
+
+    // Reset
+    Button resetPositionButton = new Button("Reset position");
+    resetPositionButton.setOnAction(_ -> this.reset());
+
+    TextField regionXcTextField = new TextField();
+    TextField regionYcTextField = new TextField();
+    TextField regionSizeTextField = new TextField();
+    Label xLabel = new Label("x");
+    Label yLabel = new Label("y");
+    Label sizeLabel = new Label("size");
+    xLabel.setPrefWidth(25);
+    yLabel.setPrefWidth(25);
+    sizeLabel.setPrefWidth(25);
+    HBox xcBox = new HBox(5, xLabel, regionXcTextField);
+    HBox ycBox = new HBox(5, yLabel, regionYcTextField);
+    HBox sizeBox = new HBox(5, sizeLabel, regionSizeTextField);
+    Bindings.bindBidirectional(
+      regionXcTextField.textProperty(),
+      this.regionProperty.xc(),
+      new NumberStringConverter()
+    );
+    Bindings.bindBidirectional(
+      regionYcTextField.textProperty(),
+      this.regionProperty.yc(),
+      new NumberStringConverter()
+    );
+    Bindings.bindBidirectional(
+      regionSizeTextField.textProperty(),
+      this.regionProperty.size(),
+      new NumberStringConverter()
+    );
+    ChangeListener<? super Number> updateListener = (_, _, _) -> this.update();
+    this.regionProperty.xc().addListener(updateListener);
+    this.regionProperty.yc().addListener(updateListener);
+    this.regionProperty.size().addListener(updateListener);
+
+    TitledPane navigationPane = buildTitledPane(
+      "Navigation",
+      new Label("\uD83D\uDD0E Zoom mode"),
+      zoomModeComboBox,
+      new Label("Zoom factor"),
+      newSlider(1, 4, 1, this.zoomFactorProperty),
+      new Label("Position"),
+      xcBox,
+      ycBox,
+      sizeBox,
+      resetPositionButton
+    );
+
+    // Color palette
+    ComboBox<ColorPalette> colorPaletteComboBox = new ComboBox<>();
+    colorPaletteComboBox.setConverter(new NamedConverter<>());
+    PaletteCellFactory.apply(colorPaletteComboBox);
+    colorPaletteComboBox.getItems().setAll(palettes);
+    colorPaletteComboBox.valueProperty().bindBidirectional(this.colorPalette);
+    colorPaletteComboBox.valueProperty().addListener((_, _, newValue) -> {
+      this.colors = newValue.computeColors(this.max.get());
+      this.computeColors();
+      this.drawImage();
+    });
+
+    // Color offset
+    Slider colorOffsetSlider = newSlider(0, this.max.get(), 64, this.colorOffsetProperty);
+    this.colorOffsetProperty.addListener((_, _, _) -> {
+      this.computeColors();
+      this.drawImage();
+    });
+    TitledPane colorPane = buildTitledPane(
+      "Color",
+      new Label("Palette"),
+      colorPaletteComboBox,
+      new Label("Offset"),
+      colorOffsetSlider
+    );
+
+    // Select music
+    ComboBox<NamedMusic> musicSelectionComboBox = new ComboBox<>();
+    musicSelectionComboBox.getItems().setAll(musics);
+    musicSelectionComboBox.valueProperty().bindBidirectional(this.musicProperty);
+    musicSelectionComboBox.setConverter(new NamedConverter<>());
+    musicSelectionComboBox.setOnAction(_ -> {
+      // Stop current track
+      this.mediaPlayer.stop();
+      this.createMediaPlayer();
+    });
+
+    Label musicVolumeLabel = new Label("\uD83D\uDD08 Volume");
+    Slider musicVolumeSlider = newSlider(0, 1, .25, this.musicVolumeProperty);
+
+    Button playPauseButton = new Button("▶ Play");
+    playPauseButton.setOnAction(_ -> {
+      if (this.musicPlaying) {
+        this.mediaPlayer.pause();
+        playPauseButton.setText("▶ Play");
+        this.musicPlaying = false;
+      } else {
+        this.mediaPlayer.play();
+        playPauseButton.setText("⏸ Pause");
+        this.musicPlaying = true;
+      }
+    });
+    TitledPane musicPane = buildTitledPane(
+      "\uD83C\uDFB5 Ambient music",
+      musicSelectionComboBox,
+      musicVolumeLabel,
+      musicVolumeSlider,
+      playPauseButton
+    );
+
+    VBox settingsBox = new VBox(
+      5,
+      algorithmPane,
+      navigationPane,
+      colorPane,
+      musicPane
+    );
+    settingsBox.setPadding(new Insets(5));
+    settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
+
+    return settingsBox;
+  }
+
+  private static TitledPane buildTitledPane(final String title, final Node... content) {
+    VBox vBox = new VBox(5, content);
+    TitledPane titledPane = new TitledPane(title, vBox);
+    titledPane.setCollapsible(false);
+    titledPane.setExpanded(true);
+
+    return titledPane;
   }
 }

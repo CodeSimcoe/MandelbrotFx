@@ -30,6 +30,4 @@ Multiple fractal algorithms are available :
 
 Free of use, by Clavier-Music
 
-https://pixabay.com/music/solo-piano-relaxing-ambient-music-for-sunset-videos-354470/
-
-https://pixabay.com/music/ambient-relaxing-electronic-ambient-music-354471/
+https://pixabay.com/users/clavier-music-16027823/

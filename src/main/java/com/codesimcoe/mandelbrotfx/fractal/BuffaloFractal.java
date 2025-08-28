@@ -1,5 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
+import com.codesimcoe.mandelbrotfx.Region;
+
 public enum BuffaloFractal implements Fractal {
 
   INSTANCE;
@@ -7,6 +9,11 @@ public enum BuffaloFractal implements Fractal {
   @Override
   public String getName() {
     return "Buffalo";
+  }
+
+  @Override
+  public Region getDefaultRegion() {
+    return new Region(-0.45, -0.7, 4);
   }
 
   @Override
@@ -26,12 +33,8 @@ public enum BuffaloFractal implements Fractal {
       final double ay = Math.abs(y);
 
       final double newY = 2.0 * ax * ay + y0;
-      final double newX = ax * ax - ay * ay + x0; // CHANGE HERE for Buffalo:
-      // for Buffalo: newX = ax*ax - ay*ay + x0
-      // Actually Buffalo uses minus: newX = ax*ax - ay*ay + x0 ??? Wait carefully
+      final double newX = ax * ax - ay * ay + x0;
 
-      // Correct Buffalo: newX = ax*ax - ay*ay + x0 ? hmm let's double-check
-      // Formula: z_{n+1} = (|Re(z)| - |Im(z)|)^2 + c
       // Expand: (ax - ay)^2 = ax^2 - 2*ax*ay + ay^2
       // So next x = ax^2 - 2*ax*ay + ay^2 + x0
       final double newXBuffalo = ax * ax - 2.0 * ax * ay + ay * ay + x0;

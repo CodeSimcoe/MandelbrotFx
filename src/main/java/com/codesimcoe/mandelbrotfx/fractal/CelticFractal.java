@@ -1,5 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
+import com.codesimcoe.mandelbrotfx.Region;
+
 public enum CelticFractal implements Fractal {
 
   INSTANCE;
@@ -7,6 +9,11 @@ public enum CelticFractal implements Fractal {
   @Override
   public String getName() {
     return "Celtic";
+  }
+
+  @Override
+  public Region getDefaultRegion() {
+    return new Region(-0.9, 0, 4);
   }
 
   @Override

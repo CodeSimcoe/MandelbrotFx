@@ -1,5 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
+import com.codesimcoe.mandelbrotfx.Region;
+
 public enum BurningShipFractal implements Fractal {
 
   INSTANCE;
@@ -7,6 +9,11 @@ public enum BurningShipFractal implements Fractal {
   @Override
   public String getName() {
     return "Burning ship";
+  }
+
+  @Override
+  public Region getDefaultRegion() {
+    return new Region(-0.4, -0.5, 4);
   }
 
   @Override

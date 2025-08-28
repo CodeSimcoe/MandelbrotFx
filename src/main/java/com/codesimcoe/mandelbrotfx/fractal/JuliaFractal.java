@@ -1,10 +1,17 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
+import com.codesimcoe.mandelbrotfx.Region;
+
 public record JuliaFractal(String name, double x0, double y0) implements Fractal {
 
   @Override
   public String getName() {
     return this.name;
+  }
+
+  @Override
+  public Region getDefaultRegion() {
+    return new Region(0, 0, 3.25);
   }
 
   @Override

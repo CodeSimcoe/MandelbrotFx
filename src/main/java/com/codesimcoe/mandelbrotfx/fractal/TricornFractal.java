@@ -1,5 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
+import com.codesimcoe.mandelbrotfx.Region;
+
 public enum TricornFractal implements Fractal {
 
   INSTANCE;
@@ -7,6 +9,11 @@ public enum TricornFractal implements Fractal {
   @Override
   public String getName() {
     return "Tricorn";
+  }
+
+  @Override
+  public Region getDefaultRegion() {
+    return new Region(-0.1, 0, 4);
   }
 
   @Override
