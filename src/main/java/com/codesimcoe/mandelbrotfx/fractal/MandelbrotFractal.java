@@ -1,10 +1,20 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
+import com.codesimcoe.mandelbrotfx.Configuration;
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.RegionOfInterest;
+
+import java.util.List;
 
 public enum MandelbrotFractal implements Fractal {
 
   INSTANCE;
+
+  private final Region defaultRegion =  new Region(-0.5, 0, 2);
+  private final List<RegionOfInterest> regionsOfInterest = List.of(
+    new RegionOfInterest("Julia Island", new Region(-1.768778833, 0.001738996, 1e-6), 800),
+    new RegionOfInterest("Flower", new Region(-1.999985881163, 0, 125e-11), Configuration.DEFAULT_MAX_ITERATIONS)
+  );
 
   @Override
   public String getName() {
@@ -13,7 +23,12 @@ public enum MandelbrotFractal implements Fractal {
 
   @Override
   public Region getDefaultRegion() {
-    return new Region(-0.5, 0, 2);
+    return this.defaultRegion;
+  }
+
+  @Override
+  public List<RegionOfInterest> getRegionsOfInterest() {
+    return this.regionsOfInterest;
   }
 
   @Override

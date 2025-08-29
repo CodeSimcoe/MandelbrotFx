@@ -22,7 +22,6 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -48,6 +47,9 @@ import java.util.stream.IntStream;
  */
 public class Mandelbrot {
 
+  private static final NumberStringConverter NUMBER_STRING_CONVERTER
+    = new NumberStringConverter("#.##############");
+
   private final BorderPane root;
 
   // Used fractal algorithm
@@ -70,7 +72,7 @@ public class Mandelbrot {
   private final DoubleProperty zoomFactorProperty = new SimpleDoubleProperty(Configuration.DEFAULT_ZOOM_FACTOR);
 
   // Max algorithm iterations
-  private final IntegerProperty max = new SimpleIntegerProperty();
+  private final IntegerProperty maxIterations = new SimpleIntegerProperty();
 
   // Color offset
   private final IntegerProperty colorOffsetProperty = new SimpleIntegerProperty();
@@ -99,10 +101,15 @@ public class Mandelbrot {
   private MediaPlayer mediaPlayer;
   private boolean musicPlaying = false;
 
+  int updateNumber = 0;
+
+  // Points of interest
+  private final ComboBox<RegionOfInterest> regionsOfInterestComboBox = new ComboBox<>();
+
   public Mandelbrot(
     final int width,
     final int height,
-    final int max) {
+    final int maxIterations) {
 
     // Fractals
     Fractal[] fractals = {
@@ -128,6 +135,16 @@ public class Mandelbrot {
     this.fractal.set(selectedFractal);
     this.regionProperty.update(selectedFractal.getDefaultRegion());
 
+    // TODO (factor)
+    RegionOfInterest home = new RegionOfInterest(
+      "Home",
+      this.fractal.get().getDefaultRegion(),
+      Configuration.DEFAULT_MAX_ITERATIONS
+    );
+    this.regionsOfInterestComboBox.getItems().setAll(this.fractal.get().getRegionsOfInterest());
+    this.regionsOfInterestComboBox.getItems().addFirst(home);
+    this.regionsOfInterestComboBox.setValue(home);
+
     // Color palettes
     ColorPalette[] palettes = {
       new SpectrumColorPalette(),
@@ -145,7 +162,7 @@ public class Mandelbrot {
 
     this.width = width;
     this.height = height;
-    this.max.set(max);
+    this.maxIterations.set(maxIterations);
 
     this.iterationsPixels = new int[this.width][this.height];
 
@@ -172,7 +189,7 @@ public class Mandelbrot {
     this.root.setRight(settingsBox);
 
     // Initialize and cache all available colors
-    this.colors = this.colorPalette.get().computeColors(max);
+    this.colors = this.colorPalette.get().computeColors(maxIterations);
 
     // Actions
     canvas.setOnMousePressed(e -> {
@@ -274,10 +291,12 @@ public class Mandelbrot {
     return yc - size * 0.5 + size * y / this.height;
   }
 
-  public void update() {
+  void update() {
+
+    long startTime = System.nanoTime();
 
     Fractal algorithm = this.fractal.get();
-    int max = this.max.get();
+    int max = this.maxIterations.get();
 
     // Parallelize computations
     // Cache locality : order matters
@@ -294,13 +313,19 @@ public class Mandelbrot {
 
     this.computeColors();
     this.drawImage();
+
+    long elapsed = System.nanoTime() - startTime;
+    this.updateNumber++;
+    System.out.println("Mandelbrot.update " + this.updateNumber + " - Rendered in : " + (elapsed / 1e6) + "ms");
   }
 
   private void computeColors() {
 
-    int max = this.max.get();
+    int max = this.maxIterations.get();
 
-    if (max == 0) return;
+    if (max == 0) {
+      return;
+    }
 
     // Determine color
     // Apply offset
@@ -375,20 +400,39 @@ public class Mandelbrot {
     fractalComboBox.setConverter(new NamedConverter<>());
     fractalComboBox.getItems().setAll(fractals);
     fractalComboBox.valueProperty().bindBidirectional(this.fractal);
-    fractalComboBox.valueProperty().addListener((_, _, _) -> this.reset());
+    fractalComboBox.valueProperty().addListener((_, _, _) -> this.manageAlgorithmChange());
 
     // Max iterations
-    Slider maxIterationsSlider = newSlider(0, 1_000, 100, this.max);
-    this.max.addListener((_, _, newValue) -> {
-      this.colors = this.colorPalette.get().computeColors(newValue.intValue());
-      this.computeColors();
-      this.update();
+    Slider maxIterationsSlider = newSlider(0, 1_000, 100, this.maxIterations);
+
+    // Bind slider's value to maxIterations (but only commit when sliding ends)
+    maxIterationsSlider.valueChangingProperty().addListener((_, _, changing) -> {
+      if (!changing) {
+        int newValue = maxIterationsSlider.valueProperty().intValue();
+        this.colors = this.colorPalette.get().computeColors(newValue);
+        this.computeColors();
+        this.update();
+      }
     });
+
+    this.regionsOfInterestComboBox.setConverter(new NamedConverter<>());
+    this.regionsOfInterestComboBox.valueProperty().addListener((_, _, newValue) -> {
+      this.regionProperty.update(newValue.region());
+      if (this.maxIterations.get() != newValue.iterations()) {
+        this.maxIterations.set(newValue.iterations());
+      } else {
+        this.update();
+      }
+    });
+
+
     TitledPane algorithmPane = buildTitledPane(
       "∑ Algorithm",
       fractalComboBox,
       new Label("Max iterations"),
-      maxIterationsSlider
+      maxIterationsSlider,
+      new Label("Regions of interest"),
+      this.regionsOfInterestComboBox
     );
 
     // Zoom
@@ -416,22 +460,33 @@ public class Mandelbrot {
     Bindings.bindBidirectional(
       regionXcTextField.textProperty(),
       this.regionProperty.xc(),
-      new NumberStringConverter()
+      NUMBER_STRING_CONVERTER
     );
     Bindings.bindBidirectional(
       regionYcTextField.textProperty(),
       this.regionProperty.yc(),
-      new NumberStringConverter()
+      NUMBER_STRING_CONVERTER
     );
     Bindings.bindBidirectional(
       regionSizeTextField.textProperty(),
       this.regionProperty.size(),
-      new NumberStringConverter()
+      NUMBER_STRING_CONVERTER
     );
-    ChangeListener<? super Number> updateListener = (_, _, _) -> this.update();
-    this.regionProperty.xc().addListener(updateListener);
-    this.regionProperty.yc().addListener(updateListener);
-    this.regionProperty.size().addListener(updateListener);
+    this.regionProperty.xc().addListener((_, _, _) -> {
+      if (regionXcTextField.isFocused()) {
+        this.update();
+      }
+    });
+    this.regionProperty.yc().addListener((_, _, _) -> {
+      if (regionYcTextField.isFocused()) {
+        this.update();
+      }
+    });
+    this.regionProperty.size().addListener((_, _, _) -> {
+      if (regionSizeTextField.isFocused()) {
+        this.update();
+      }
+    });
 
     TitledPane navigationPane = buildTitledPane(
       "Navigation",
@@ -453,13 +508,13 @@ public class Mandelbrot {
     colorPaletteComboBox.getItems().setAll(palettes);
     colorPaletteComboBox.valueProperty().bindBidirectional(this.colorPalette);
     colorPaletteComboBox.valueProperty().addListener((_, _, newValue) -> {
-      this.colors = newValue.computeColors(this.max.get());
+      this.colors = newValue.computeColors(this.maxIterations.get());
       this.computeColors();
       this.drawImage();
     });
 
     // Color offset
-    Slider colorOffsetSlider = newSlider(0, this.max.get(), 64, this.colorOffsetProperty);
+    Slider colorOffsetSlider = newSlider(0, this.maxIterations.get(), 64, this.colorOffsetProperty);
     this.colorOffsetProperty.addListener((_, _, _) -> {
       this.computeColors();
       this.drawImage();
@@ -517,6 +572,18 @@ public class Mandelbrot {
     settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
 
     return settingsBox;
+  }
+
+  private void manageAlgorithmChange() {
+    RegionOfInterest home = new RegionOfInterest(
+      "Home",
+      this.fractal.get().getDefaultRegion(),
+      Configuration.DEFAULT_MAX_ITERATIONS
+    );
+    this.regionsOfInterestComboBox.getItems().setAll(this.fractal.get().getRegionsOfInterest());
+    this.regionsOfInterestComboBox.getItems().addFirst(home);
+    this.regionsOfInterestComboBox.setValue(home);
+    this.reset();
   }
 
   private static TitledPane buildTitledPane(final String title, final Node... content) {
