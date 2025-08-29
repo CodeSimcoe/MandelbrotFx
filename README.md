@@ -1,4 +1,4 @@
-# Minimalistic Mandelbrot / Julia Set explorer
+# Mandelbrot / Julia Set explorer
 
 * Left click : move to pointed position
 * Mouse wheel : Zoom in / out
