@@ -4,7 +4,7 @@ import com.codesimcoe.mandelbrotfx.Region;
 
 public enum BuffaloFractal implements Fractal {
 
-  INSTANCE;
+  BUFFALO;
 
   @Override
   public String getName() {

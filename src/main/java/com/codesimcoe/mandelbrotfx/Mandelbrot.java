@@ -40,6 +40,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.converter.NumberStringConverter;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.stream.IntStream;
 
 /**
@@ -49,6 +53,9 @@ public class Mandelbrot {
 
   private static final NumberStringConverter NUMBER_STRING_CONVERTER
     = new NumberStringConverter("#.##############");
+
+  // Common layout gap between elements
+  private static final double GAP = 5;
 
   private final BorderPane root;
 
@@ -113,11 +120,11 @@ public class Mandelbrot {
 
     // Fractals
     Fractal[] fractals = {
-      MandelbrotFractal.INSTANCE,
-      BurningShipFractal.INSTANCE,
-      BuffaloFractal.INSTANCE,
-      TricornFractal.INSTANCE,
-      CelticFractal.INSTANCE,
+      MandelbrotFractal.MANDELBROT,
+      BurningShipFractal.BURNING_SHIP,
+      BuffaloFractal.BUFFALO,
+      TricornFractal.TRICORN,
+      CelticFractal.CELTIC,
       new JuliaFractal("Julia - Dragon", -0.8, 0.156),
       new JuliaFractal("Julia - Rabbit", -0.123, 0.745),
       new JuliaFractal("Julia - Feather", -0.4, 0.6),
@@ -134,16 +141,7 @@ public class Mandelbrot {
     Fractal selectedFractal = fractals[0];
     this.fractal.set(selectedFractal);
     this.regionProperty.update(selectedFractal.getDefaultRegion());
-
-    // TODO (factor)
-    RegionOfInterest home = new RegionOfInterest(
-      "Home",
-      this.fractal.get().getDefaultRegion(),
-      Configuration.DEFAULT_MAX_ITERATIONS
-    );
-    this.regionsOfInterestComboBox.getItems().setAll(this.fractal.get().getRegionsOfInterest());
-    this.regionsOfInterestComboBox.getItems().addFirst(home);
-    this.regionsOfInterestComboBox.setValue(home);
+    this.fillRegionsOfInterest();
 
     // Color palettes
     ColorPalette[] palettes = {
@@ -278,50 +276,84 @@ public class Mandelbrot {
   }
 
   // Convert a pixel abscissa position to a "real" mathematical value
-  private double xPixelsToValue(final double x) {
-    double xc   = this.regionProperty.xc().get();
+  private double xPixelsToValue(final double x, final int width) {
+    double xc = this.regionProperty.xc().get();
     double size = this.regionProperty.size().get();
-    return xc - size * 0.5 + size * x / this.width;
+    return xc - size * 0.5 + size * x / width;
   }
 
   // Concert a pixel ordinate position to "real" mathematical value
-  private double yPixelsToValue(final double y) {
-    double yc   = this.regionProperty.yc().get();
+  private double yPixelsToValue(final double y, final int height) {
+    double yc = this.regionProperty.yc().get();
     double size = this.regionProperty.size().get();
-    return yc - size * 0.5 + size * y / this.height;
+    return yc - size * 0.5 + size * y / height;
   }
 
-  void update() {
+  private double xPixelsToValue(final double x) {
+    return this.xPixelsToValue(x, this.width);
+  }
+
+  private double yPixelsToValue(final double y) {
+    return this.yPixelsToValue(y, this.height);
+  }
+
+  void update(
+    final Fractal algorithm,
+    final int max,
+    final int width,
+    final int height,
+    final int[][] iterationsPixels) {
 
     long startTime = System.nanoTime();
 
-    Fractal algorithm = this.fractal.get();
-    int max = this.maxIterations.get();
-
     // Parallelize computations
     // Cache locality : order matters
-    IntStream.range(0, this.height)
+    IntStream.range(0, height)
       .parallel()
       .forEach(y -> {
-        double y0 = this.yPixelsToValue(y);
-        for (int x = 0; x < this.width; x++) {
-          double x0 = this.xPixelsToValue(x);
+        double y0 = this.yPixelsToValue(y, height);
+        for (int x = 0; x < width; x++) {
+          double x0 = this.xPixelsToValue(x, width);
           int iterations = algorithm.compute(x0, y0, max);
-          this.iterationsPixels[x][y] = iterations;
+          iterationsPixels[x][y] = iterations;
         }
       });
-
-    this.computeColors();
-    this.drawImage();
 
     long elapsed = System.nanoTime() - startTime;
     this.updateNumber++;
     System.out.println("Mandelbrot.update " + this.updateNumber + " - Rendered in : " + (elapsed / 1e6) + "ms");
   }
 
-  private void computeColors() {
+  void update() {
+    this.update(
+      this.fractal.get(),
+      this.maxIterations.get(),
+      this.width,
+      this.height,
+      this.iterationsPixels
+    );
+    this.computeColors();
+    this.drawImage();
+  }
 
-    int max = this.maxIterations.get();
+  private void computeColors() {
+    this.computeColors(
+      this.maxIterations.get(),
+      this.width,
+      this.height,
+      this.iterationsPixels,
+      this.colors,
+      this.imagePixels
+    );
+  }
+
+  private void computeColors(
+    final int max,
+    final int width,
+    final int height,
+    final int[][] iterationsPixels,
+    final int[] colors,
+    final int[] imagePixels) {
 
     if (max == 0) {
       return;
@@ -330,17 +362,17 @@ public class Mandelbrot {
     // Determine color
     // Apply offset
     int color;
-    for (int x = 0; x < this.width; x++) {
-      for (int y = 0; y < this.height; y++) {
-        int iterations = this.iterationsPixels[x][y];
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        int iterations = iterationsPixels[x][y];
         if (iterations == max) {
-          color = this.colors[max];
+          color = colors[max];
         } else {
           int colorIndex = (iterations + this.colorOffsetProperty.intValue()) % max;
-          color = this.colors[colorIndex];
+          color = colors[colorIndex];
         }
 
-        this.imagePixels[y * this.height + x] = color;
+        imagePixels[y * height + x] = color;
       }
     }
   }
@@ -409,22 +441,15 @@ public class Mandelbrot {
     maxIterationsSlider.valueChangingProperty().addListener((_, _, changing) -> {
       if (!changing) {
         int newValue = maxIterationsSlider.valueProperty().intValue();
-        this.colors = this.colorPalette.get().computeColors(newValue);
-        this.computeColors();
-        this.update();
+        this.updateMaxIterations(newValue);
       }
     });
 
     this.regionsOfInterestComboBox.setConverter(new NamedConverter<>());
     this.regionsOfInterestComboBox.valueProperty().addListener((_, _, newValue) -> {
       this.regionProperty.update(newValue.region());
-      if (this.maxIterations.get() != newValue.iterations()) {
-        this.maxIterations.set(newValue.iterations());
-      } else {
-        this.update();
-      }
+      this.updateMaxIterations(newValue.iterations());
     });
-
 
     TitledPane algorithmPane = buildTitledPane(
       "∑ Algorithm",
@@ -454,9 +479,9 @@ public class Mandelbrot {
     xLabel.setPrefWidth(25);
     yLabel.setPrefWidth(25);
     sizeLabel.setPrefWidth(25);
-    HBox xcBox = new HBox(5, xLabel, regionXcTextField);
-    HBox ycBox = new HBox(5, yLabel, regionYcTextField);
-    HBox sizeBox = new HBox(5, sizeLabel, regionSizeTextField);
+    HBox xcBox = new HBox(GAP, xLabel, regionXcTextField);
+    HBox ycBox = new HBox(GAP, yLabel, regionYcTextField);
+    HBox sizeBox = new HBox(GAP, sizeLabel, regionSizeTextField);
     Bindings.bindBidirectional(
       regionXcTextField.textProperty(),
       this.regionProperty.xc(),
@@ -527,6 +552,25 @@ public class Mandelbrot {
       colorOffsetSlider
     );
 
+    // Snapshot
+    Button snapshot1kButton = new Button("1k");
+    Button snapshot2kButton = new Button("2k");
+    Button snapshot4kButton = new Button("4k");
+    Button snapshot8kButton = new Button("8k");
+    HBox snapshotButtonsBox = new HBox(
+      GAP,
+      snapshot1kButton,
+      snapshot2kButton,
+      snapshot4kButton,
+      snapshot8kButton
+    );
+
+    snapshot1kButton.setOnAction(_ -> this.takeSnapshot(1024));
+    snapshot2kButton.setOnAction(_ -> this.takeSnapshot(2048));
+    snapshot4kButton.setOnAction(_ -> this.takeSnapshot(4096));
+    snapshot8kButton.setOnAction(_ -> this.takeSnapshot(8192));
+    TitledPane snapshotPane = buildTitledPane("Snapshot", snapshotButtonsBox);
+
     // Select music
     ComboBox<NamedMusic> musicSelectionComboBox = new ComboBox<>();
     musicSelectionComboBox.getItems().setAll(musics);
@@ -562,19 +606,32 @@ public class Mandelbrot {
     );
 
     VBox settingsBox = new VBox(
-      5,
+      GAP,
       algorithmPane,
       navigationPane,
       colorPane,
+      snapshotPane,
       musicPane
     );
-    settingsBox.setPadding(new Insets(5));
+    settingsBox.setPadding(new Insets(GAP));
     settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
 
     return settingsBox;
   }
 
   private void manageAlgorithmChange() {
+    this.fillRegionsOfInterest();
+    this.reset();
+  }
+
+  private void updateMaxIterations(final int iterations) {
+    this.maxIterations.set(iterations);
+    this.colors = this.colorPalette.get().computeColors(iterations);
+    this.computeColors();
+    this.update();
+  }
+
+  private void fillRegionsOfInterest() {
     RegionOfInterest home = new RegionOfInterest(
       "Home",
       this.fractal.get().getDefaultRegion(),
@@ -583,15 +640,39 @@ public class Mandelbrot {
     this.regionsOfInterestComboBox.getItems().setAll(this.fractal.get().getRegionsOfInterest());
     this.regionsOfInterestComboBox.getItems().addFirst(home);
     this.regionsOfInterestComboBox.setValue(home);
-    this.reset();
   }
 
   private static TitledPane buildTitledPane(final String title, final Node... content) {
-    VBox vBox = new VBox(5, content);
+    VBox vBox = new VBox(GAP, content);
     TitledPane titledPane = new TitledPane(title, vBox);
     titledPane.setCollapsible(false);
     titledPane.setExpanded(true);
 
     return titledPane;
+  }
+
+  private void takeSnapshot(final int resolution) {
+
+    int w = resolution;
+    int h = resolution;
+    int[][] itPixels = new int[w][h];
+    int[] pixels = new int[w * h];
+
+    int max = this.maxIterations.get();
+    int[] colors = this.colorPalette.get().computeColors(max);
+
+    this.update(this.fractal.get(), max, w, h, itPixels);
+    this.computeColors(max, w, h, itPixels, colors, pixels);
+
+    BufferedImage bufferedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+    bufferedImage.setRGB(0, 0, w, h, pixels, 0, w);
+
+    try {
+      File outputFile = new File("snap.png");
+      ImageIO.write(bufferedImage, "png", outputFile);
+      System.out.println("PNG image saved as " + outputFile.getAbsolutePath());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }

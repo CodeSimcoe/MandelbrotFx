@@ -4,7 +4,7 @@ import com.codesimcoe.mandelbrotfx.Region;
 
 public enum CelticFractal implements Fractal {
 
-  INSTANCE;
+  CELTIC;
 
   @Override
   public String getName() {

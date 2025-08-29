@@ -4,7 +4,7 @@ import com.codesimcoe.mandelbrotfx.Region;
 
 public enum BurningShipFractal implements Fractal {
 
-  INSTANCE;
+  BURNING_SHIP;
 
   @Override
   public String getName() {

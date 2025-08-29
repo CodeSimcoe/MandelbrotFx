@@ -29,7 +29,7 @@ public class MandelbrotBenchmark {
   @Setup(Level.Iteration)
   public void setup() {
     this.iterationsPixels = new int[this.width][this.height];
-    this.algorithm = MandelbrotFractal.INSTANCE;
+    this.algorithm = MandelbrotFractal.MANDELBROT;
   }
 
   @Benchmark

@@ -8,11 +8,11 @@ import java.util.List;
 
 public enum MandelbrotFractal implements Fractal {
 
-  INSTANCE;
+  MANDELBROT;
 
   private final Region defaultRegion =  new Region(-0.5, 0, 2);
   private final List<RegionOfInterest> regionsOfInterest = List.of(
-    new RegionOfInterest("Julia Island", new Region(-1.768778833, 0.001738996, 1e-6), 800),
+    new RegionOfInterest("Julia Island", new Region(-1.7687788314, 0.0017388912, 1e-6), 800),
     new RegionOfInterest("Flower", new Region(-1.999985881163, 0, 125e-11), Configuration.DEFAULT_MAX_ITERATIONS)
   );
 

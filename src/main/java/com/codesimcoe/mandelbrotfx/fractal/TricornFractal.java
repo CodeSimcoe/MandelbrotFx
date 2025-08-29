@@ -4,7 +4,7 @@ import com.codesimcoe.mandelbrotfx.Region;
 
 public enum TricornFractal implements Fractal {
 
-  INSTANCE;
+  TRICORN;
 
   @Override
   public String getName() {
