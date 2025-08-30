@@ -14,6 +14,7 @@ import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
 import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.SpectrumColorPalette;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -28,6 +29,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
@@ -44,6 +47,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 /**
@@ -108,7 +114,11 @@ public class Mandelbrot {
   private MediaPlayer mediaPlayer;
   private boolean musicPlaying = false;
 
-  int updateNumber = 0;
+  // Snapshot
+  private final List<Button> snapshotButtons = new ArrayList<>();
+  private final ProgressBar snapshotProgressBar = new ProgressBar(ProgressIndicator.INDETERMINATE_PROGRESS);
+
+  private int updateNumber = 0;
 
   // Points of interest
   private final ComboBox<RegionOfInterest> regionsOfInterestComboBox = new ComboBox<>();
@@ -359,16 +369,16 @@ public class Mandelbrot {
       return;
     }
 
-    // Determine color
-    // Apply offset
+    // Determine color and apply offset
     int color;
+    int colorOffset = this.colorOffsetProperty.intValue();
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
         int iterations = iterationsPixels[x][y];
         if (iterations == max) {
           color = colors[max];
         } else {
-          int colorIndex = (iterations + this.colorOffsetProperty.intValue()) % max;
+          int colorIndex = (iterations + colorOffset) % max;
           color = colors[colorIndex];
         }
 
@@ -553,23 +563,24 @@ public class Mandelbrot {
     );
 
     // Snapshot
-    Button snapshot1kButton = new Button("1k");
-    Button snapshot2kButton = new Button("2k");
-    Button snapshot4kButton = new Button("4k");
-    Button snapshot8kButton = new Button("8k");
+    this.snapshotProgressBar.setMaxWidth(Double.MAX_VALUE);
+    for (SnapshotMode mode : SnapshotMode.values()) {
+      Button snapshotButton = new Button(mode.getName());
+      snapshotButton.setOnAction(_ -> {
+        this.snapshotButtons.forEach(b -> b.setDisable(true));
+        this.snapshotProgressBar.setVisible(true);
+        CompletableFuture.runAsync(() -> this.takeSnapshot(mode));
+      });
+      this.snapshotButtons.add(snapshotButton);
+    }
     HBox snapshotButtonsBox = new HBox(
       GAP,
-      snapshot1kButton,
-      snapshot2kButton,
-      snapshot4kButton,
-      snapshot8kButton
+      this.snapshotButtons.toArray(new Button[] {})
     );
 
-    snapshot1kButton.setOnAction(_ -> this.takeSnapshot(1024));
-    snapshot2kButton.setOnAction(_ -> this.takeSnapshot(2048));
-    snapshot4kButton.setOnAction(_ -> this.takeSnapshot(4096));
-    snapshot8kButton.setOnAction(_ -> this.takeSnapshot(8192));
-    TitledPane snapshotPane = buildTitledPane("Snapshot", snapshotButtonsBox);
+
+    this.snapshotProgressBar.setVisible(false);
+    TitledPane snapshotPane = buildTitledPane("Snapshot", snapshotButtonsBox, this.snapshotProgressBar);
 
     // Select music
     ComboBox<NamedMusic> musicSelectionComboBox = new ComboBox<>();
@@ -651,10 +662,10 @@ public class Mandelbrot {
     return titledPane;
   }
 
-  private void takeSnapshot(final int resolution) {
+  private void takeSnapshot(final SnapshotMode mode) {
 
-    int w = resolution;
-    int h = resolution;
+    int w = mode.getResolution();
+    int h = mode.getResolution();
     int[][] itPixels = new int[w][h];
     int[] pixels = new int[w * h];
 
@@ -667,12 +678,19 @@ public class Mandelbrot {
     BufferedImage bufferedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     bufferedImage.setRGB(0, 0, w, h, pixels, 0, w);
 
+    File outputFile = null;
     try {
-      File outputFile = new File("snap.png");
+      String filename = this.fractal.get().getName() + "-" + mode.getName() + "-" + this.updateNumber + ".png";
+      outputFile = new File(filename);
       ImageIO.write(bufferedImage, "png", outputFile);
       System.out.println("PNG image saved as " + outputFile.getAbsolutePath());
     } catch (IOException e) {
-      e.printStackTrace();
+      System.err.println("Failed to save snapshot file " + outputFile.getAbsolutePath());
+    } finally {
+      Platform.runLater(() -> {
+        this.snapshotButtons.forEach(b -> b.setDisable(false));
+        this.snapshotProgressBar.setVisible(false);
+      });
     }
   }
 }

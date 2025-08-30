@@ -25,6 +25,7 @@ Multiple fractal algorithms are available :
 ![](pictures/pic8.png)
 ![](pictures/pic9.png)
 ![](pictures/pic10.png)
+![](pictures/pic11.png)
 
 ## Music
 
