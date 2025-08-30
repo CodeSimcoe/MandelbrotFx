@@ -26,6 +26,50 @@ public final class GradientColorPalettes {
     }
   );
 
+  public static final ColorPalette PURPLE_GREEN = new GradientColorPalette(
+    "Purple / Green",
+    new Color[] {
+      Color.rgb(25, 0, 51),
+      Color.rgb(88, 24, 125),
+      Color.rgb(182, 255, 196),
+      Color.rgb(0, 153, 68),
+      Color.rgb(0, 38, 0)
+    }
+  );
+
+  public static final ColorPalette BLUE_RED = new GradientColorPalette(
+    "Blue / Red",
+    new Color[] {
+      Color.rgb(0, 0, 90),
+      Color.rgb(70, 130, 255),
+      Color.rgb(240, 240, 255),
+      Color.rgb(255, 80, 80),
+      Color.rgb(90, 0, 0)
+    }
+  );
+
+  public static final ColorPalette RED_GREEN = new GradientColorPalette(
+    "Red / Green",
+    new Color[] {
+      Color.rgb(0, 60, 0),
+      Color.rgb(0, 200, 70),
+      Color.rgb(240, 255, 240),
+      Color.rgb(220, 30, 30),
+      Color.rgb(60, 0, 0)
+    }
+  );
+
+  public static final ColorPalette CYAN_MAGENTA = new GradientColorPalette(
+    "Cyan / Magenta",
+    new Color[] {
+      Color.rgb(0, 0, 180),
+      Color.rgb(0, 200, 255),
+      Color.rgb(240, 240, 255),
+      Color.rgb(255, 0, 200),
+      Color.rgb(90, 0, 90)
+    }
+  );
+
   public static final ColorPalette SUNSET = new GradientColorPalette(
     "Sunset",
     new Color[] {

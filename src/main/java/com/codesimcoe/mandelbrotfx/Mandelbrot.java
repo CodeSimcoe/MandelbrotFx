@@ -155,16 +155,20 @@ public class Mandelbrot {
 
     // Color palettes
     ColorPalette[] palettes = {
+      GradientColorPalettes.BLUE_ORANGE,
       new SpectrumColorPalette(),
       new GrayscaleColorPalette(),
-      GradientColorPalettes.BLUE_ORANGE,
       GradientColorPalettes.OCEAN,
       GradientColorPalettes.SUNSET,
       GradientColorPalettes.NEON,
       GradientColorPalettes.NATURE,
       GradientColorPalettes.COFFEE,
       GradientColorPalettes.TROPICAL,
-      GradientColorPalettes.MOON
+      GradientColorPalettes.MOON,
+      GradientColorPalettes.PURPLE_GREEN,
+      GradientColorPalettes.BLUE_RED,
+      GradientColorPalettes.RED_GREEN,
+      GradientColorPalettes.CYAN_MAGENTA,
     };
     this.colorPalette.set(palettes[0]);
 
