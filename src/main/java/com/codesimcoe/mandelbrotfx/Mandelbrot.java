@@ -176,7 +176,7 @@ public class Mandelbrot {
     this.height = height;
     this.maxIterations.set(maxIterations);
 
-    this.iterationsPixels = new int[this.width][this.height];
+    this.iterationsPixels = new int[this.height][this.width];
 
     // Music
     NamedMusic[] musics = Music.MUSICS.entrySet()
@@ -329,7 +329,7 @@ public class Mandelbrot {
         for (int x = 0; x < width; x++) {
           double x0 = this.xPixelsToValue(x, width);
           int iterations = algorithm.compute(x0, y0, max);
-          iterationsPixels[x][y] = iterations;
+          iterationsPixels[y][x] = iterations;
         }
       });
 
@@ -376,9 +376,9 @@ public class Mandelbrot {
     // Determine color and apply offset
     int color;
     int colorOffset = this.colorOffsetProperty.intValue();
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
-        int iterations = iterationsPixels[x][y];
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        int iterations = iterationsPixels[y][x];
         if (iterations == max) {
           color = colors[max];
         } else {
@@ -479,10 +479,7 @@ public class Mandelbrot {
     zoomModeComboBox.getItems().setAll(ZoomMode.values());
     zoomModeComboBox.valueProperty().bindBidirectional(this.zoomModeProperty);
 
-    // Reset
-    Button resetPositionButton = new Button("Reset position");
-    resetPositionButton.setOnAction(_ -> this.reset());
-
+    // Current position
     TextField regionXcTextField = new TextField();
     TextField regionYcTextField = new TextField();
     TextField regionSizeTextField = new TextField();
@@ -535,8 +532,7 @@ public class Mandelbrot {
       new Label("Position"),
       xcBox,
       ycBox,
-      sizeBox,
-      resetPositionButton
+      sizeBox
     );
 
     // Color palette
