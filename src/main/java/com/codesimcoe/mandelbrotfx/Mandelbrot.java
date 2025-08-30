@@ -449,7 +449,7 @@ public class Mandelbrot {
     fractalComboBox.valueProperty().addListener((_, _, _) -> this.manageAlgorithmChange());
 
     // Max iterations
-    Slider maxIterationsSlider = newSlider(0, 1_000, 100, this.maxIterations);
+    Slider maxIterationsSlider = newSlider(0, Configuration.TOTAL_MAX_ITERATIONS, 100, this.maxIterations);
 
     // Bind slider's value to maxIterations (but only commit when sliding ends)
     maxIterationsSlider.valueChangingProperty().addListener((_, _, changing) -> {
@@ -460,10 +460,9 @@ public class Mandelbrot {
     });
 
     this.regionsOfInterestComboBox.setConverter(new NamedConverter<>());
-    this.regionsOfInterestComboBox.valueProperty().addListener((_, _, newValue) -> {
-      this.regionProperty.update(newValue.region());
-      this.updateMaxIterations(newValue.iterations());
-    });
+    Button jumpToRegionOfInterestButton = new Button("Jump");
+    jumpToRegionOfInterestButton.setOnAction(_ -> this.jumpToRegionOfInterest(this.regionsOfInterestComboBox.getValue()));
+    HBox regionOfInterestBox = new HBox(GAP, this.regionsOfInterestComboBox, jumpToRegionOfInterestButton);
 
     TitledPane algorithmPane = buildTitledPane(
       "∑ Algorithm",
@@ -471,7 +470,7 @@ public class Mandelbrot {
       new Label("Max iterations"),
       maxIterationsSlider,
       new Label("Regions of interest"),
-      this.regionsOfInterestComboBox
+      regionOfInterestBox
     );
 
     // Zoom
@@ -696,5 +695,10 @@ public class Mandelbrot {
         this.snapshotProgressBar.setVisible(false);
       });
     }
+  }
+
+  private void jumpToRegionOfInterest(final RegionOfInterest regionOfInterest) {
+    this.regionProperty.update(regionOfInterest.region());
+    this.updateMaxIterations(regionOfInterest.iterations());
   }
 }

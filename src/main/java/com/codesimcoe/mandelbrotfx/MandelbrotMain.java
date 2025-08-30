@@ -24,6 +24,7 @@ public class MandelbrotMain extends Application {
 
     Scene scene = new Scene(mandelbrot.getRoot(), width + Configuration.SETTINGS_WIDTH, height);
     primaryStage.setScene(scene);
+    primaryStage.setOnCloseRequest(_ -> System.exit(0));
     primaryStage.show();
 
     mandelbrot.update();
