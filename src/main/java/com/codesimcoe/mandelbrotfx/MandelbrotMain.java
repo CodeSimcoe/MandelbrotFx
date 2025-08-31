@@ -13,8 +13,8 @@ public class MandelbrotMain extends Application {
   @Override
   public void start(final Stage primaryStage) {
 
-    int width = 1_000;
-    int height = 1_000;
+    int width = 1024;
+    int height = 1024;
 
     Mandelbrot mandelbrot = new Mandelbrot(
       width,

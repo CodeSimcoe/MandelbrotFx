@@ -52,9 +52,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
-/**
- * Aims at having a fast rendering, at the cost of low precision
- */
 public class Mandelbrot {
 
   private static final NumberStringConverter NUMBER_STRING_CONVERTER
