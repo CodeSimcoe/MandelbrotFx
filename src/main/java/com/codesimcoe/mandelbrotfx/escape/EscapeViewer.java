@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -17,6 +18,7 @@ public class EscapeViewer extends Application {
   private static final int POINTS_COUNT = 25;
 
   private final Line[] lines = new Line[POINTS_COUNT];
+  private final Circle[] dots = new Circle[POINTS_COUNT];
 
   private final double centerX;
   private final double centerY;
@@ -29,7 +31,11 @@ public class EscapeViewer extends Application {
     for (int i = 0; i < POINTS_COUNT; i++) {
       Line line = new Line();
       line.setStroke(Color.CORNFLOWERBLUE);
+      line.setStrokeWidth(2);
       this.lines[i] = line;
+
+      Circle dot = new Circle(4, Color.MEDIUMSLATEBLUE);
+      this.dots[i] = dot;
     }
   }
 
@@ -46,6 +52,7 @@ public class EscapeViewer extends Application {
 
     Pane root = new Pane(xAxis, yAxis);
     root.getChildren().addAll(this.lines);
+    root.getChildren().addAll(this.dots);
     Scene scene = new Scene(root, WIDTH, HEIGHT, Color.BLACK);
 
     // Ticks and labels
@@ -77,6 +84,7 @@ public class EscapeViewer extends Application {
     root.setOnMouseMoved(this::computeLines);
 
     primaryStage.setScene(scene);
+    primaryStage.setTitle("Escape Viewer");
     primaryStage.setOnCloseRequest(_ -> System.exit(0));
     primaryStage.show();
   }
@@ -87,8 +95,9 @@ public class EscapeViewer extends Application {
     double cy = (this.centerY - e.getY()) / (HEIGHT / 2);
 
     // Hide all lines initially
-    for (Line line : this.lines) {
-      line.setVisible(false);
+    for (int i = 0; i < POINTS_COUNT; i++) {
+      this.lines[i].setVisible(false);
+      this.dots[i].setVisible(false);
     }
 
     double zx = 0, zy = 0;
@@ -100,21 +109,28 @@ public class EscapeViewer extends Application {
       double newZx = zx * zx - zy * zy + cx;
       double newZy = 2 * zx * zy + cy;
 
-      // Stop if modulus > 2 (squared > 4)
-      if (newZx * newZx + newZy * newZy > 4.0) {
-        break;
-      }
-
       // Convert to screen coordinates
       double screenX = this.centerX + newZx * (WIDTH / 2);
       double screenY = this.centerY - newZy * (HEIGHT / 2);
 
       // Update line
-      this.lines[i].setStartX(prevScreenX);
-      this.lines[i].setStartY(prevScreenY);
-      this.lines[i].setEndX(screenX);
-      this.lines[i].setEndY(screenY);
-      this.lines[i].setVisible(true);
+      Line line = this.lines[i];
+      line.setStartX(prevScreenX);
+      line.setStartY(prevScreenY);
+      line.setEndX(screenX);
+      line.setEndY(screenY);
+      line.setVisible(true);
+
+      // Update dot
+      Circle dot = this.dots[i];
+      dot.setCenterX(screenX);
+      dot.setCenterY(screenY);
+      dot.setVisible(true);
+
+      // Stop if modulus > 2 (squared > 4)
+      if (newZx * newZx + newZy * newZy > 4.0) {
+        break;
+      }
 
       zx = newZx;
       zy = newZy;

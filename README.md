@@ -27,6 +27,11 @@ Multiple fractal algorithms are available :
 ![](pictures/pic10.png)
 ![](pictures/pic11.png)
 
+## Escape viewer
+
+![](pictures/escape1.png)
+![](pictures/escape2.png)
+
 ## Music
 
 Free of use, by Clavier-Music
