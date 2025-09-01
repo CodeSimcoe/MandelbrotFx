@@ -1,6 +1,8 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
 import com.codesimcoe.mandelbrotfx.Configuration;
+import com.codesimcoe.mandelbrotfx.MandelbrotStrategy;
+import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.PrimitiveStrategy;
 import com.codesimcoe.mandelbrotfx.Region;
 import com.codesimcoe.mandelbrotfx.RegionOfInterest;
 
@@ -9,6 +11,8 @@ import java.util.List;
 public enum MandelbrotFractal implements Fractal {
 
   MANDELBROT;
+
+  private MandelbrotStrategy strategy = PrimitiveStrategy.INSTANCE;
 
   private final Region defaultRegion =  new Region(-0.5, 0, 2);
   private final List<RegionOfInterest> regionsOfInterest = List.of(
@@ -38,27 +42,14 @@ public enum MandelbrotFractal implements Fractal {
 
   @Override
   public int compute(final double x0, final double y0, final int max) {
+    return this.strategy.compute(x0, y0, max);
+  }
 
-    double x = 0;
-    double y = 0;
+  public MandelbrotStrategy getStrategy() {
+    return this.strategy;
+  }
 
-    // Squared values
-    double x2 = 0;
-    double y2 = 0;
-
-    // Iteration
-    int i = 0;
-
-    double modulusSquared = x2 + y2;
-    while (modulusSquared <= 4 && i < max) {
-      y = 2 * x * y + y0;
-      x = x2 - y2 + x0;
-      x2 = x * x;
-      y2 = y * y;
-      modulusSquared = x2 + y2;
-      i++;
-    }
-
-    return i;
+  public void setStrategy(final MandelbrotStrategy strategy) {
+    this.strategy = strategy;
   }
 }
