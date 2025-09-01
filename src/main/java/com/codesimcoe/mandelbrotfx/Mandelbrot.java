@@ -34,6 +34,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.layout.BorderPane;
@@ -86,6 +87,9 @@ public class Mandelbrot {
 
   // Color offset
   private final IntegerProperty colorOffsetProperty = new SimpleIntegerProperty();
+
+  // Escape viewer
+  private final IntegerProperty escapeViewerPointsProperty = new SimpleIntegerProperty();
 
   // Music
   private final ObjectProperty<NamedMusic> musicProperty = new SimpleObjectProperty<>();
@@ -574,9 +578,13 @@ public class Mandelbrot {
       this.snapshotButtons.toArray(new Button[] {})
     );
 
-
     this.snapshotProgressBar.setVisible(false);
     TitledPane snapshotPane = buildTitledPane("Snapshot", snapshotButtonsBox, this.snapshotProgressBar);
+
+    // Escape viewer
+    ToggleButton escapeToggleButton = new ToggleButton("Enable");
+    Slider escapePointsSlider = newSlider(0, 50, 10, this.escapeViewerPointsProperty);
+    TitledPane escapeViewerPane = buildTitledPane("Escape Viewer", escapePointsSlider, escapeToggleButton);
 
     // Select music
     ComboBox<NamedMusic> musicSelectionComboBox = new ComboBox<>();
@@ -618,6 +626,7 @@ public class Mandelbrot {
       navigationPane,
       colorPane,
       snapshotPane,
+      escapeViewerPane,
       musicPane
     );
     settingsBox.setPadding(new Insets(GAP));
