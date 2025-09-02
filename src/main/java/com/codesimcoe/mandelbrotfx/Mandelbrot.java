@@ -1,5 +1,7 @@
 package com.codesimcoe.mandelbrotfx;
 
+import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.PrimerLight;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
@@ -14,6 +16,7 @@ import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
 import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.SpectrumColorPalette;
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
@@ -24,6 +27,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
@@ -31,9 +35,13 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.layout.BorderPane;
@@ -120,6 +128,9 @@ public class Mandelbrot {
   // Points of interest
   private final ComboBox<RegionOfInterest> regionsOfInterestComboBox = new ComboBox<>();
 
+  // Theme
+  private Theme currentTheme = Theme.LIGHT;
+
   public Mandelbrot(
     final int width,
     final int height,
@@ -191,11 +202,15 @@ public class Mandelbrot {
     this.pixelWriter = canvas.getGraphicsContext2D().getPixelWriter();
 
     VBox settingsBox = this.buildSettingsBox(fractals, palettes, musics);
+    ScrollPane settingsScrollPane = new ScrollPane(settingsBox);
+    settingsScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
 
     // Assemble (border pane)
     this.root = new BorderPane();
     this.root.setCenter(canvas);
-    this.root.setRight(settingsBox);
+    this.root.setRight(settingsScrollPane);
+
+    BorderPane.setAlignment(canvas, Pos.TOP_CENTER);
 
     // Initialize and cache all available colors
     this.colors = this.colorPalette.get().computeColors(maxIterations);
@@ -438,6 +453,32 @@ public class Mandelbrot {
     final ColorPalette[] palettes,
     final NamedMusic[] musics) {
 
+    // Theme
+    ToggleGroup themeToggleGroup = new ToggleGroup();
+
+    ToggleButton lightThemeButton = new ToggleButton("Light");
+    ToggleButton darkThemeButton  = new ToggleButton("Dark");
+
+    lightThemeButton.setToggleGroup(themeToggleGroup);
+    darkThemeButton.setToggleGroup(themeToggleGroup);
+
+    themeToggleGroup.selectedToggleProperty().addListener((_, _, newToggle) -> {
+      this.currentTheme = (newToggle == lightThemeButton) ? Theme.LIGHT : Theme.DARK;
+      this.updateTheme();
+    });
+
+    ToggleButton selectedThemeButton = switch (this.currentTheme) {
+      case LIGHT -> lightThemeButton;
+      case DARK -> darkThemeButton;
+    };
+    themeToggleGroup.selectToggle(selectedThemeButton);
+
+    // Apply segmented style
+    lightThemeButton.getStyleClass().addAll("left-pill");
+    darkThemeButton.getStyleClass().addAll("right-pill");
+    HBox themeBox = new HBox(lightThemeButton, darkThemeButton);
+    TitledPane themePane = buildTitledPane("Theme", themeBox);
+
     // Algorithm
     ComboBox<Fractal> fractalComboBox = new ComboBox<>();
     fractalComboBox.setConverter(new NamedConverter<>());
@@ -614,6 +655,7 @@ public class Mandelbrot {
 
     VBox settingsBox = new VBox(
       GAP,
+      themePane,
       algorithmPane,
       navigationPane,
       colorPane,
@@ -693,5 +735,13 @@ public class Mandelbrot {
   private void jumpToRegionOfInterest(final RegionOfInterest regionOfInterest) {
     this.regionProperty.update(regionOfInterest.region());
     this.updateMaxIterations(regionOfInterest.iterations());
+  }
+
+  private void updateTheme() {
+    String userAgentStylesheet = switch (this.currentTheme) {
+      case LIGHT -> new PrimerLight().getUserAgentStylesheet();
+      case DARK -> new PrimerDark().getUserAgentStylesheet();
+    };
+    Application.setUserAgentStylesheet(userAgentStylesheet);
   }
 }
