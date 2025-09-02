@@ -2,6 +2,7 @@ package com.codesimcoe.mandelbrotfx;
 
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
+import atlantafx.base.theme.Styles;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
@@ -474,8 +475,8 @@ public class Mandelbrot {
     themeToggleGroup.selectToggle(selectedThemeButton);
 
     // Apply segmented style
-    lightThemeButton.getStyleClass().addAll("left-pill");
-    darkThemeButton.getStyleClass().addAll("right-pill");
+    lightThemeButton.getStyleClass().addAll(Styles.LEFT_PILL);
+    darkThemeButton.getStyleClass().addAll(Styles.RIGHT_PILL);
     HBox themeBox = new HBox(lightThemeButton, darkThemeButton);
     TitledPane themePane = buildTitledPane("Theme", themeBox);
 
@@ -696,6 +697,8 @@ public class Mandelbrot {
     TitledPane titledPane = new TitledPane(title, vBox);
     titledPane.setCollapsible(false);
     titledPane.setExpanded(true);
+    titledPane.setAnimated(false);
+    titledPane.getStyleClass().add(Styles.DENSE);
 
     return titledPane;
   }
