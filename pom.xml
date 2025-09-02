@@ -6,7 +6,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.13.4</junit.version>
         <javafx.version>24.0.2</javafx.version>
         <jmh.version>1.37</jmh.version>
     </properties>

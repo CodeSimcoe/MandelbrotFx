@@ -66,14 +66,14 @@ public sealed interface MandelbrotStrategy {
     public int compute(final double x, final double y, final int max) {
       Complex c = new Complex(x, y);
       Complex z = new Complex(0, 0);
-      int iterations = 0;
+      int i = 0;
 
-      while (z.magnitudeSquared() < 4 && iterations < max) {
+      while (z.magnitudeSquared() < 4 && i < max) {
         z = z.square().add(c);
-        iterations++;
+        i++;
       }
 
-      return iterations;
+      return i;
     }
   }
 
@@ -85,14 +85,14 @@ public sealed interface MandelbrotStrategy {
     public int compute(final double x, final double y, final int max) {
       ValueComplex c = new ValueComplex(x, y);
       ValueComplex z = new ValueComplex(0, 0);
-      int iterations = 0;
+      int i = 0;
 
-      while (z.magnitudeSquared() < 4 && iterations < max) {
+      while (z.magnitudeSquared() < 4 && i < max) {
         z = z.square().add(c);
-        iterations++;
+        i++;
       }
 
-      return iterations;
+      return i;
     }
   }
 }
