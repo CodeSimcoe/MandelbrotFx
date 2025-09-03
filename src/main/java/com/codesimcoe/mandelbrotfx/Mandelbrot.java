@@ -522,8 +522,8 @@ public class Mandelbrot {
     TextField regionXcTextField = new TextField();
     TextField regionYcTextField = new TextField();
     TextField regionSizeTextField = new TextField();
-    Label xLabel = new Label("x");
-    Label yLabel = new Label("y");
+    Label xLabel = new Label("re");
+    Label yLabel = new Label("im");
     Label sizeLabel = new Label("size");
     xLabel.setPrefWidth(25);
     yLabel.setPrefWidth(25);
@@ -531,6 +531,9 @@ public class Mandelbrot {
     HBox xcBox = new HBox(GAP, xLabel, regionXcTextField);
     HBox ycBox = new HBox(GAP, yLabel, regionYcTextField);
     HBox sizeBox = new HBox(GAP, sizeLabel, regionSizeTextField);
+    xcBox.setAlignment(Pos.CENTER_LEFT);
+    ycBox.setAlignment(Pos.CENTER_LEFT);
+    sizeBox.setAlignment(Pos.CENTER_LEFT);
     Bindings.bindBidirectional(
       regionXcTextField.textProperty(),
       this.regionProperty.xc(),
