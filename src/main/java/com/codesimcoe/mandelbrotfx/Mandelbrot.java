@@ -3,6 +3,7 @@ package com.codesimcoe.mandelbrotfx;
 import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.MandelbrotStrategyType;
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
+import atlantafx.base.theme.Styles;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
@@ -475,8 +476,8 @@ public class Mandelbrot {
     themeToggleGroup.selectToggle(selectedThemeButton);
 
     // Apply segmented style
-    lightThemeButton.getStyleClass().addAll("left-pill");
-    darkThemeButton.getStyleClass().addAll("right-pill");
+    lightThemeButton.getStyleClass().addAll(Styles.LEFT_PILL);
+    darkThemeButton.getStyleClass().addAll(Styles.RIGHT_PILL);
     HBox themeBox = new HBox(lightThemeButton, darkThemeButton);
     TitledPane themePane = buildTitledPane("Theme", themeBox);
 
@@ -534,8 +535,8 @@ public class Mandelbrot {
     TextField regionXcTextField = new TextField();
     TextField regionYcTextField = new TextField();
     TextField regionSizeTextField = new TextField();
-    Label xLabel = new Label("x");
-    Label yLabel = new Label("y");
+    Label xLabel = new Label("re");
+    Label yLabel = new Label("im");
     Label sizeLabel = new Label("size");
     xLabel.setPrefWidth(25);
     yLabel.setPrefWidth(25);
@@ -543,6 +544,9 @@ public class Mandelbrot {
     HBox xcBox = new HBox(GAP, xLabel, regionXcTextField);
     HBox ycBox = new HBox(GAP, yLabel, regionYcTextField);
     HBox sizeBox = new HBox(GAP, sizeLabel, regionSizeTextField);
+    xcBox.setAlignment(Pos.CENTER_LEFT);
+    ycBox.setAlignment(Pos.CENTER_LEFT);
+    sizeBox.setAlignment(Pos.CENTER_LEFT);
     Bindings.bindBidirectional(
       regionXcTextField.textProperty(),
       this.regionProperty.xc(),
@@ -709,6 +713,8 @@ public class Mandelbrot {
     TitledPane titledPane = new TitledPane(title, vBox);
     titledPane.setCollapsible(false);
     titledPane.setExpanded(true);
+    titledPane.setAnimated(false);
+    titledPane.getStyleClass().add(Styles.DENSE);
 
     return titledPane;
   }
