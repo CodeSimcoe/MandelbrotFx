@@ -45,10 +45,6 @@ public enum MandelbrotFractal implements Fractal {
     return this.strategy.compute(x0, y0, max);
   }
 
-  public MandelbrotStrategy getStrategy() {
-    return this.strategy;
-  }
-
   public void setStrategy(final MandelbrotStrategy strategy) {
     this.strategy = strategy;
   }

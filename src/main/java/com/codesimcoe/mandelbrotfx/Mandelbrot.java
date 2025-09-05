@@ -1,9 +1,9 @@
 package com.codesimcoe.mandelbrotfx;
 
-import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.MandelbrotStrategyType;
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import atlantafx.base.theme.Styles;
+import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.MandelbrotStrategyType;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
@@ -751,7 +751,7 @@ public class Mandelbrot {
     }
   }
 
-  private void jumpToRegionOfInterest(final RegionOfInterest regionOfInterest) {
+  void jumpToRegionOfInterest(final RegionOfInterest regionOfInterest) {
     this.regionProperty.update(regionOfInterest.region());
     this.updateMaxIterations(regionOfInterest.iterations());
   }

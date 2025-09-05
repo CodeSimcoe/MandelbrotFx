@@ -44,7 +44,7 @@ public sealed interface MandelbrotStrategy {
       // Iteration
       int i = 0;
 
-      double modulusSquared = x2 + y2;
+      double modulusSquared = 0;
       while (modulusSquared <= 4 && i < max) {
         y = 2 * x * y + y0;
         x = x2 - y2 + x0;
