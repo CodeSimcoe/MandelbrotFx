@@ -3,6 +3,7 @@ package com.codesimcoe.mandelbrotfx;
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import atlantafx.base.theme.Styles;
+import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.MandelbrotStrategyType;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
@@ -503,11 +504,23 @@ public class Mandelbrot {
     jumpToRegionOfInterestButton.setOnAction(_ -> this.jumpToRegionOfInterest(this.regionsOfInterestComboBox.getValue()));
     HBox regionOfInterestBox = new HBox(GAP, this.regionsOfInterestComboBox, jumpToRegionOfInterestButton);
 
+    Label strategyLabel = new Label("Strategy");
+    ComboBox<MandelbrotStrategyType> strategyTypeComboBox = new ComboBox<>();
+    strategyTypeComboBox.setValue(MandelbrotStrategyType.PRIMITIVE);
+    strategyTypeComboBox.setConverter(new NamedConverter<>());
+    strategyTypeComboBox.getItems().setAll(MandelbrotStrategyType.values());
+    strategyTypeComboBox.setOnAction(_ -> {
+      MandelbrotStrategy strategy = strategyTypeComboBox.getValue().getStrategy();
+      MandelbrotFractal.MANDELBROT.setStrategy(strategy);
+    });
+
     TitledPane algorithmPane = buildTitledPane(
       "∑ Algorithm",
       fractalComboBox,
       new Label("Max iterations"),
       maxIterationsSlider,
+      strategyLabel,
+      strategyTypeComboBox,
       new Label("Regions of interest"),
       regionOfInterestBox
     );
@@ -738,7 +751,7 @@ public class Mandelbrot {
     }
   }
 
-  private void jumpToRegionOfInterest(final RegionOfInterest regionOfInterest) {
+  void jumpToRegionOfInterest(final RegionOfInterest regionOfInterest) {
     this.regionProperty.update(regionOfInterest.region());
     this.updateMaxIterations(regionOfInterest.iterations());
   }
