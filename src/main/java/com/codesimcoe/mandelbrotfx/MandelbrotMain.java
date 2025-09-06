@@ -31,8 +31,10 @@ public class MandelbrotMain extends Application {
     primaryStage.setOnCloseRequest(_ -> System.exit(0));
     InputStream iconResource = Objects.requireNonNull(this.getClass().getResourceAsStream("/icon.png"));
     primaryStage.getIcons().add(new Image(iconResource));
-    primaryStage.show();
 
     mandelbrot.update();
+
+    primaryStage.show();
+    primaryStage.requestFocus();
   }
 }
