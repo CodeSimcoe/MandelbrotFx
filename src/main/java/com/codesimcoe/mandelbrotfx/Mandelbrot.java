@@ -27,6 +27,7 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -45,11 +46,15 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.util.converter.NumberStringConverter;
 
 import javax.imageio.ImageIO;
@@ -70,6 +75,7 @@ public class Mandelbrot {
   private static final double GAP = 5;
 
   private final BorderPane root;
+  private final Pane mainPane;
 
   // Used fractal algorithm
   private final ObjectProperty<Fractal> fractal = new SimpleObjectProperty<>();
@@ -128,6 +134,12 @@ public class Mandelbrot {
 
   // Points of interest
   private final ComboBox<RegionOfInterest> regionsOfInterestComboBox = new ComboBox<>();
+
+  // Escape viewer configuration
+  private final IntegerProperty escapeMaxPointsProperty = new SimpleIntegerProperty(Configuration.DEFAULT_ESCAPE_POINTS);
+  private final Line[] escapeLines = new Line[Configuration.ESCAPE_MAX_POINTS];
+  private final Circle[] escapeDots = new Circle[Configuration.ESCAPE_MAX_POINTS];
+  private final EventHandler<MouseEvent> escapeMouseMovedHandler = this::onEscapeMouseMoved;
 
   // Theme
   private Theme currentTheme = Theme.LIGHT;
@@ -207,14 +219,18 @@ public class Mandelbrot {
     settingsScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
 
     // Assemble (border pane)
+    this.mainPane = new Pane(canvas);
     this.root = new BorderPane();
-    this.root.setCenter(canvas);
+    this.root.setCenter(this.mainPane);
     this.root.setRight(settingsScrollPane);
 
     BorderPane.setAlignment(canvas, Pos.TOP_CENTER);
 
     // Initialize and cache all available colors
     this.colors = this.colorPalette.get().computeColors(maxIterations);
+
+    // Initialize escape viewer
+    this.initializeEscapeViewer();
 
     // Actions
     canvas.setOnMousePressed(e -> {
@@ -322,6 +338,20 @@ public class Mandelbrot {
 
   private double yPixelsToValue(final double y) {
     return this.yPixelsToValue(y, this.height);
+  }
+
+  // Map real value (Re) to pixel X
+  private double valueToXPixels(final double re) {
+    double xc = this.regionProperty.xc().get();
+    double size = this.regionProperty.size().get();
+    return (re - (xc - size * 0.5)) * this.width / size;
+  }
+
+  // Map imaginary value (Im) to pixel Y
+  private double valueToYPixels(final double im) {
+    double yc = this.regionProperty.yc().get();
+    double size = this.regionProperty.size().get();
+    return (im - (yc - size * 0.5)) * this.height / size;
   }
 
   void update(
@@ -623,6 +653,16 @@ public class Mandelbrot {
     this.snapshotProgressBar.setVisible(false);
     TitledPane snapshotPane = buildTitledPane("Snapshot", snapshotButtonsBox, this.snapshotProgressBar);
 
+    // Escape viewer
+    Slider escapeViewerSlider = newSlider(0, Configuration.ESCAPE_MAX_POINTS, 10, this.escapeMaxPointsProperty);
+    ToggleButton escapeViewerToggleButton = new ToggleButton("Mandelbrot");
+    escapeViewerToggleButton.setOnAction(_ -> this.updateEscapeViewer(escapeViewerToggleButton.isSelected()));
+    TitledPane escapeViewerPane = buildTitledPane(
+      "Escape viewer",
+      escapeViewerSlider,
+      escapeViewerToggleButton
+    );
+
     // Select music
     ComboBox<NamedMusic> musicSelectionComboBox = new ComboBox<>();
     musicSelectionComboBox.getItems().setAll(musics);
@@ -664,6 +704,7 @@ public class Mandelbrot {
       navigationPane,
       colorPane,
       snapshotPane,
+      escapeViewerPane,
       musicPane
     );
     settingsBox.setPadding(new Insets(GAP));
@@ -749,5 +790,89 @@ public class Mandelbrot {
       case DARK -> new PrimerDark().getUserAgentStylesheet();
     };
     Application.setUserAgentStylesheet(userAgentStylesheet);
+  }
+
+  private void initializeEscapeViewer() {
+    for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
+
+      Line line = new Line();
+      line.setMouseTransparent(true);
+      line.setStroke(Color.CORNFLOWERBLUE);
+      line.setStrokeWidth(2);
+
+      Circle dot = new Circle(4, Color.MEDIUMSLATEBLUE);
+      dot.setMouseTransparent(true);
+
+      this.escapeLines[i] = line;
+      this.escapeDots[i] = dot;
+    }
+  }
+
+  private void updateEscapeViewer(final boolean enabled) {
+    if (enabled) {
+      this.mainPane.getChildren().addAll(this.escapeLines);
+      this.mainPane.getChildren().addAll(this.escapeDots);
+
+      this.mainPane.addEventHandler(MouseEvent.MOUSE_MOVED, this.escapeMouseMovedHandler);
+
+    } else {
+      this.mainPane.getChildren().removeAll(this.escapeLines);
+      this.mainPane.getChildren().removeAll(this.escapeDots);
+
+      this.mainPane.removeEventHandler(MouseEvent.MOUSE_MOVED, this.escapeMouseMovedHandler);
+    }
+  }
+
+  private void onEscapeMouseMoved(final MouseEvent event) {
+
+    int maxEscapePoints = this.escapeMaxPointsProperty.get();
+
+    // Map mouse position -> complex [-1,1]
+    double cx = this.xPixelsToValue(event.getX());
+    double cy = this.yPixelsToValue(event.getY());
+
+    // Hide all lines initially
+    for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
+      this.escapeLines[i].setVisible(false);
+      this.escapeDots[i].setVisible(false);
+    }
+
+    double zx = 0, zy = 0;
+    double prevScreenX = this.valueToXPixels(0);
+    double prevScreenY = this.valueToYPixels(0);
+
+    for (int i = 0; i < maxEscapePoints; i++) {
+      // Mandelbrot iteration
+      double newZx = zx * zx - zy * zy + cx;
+      double newZy = 2 * zx * zy + cy;
+
+      // Convert to screen coordinates
+      double screenX = this.valueToXPixels(newZx);
+      double screenY = this.valueToYPixels(newZy);
+
+      // Update line
+      Line line = this.escapeLines[i];
+      line.setStartX(prevScreenX);
+      line.setStartY(prevScreenY);
+      line.setEndX(screenX);
+      line.setEndY(screenY);
+      line.setVisible(true);
+
+      // Update dot
+      Circle dot = this.escapeDots[i];
+      dot.setCenterX(screenX);
+      dot.setCenterY(screenY);
+      dot.setVisible(true);
+
+      // Stop if modulus > 2 (squared > 4)
+      if (newZx * newZx + newZy * newZy > 4.0) {
+        break;
+      }
+
+      zx = newZx;
+      zy = newZy;
+      prevScreenX = screenX;
+      prevScreenY = screenY;
+    }
   }
 }

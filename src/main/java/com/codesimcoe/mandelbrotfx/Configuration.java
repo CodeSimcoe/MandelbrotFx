@@ -13,6 +13,9 @@ public final class Configuration {
   public static final ZoomMode DEFAULT_ZOOM_MODE = ZoomMode.POINTER;
   public static final double DEFAULT_MUSIC_VOLUME = .5;
 
+  public static final int DEFAULT_ESCAPE_POINTS = 30;
+  public static final int ESCAPE_MAX_POINTS = 100;
+
   private Configuration() {
     //
   }
