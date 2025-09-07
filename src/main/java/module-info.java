@@ -9,5 +9,4 @@ module mandelbrotfx {
 
   exports com.codesimcoe.mandelbrotfx to javafx.graphics;
   exports com.codesimcoe.mandelbrotfx.fractal to javafx.graphics;
-  exports com.codesimcoe.mandelbrotfx.escape to javafx.graphics;
 }
