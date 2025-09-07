@@ -1,141 +1,152 @@
 package com.codesimcoe.mandelbrotfx.escape;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
+import com.codesimcoe.mandelbrotfx.Configuration;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
+import com.codesimcoe.mandelbrotfx.Viewport;
+import com.codesimcoe.mandelbrotfx.fractal.Fractal;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
-public class EscapeViewer extends Application {
+public class EscapeViewer {
 
-  private static final double WIDTH = 1024;
-  private static final double HEIGHT = 1024;
+  // The pane to attach viewer to
+  private final Pane pane;
 
-  private static final int POINTS_COUNT = 25;
+  private final Text coordinatesText = new Text();
+  private final Line[] escapeLines = new Line[Configuration.ESCAPE_MAX_POINTS];
+  private final Circle[] escapeDots = new Circle[Configuration.ESCAPE_MAX_POINTS];
 
-  private final Line[] lines = new Line[POINTS_COUNT];
-  private final Circle[] dots = new Circle[POINTS_COUNT];
+  private final IntegerProperty escapeMaxPointsProperty = new SimpleIntegerProperty(Configuration.DEFAULT_ESCAPE_POINTS);
+  
+  private final EventHandler<MouseEvent> escapeMouseMovedHandler = this::onEscapeMouseMoved;
 
-  private final double centerX;
-  private final double centerY;
+  private final Viewport viewport;
 
-  public EscapeViewer() {
+  private Fractal fractal;
 
-    this.centerX = WIDTH / 2;
-    this.centerY = HEIGHT / 2;
+  public EscapeViewer(
+    final Pane pane,
+    final Viewport viewport,
+    final Fractal fractal) {
+    
+    this.pane = pane;
+    this.viewport = viewport;
+    this.fractal = fractal;
 
-    for (int i = 0; i < POINTS_COUNT; i++) {
+    this.initialize();
+  }
+
+  private void initialize() {
+
+    this.coordinatesText.setStroke(Color.DARKRED);
+    this.coordinatesText.setFont(Font.font("Monospace", 12));
+
+    for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
+
       Line line = new Line();
+      line.setMouseTransparent(true);
       line.setStroke(Color.CORNFLOWERBLUE);
-      line.setStrokeWidth(2);
-      this.lines[i] = line;
+      line.setStrokeWidth(1.5);
+      line.setOpacity(.75);
 
-      Circle dot = new Circle(4, Color.MEDIUMSLATEBLUE);
-      this.dots[i] = dot;
+      Circle dot = new Circle(3, Color.MEDIUMSLATEBLUE);
+      dot.setMouseTransparent(true);
+      dot.setOpacity(.75);
+
+      this.escapeLines[i] = line;
+      this.escapeDots[i] = dot;
+    }
+
+    // Color first point differently
+    this.escapeDots[0].setFill(Color.DARKRED);
+  }
+
+  public void update(final boolean enabled) {
+    ObservableList<Node> children = this.pane.getChildren();
+    if (enabled) {
+      children.add(this.coordinatesText);
+      children.addAll(this.escapeLines);
+      children.addAll(this.escapeDots);
+
+      this.pane.addEventHandler(MouseEvent.MOUSE_MOVED, this.escapeMouseMovedHandler);
+
+    } else {
+      children.remove(this.coordinatesText);
+      children.removeAll(this.escapeLines);
+      children.removeAll(this.escapeDots);
+
+      this.pane.removeEventHandler(MouseEvent.MOUSE_MOVED, this.escapeMouseMovedHandler);
     }
   }
 
-  @Override
-  public void start(final Stage primaryStage) {
+  private void onEscapeMouseMoved(final MouseEvent event) {
+    double re = this.viewport.screenToRe(event.getX());
+    double im = this.viewport.screenToIm(event.getY());
 
-    // X axis
-    Line xAxis = new Line(0, this.centerY, WIDTH, this.centerY);
-    xAxis.setStroke(Color.WHITE);
+    String text = String.format("[%.4f, %.4f]", re, im);
+    this.coordinatesText.setText(text);
+    this.coordinatesText.setX(event.getX() + 12);
+    this.coordinatesText.setY(event.getY() + 12);
 
-    // Y axis
-    Line yAxis = new Line(this.centerX, 0, this.centerX, HEIGHT);
-    yAxis.setStroke(Color.WHITE);
-
-    Pane root = new Pane(xAxis, yAxis);
-    root.getChildren().addAll(this.lines);
-    root.getChildren().addAll(this.dots);
-    Scene scene = new Scene(root, WIDTH, HEIGHT, Color.BLACK);
-
-    // Ticks and labels
-    for (double i = -1; i <= 1; i+=.5) {
-      if (i == 0) {
-        Text label = new Text(this.centerX + 5, this.centerY + 15, "0");
-        label.setFill(Color.WHITE);
-        root.getChildren().add(label);
-        continue;
-      }
-
-      // X ticks
-      double x = this.centerX + i * (WIDTH / 2);
-      Line xtick = new Line(x, this.centerY - 5, x, this.centerY + 5);
-      xtick.setStroke(Color.WHITE);
-      Text xlabel = new Text(x - 10, this.centerY + 20, String.valueOf(i));
-      xlabel.setFill(Color.WHITE);
-
-      // Y ticks
-      double y = this.centerY - i * (HEIGHT / 2); // invert Y axis
-      Line ytick = new Line(this.centerX - 5, y, this.centerX + 5, y);
-      ytick.setStroke(Color.WHITE);
-      Text ylabel = new Text(this.centerX + 10, y + 5, String.valueOf(i));
-      ylabel.setFill(Color.WHITE);
-
-      root.getChildren().addAll(xtick, xlabel, ytick, ylabel);
+    for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
+      this.escapeLines[i].setVisible(false);
+      this.escapeDots[i].setVisible(false);
     }
 
-    root.setOnMouseMoved(this::computeLines);
+    int maxEscapePoints = this.escapeMaxPointsProperty.get();
 
-    primaryStage.setScene(scene);
-    primaryStage.setTitle("Escape Viewer");
-    primaryStage.setOnCloseRequest(_ -> System.exit(0));
-    primaryStage.show();
-  }
+    ValueComplex z = this.fractal.initialZ(re, im);
+    ValueComplex zPrev = ValueComplex.ZERO;
+    ValueComplex c = this.fractal.constantC(re, im);
 
-  private void computeLines(final MouseEvent e) {
-    // Map mouse position -> complex [-1,1]
-    double cx = (e.getX() - this.centerX) / (WIDTH / 2);
-    double cy = (this.centerY - e.getY()) / (HEIGHT / 2);
+    double prevScreenX = this.viewport.complexToX(z.re());
+    double prevScreenY = this.viewport.complexToY(z.im());
 
-    // Hide all lines initially
-    for (int i = 0; i < POINTS_COUNT; i++) {
-      this.lines[i].setVisible(false);
-      this.dots[i].setVisible(false);
-    }
+    for (int i = 0; i < maxEscapePoints; i++) {
+      ValueComplex next = this.fractal.computeIteration(z, zPrev, c);
 
-    double zx = 0, zy = 0;
-    double prevScreenX = this.centerX;
-    double prevScreenY = this.centerY;
+      zPrev = z;
+      z = next;
 
-    for (int i = 0; i < POINTS_COUNT; i++) {
-      // Mandelbrot iteration
-      double newZx = zx * zx - zy * zy + cx;
-      double newZy = 2 * zx * zy + cy;
+      double screenX = this.viewport.complexToX(z.re());
+      double screenY = this.viewport.complexToY(z.im());
 
-      // Convert to screen coordinates
-      double screenX = this.centerX + newZx * (WIDTH / 2);
-      double screenY = this.centerY - newZy * (HEIGHT / 2);
-
-      // Update line
-      Line line = this.lines[i];
+      Line line = this.escapeLines[i];
       line.setStartX(prevScreenX);
       line.setStartY(prevScreenY);
       line.setEndX(screenX);
       line.setEndY(screenY);
       line.setVisible(true);
 
-      // Update dot
-      Circle dot = this.dots[i];
+      Circle dot = this.escapeDots[i];
       dot.setCenterX(screenX);
       dot.setCenterY(screenY);
       dot.setVisible(true);
 
-      // Stop if modulus > 2 (squared > 4)
-      if (newZx * newZx + newZy * newZy > 4.0) {
+      if (z.re() * z.re() + z.im() * z.im() > 4.0) {
         break;
       }
 
-      zx = newZx;
-      zy = newZy;
       prevScreenX = screenX;
       prevScreenY = screenY;
     }
+  }
+
+  public void setFractal(final Fractal fractal) {
+    this.fractal = fractal;
+  }
+
+  public IntegerProperty getEscapeMaxPointsProperty() {
+    return this.escapeMaxPointsProperty;
   }
 }

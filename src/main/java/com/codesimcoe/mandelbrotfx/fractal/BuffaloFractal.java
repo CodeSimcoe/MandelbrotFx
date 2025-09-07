@@ -1,6 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 public enum BuffaloFractal implements Fractal {
 
@@ -17,7 +18,7 @@ public enum BuffaloFractal implements Fractal {
   }
 
   @Override
-  public int compute(final double x0, final double y0, final int max) {
+  public int computeEscape(final double x0, final double y0, final int max) {
     double x = 0.0;
     double y = 0.0;
 
@@ -51,4 +52,14 @@ public enum BuffaloFractal implements Fractal {
     return i;
   }
 
+  @Override
+  public ValueComplex computeIteration(final ValueComplex z, final ValueComplex zPrev, final ValueComplex c) {
+    double x = Math.abs(z.re());
+    double y = Math.abs(z.im());
+
+    double newY = 2.0 * x * y + c.im();
+    double newX = x * x - 2.0 * x * y + y * y + c.re();
+
+    return new ValueComplex(newX, newY);
+  }
 }

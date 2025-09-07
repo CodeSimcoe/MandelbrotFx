@@ -1,4 +1,4 @@
-# Mandelbrot / Julia Set explorer
+# Mandelbrot / Julia Set / ... explorer
 
 * Left click : move to pointed position
 * Mouse wheel : Zoom in / out
@@ -13,8 +13,17 @@ Multiple fractal algorithms are available :
 * Tricorn
 * Celtic
 
+## Startup
+
+Run the command
+
+```
+mvn javafx:run
+```
+
 ## Gallery
 
+![](pictures/pic0.png)
 ![](pictures/pic1.png)
 ![](pictures/pic2.png)
 ![](pictures/pic3.png)

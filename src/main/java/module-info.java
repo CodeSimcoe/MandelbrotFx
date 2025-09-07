@@ -1,4 +1,4 @@
-module MandelbrotFx {
+module mandelbrotfx {
 	requires transitive javafx.graphics;
   requires javafx.controls;
   requires javafx.media;
@@ -9,5 +9,4 @@ module MandelbrotFx {
 
   exports com.codesimcoe.mandelbrotfx to javafx.graphics;
   exports com.codesimcoe.mandelbrotfx.fractal to javafx.graphics;
-  exports com.codesimcoe.mandelbrotfx.escape to javafx.graphics;
 }

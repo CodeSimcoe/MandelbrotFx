@@ -1,8 +1,9 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
-public record JuliaFractal(String name, double x0, double y0) implements Fractal {
+public record JuliaFractal(String name, double re0, double im0) implements Fractal {
 
   @Override
   public String getName() {
@@ -15,26 +16,49 @@ public record JuliaFractal(String name, double x0, double y0) implements Fractal
   }
 
   @Override
-  public int compute(final double x, final double y, final int max) {
+  public int computeEscape(final double re, final double im, final int max) {
 
-    double zx = x;
-    double zy = y;
+    double zRe = re;
+    double zIm = im;
 
-    double zx2 = zx * zx;
-    double zy2 = zy * zy;
+    double zre2 = zRe * zRe;
+    double zim2 = zIm * zIm;
 
     int i = 0;
 
-    double modulusSquared = zx2 + zy2;
+    double modulusSquared = zre2 + zim2;
     while (modulusSquared <= 4 && i < max) {
-      zy = 2.0 * zx * zy + this.y0;
-      zx = zx2 - zy2 + this.x0;
+      zIm = 2.0 * zRe * zIm + this.im0;
+      zRe = zre2 - zim2 + this.re0;
 
-      zx2 = zx * zx;
-      zy2 = zy * zy;
-      modulusSquared = zx2 + zy2;
+      zre2 = zRe * zRe;
+      zim2 = zIm * zIm;
+      modulusSquared = zre2 + zim2;
       i++;
     }
     return i;
+  }
+
+  @Override
+  public ValueComplex computeIteration(final ValueComplex z, final ValueComplex zPrev, final ValueComplex c) {
+    double zr = z.re();
+    double zi = z.im();
+
+    double zr2 = zr * zr - zi * zi;
+    double zi2 = 2 * zr * zi;
+
+    // Julia constant (fixed for whole fractal)
+    return new ValueComplex(zr2 + this.re0, zi2 + this.im0);
+  }
+
+  @Override
+  public ValueComplex initialZ(final double re, final double im) {
+    // Start at the pixel coordinate
+    return new ValueComplex(re, im);
+  }
+
+  @Override
+  public ValueComplex constantC(final double re, final double im) {
+    return new ValueComplex(this.re0, this.im0);
   }
 }

@@ -5,6 +5,7 @@ import atlantafx.base.theme.PrimerLight;
 import atlantafx.base.theme.Styles;
 import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.MandelbrotStrategyType;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
+import com.codesimcoe.mandelbrotfx.escape.EscapeViewer;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
 import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
@@ -20,7 +21,6 @@ import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.SpectrumColorPalette;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -51,7 +51,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
-import javafx.util.converter.NumberStringConverter;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -64,9 +63,6 @@ import java.util.stream.IntStream;
 
 public class Mandelbrot {
 
-  private static final NumberStringConverter NUMBER_STRING_CONVERTER
-    = new NumberStringConverter("#.##############");
-
   // Common layout gap between elements
   private static final double GAP = 5;
 
@@ -78,12 +74,12 @@ public class Mandelbrot {
   // Used color palette
   private final ObjectProperty<ColorPalette> colorPalette = new SimpleObjectProperty<>();
 
-  // Region
-  private final RegionProperty regionProperty = new RegionProperty(
-    new SimpleDoubleProperty(),
-    new SimpleDoubleProperty(),
-    new SimpleDoubleProperty()
-  );
+  // Viewport
+  private final Viewport viewport;
+
+  private TextField regionReCenterTextField;
+  private TextField regionImCenterTextField;
+  private TextField regionSizeTextField;
 
   // Zoom mode
   private final ObjectProperty<ZoomMode> zoomModeProperty = new SimpleObjectProperty<>(Configuration.DEFAULT_ZOOM_MODE);
@@ -130,6 +126,9 @@ public class Mandelbrot {
   // Points of interest
   private final ComboBox<RegionOfInterest> regionsOfInterestComboBox = new ComboBox<>();
 
+  // Escape viewer
+  private final EscapeViewer escapeViewer;
+
   // Theme
   private Theme currentTheme = Theme.LIGHT;
 
@@ -160,7 +159,8 @@ public class Mandelbrot {
 
     Fractal selectedFractal = fractals[0];
     this.fractal.set(selectedFractal);
-    this.regionProperty.update(selectedFractal.getDefaultRegion());
+    Region region = selectedFractal.getDefaultRegion();
+    this.viewport = new Viewport(region.centerRe(), region.centerIm(), region.size(), width, height);
     this.fillRegionsOfInterest();
 
     // Color palettes
@@ -200,22 +200,30 @@ public class Mandelbrot {
     this.imagePixels = new int[width * height];
     Canvas canvas = new Canvas(width, height);
 
+    Pane mainPane = new Pane(canvas);
+    BorderPane.setAlignment(canvas, Pos.TOP_CENTER);
+
     // Canvas graphics context
     this.pixelWriter = canvas.getGraphicsContext2D().getPixelWriter();
 
+    // Initialize and cache all available colors
+    this.colors = this.colorPalette.get().computeColors(maxIterations);
+
+    // Initialize escape viewer
+    this.escapeViewer = new EscapeViewer(mainPane, this.viewport, this.fractal.get());
+
+    // Settings
     VBox settingsBox = this.buildSettingsBox(fractals, palettes, musics);
     ScrollPane settingsScrollPane = new ScrollPane(settingsBox);
     settingsScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
 
     // Assemble (border pane)
     this.root = new BorderPane();
-    this.root.setCenter(canvas);
+    this.root.setCenter(mainPane);
     this.root.setRight(settingsScrollPane);
 
-    BorderPane.setAlignment(canvas, Pos.TOP_CENTER);
-
-    // Initialize and cache all available colors
-    this.colors = this.colorPalette.get().computeColors(maxIterations);
+    // Trigger UI update
+    this.manageViewportChange();
 
     // Actions
     canvas.setOnMousePressed(e -> {
@@ -229,7 +237,7 @@ public class Mandelbrot {
     canvas.setOnScroll(e -> {
 
       boolean zoomIn = e.getDeltaY() > 0;
-      if (!zoomIn && this.regionProperty.size().get() >= Configuration.MAX_REGION_SIZE) {
+      if (!zoomIn && this.viewport.getSize() >= Configuration.MAX_REGION_SIZE) {
         // Prevent zooming out too far
         return;
       }
@@ -239,6 +247,7 @@ public class Mandelbrot {
         case POINTER -> this.zoomOnPointer(e.getX(), e.getY(), zoomIn);
       }
 
+      this.manageViewportChange();
       this.update();
     });
   }
@@ -253,8 +262,8 @@ public class Mandelbrot {
 
   private void zoomOnPointer(final double mouseX, final double mouseY, final boolean zoomIn) {
     // Step 1: fractal coordinates under mouse before zoom
-    double fxBefore = this.xPixelsToValue(mouseX);
-    double fyBefore = this.yPixelsToValue(mouseY);
+    double fxBefore = this.viewport.screenToRe(mouseX);
+    double fyBefore = this.viewport.screenToIm(mouseY);
 
     // Step 2: zoom
     if (zoomIn) {
@@ -264,16 +273,19 @@ public class Mandelbrot {
     }
 
     // Step 3: fractal coordinates under mouse after zoom
-    double fxAfter = this.xPixelsToValue(mouseX);
-    double fyAfter = this.yPixelsToValue(mouseY);
+    double fxAfter = this.viewport.screenToRe(mouseX);
+    double fyAfter = this.viewport.screenToIm(mouseY);
 
     // Step 4: adjust center so the point stays under the mouse
-    this.regionProperty.xc().set(this.regionProperty.xc().get() + (fxBefore - fxAfter));
-    this.regionProperty.yc().set(this.regionProperty.yc().get() + (fyBefore - fyAfter));
+    this.viewport.moveBy(
+      fxBefore - fxAfter,
+      fyBefore - fyAfter
+    );
   }
 
   private void reset() {
-    this.regionProperty.update(this.fractal.get().getDefaultRegion());
+    this.viewport.update(this.fractal.get().getDefaultRegion());
+    this.manageViewportChange();
     this.update();
   }
 
@@ -285,44 +297,19 @@ public class Mandelbrot {
     final double x,
     final double y) {
 
-    this.regionProperty.xc().set(this.xPixelsToValue(x));
-    this.regionProperty.yc().set(this.yPixelsToValue(y));
+    this.viewport.screenMoveTo(x, y);
+    this.manageViewportChange();
 
     this.update();
   }
 
   private void zoomIn() {
-    this.regionProperty.size().set(
-      this.regionProperty.size().get() / this.zoomFactorProperty.get()
-    );
+    this.viewport.zoomInBy(this.zoomFactorProperty.get());
+
   }
 
   private void zoomOut() {
-    this.regionProperty.size().set(
-      this.regionProperty.size().get() * this.zoomFactorProperty.get()
-    );
-  }
-
-  // Convert a pixel abscissa position to a "real" mathematical value
-  private double xPixelsToValue(final double x, final int width) {
-    double xc = this.regionProperty.xc().get();
-    double size = this.regionProperty.size().get();
-    return xc - size * 0.5 + size * x / width;
-  }
-
-  // Concert a pixel ordinate position to "real" mathematical value
-  private double yPixelsToValue(final double y, final int height) {
-    double yc = this.regionProperty.yc().get();
-    double size = this.regionProperty.size().get();
-    return yc - size * 0.5 + size * y / height;
-  }
-
-  private double xPixelsToValue(final double x) {
-    return this.xPixelsToValue(x, this.width);
-  }
-
-  private double yPixelsToValue(final double y) {
-    return this.yPixelsToValue(y, this.height);
+    this.viewport.zoomOutBy(this.zoomFactorProperty.get());
   }
 
   void update(
@@ -339,10 +326,10 @@ public class Mandelbrot {
     IntStream.range(0, height)
       .parallel()
       .forEach(y -> {
-        double y0 = this.yPixelsToValue(y, height);
+        double y0 = this.viewport.screenToIm(y, height);
         for (int x = 0; x < width; x++) {
-          double x0 = this.xPixelsToValue(x, width);
-          int iterations = algorithm.compute(x0, y0, max);
+          double x0 = this.viewport.screenToRe(x, width);
+          int iterations = algorithm.computeEscape(x0, y0, max);
           iterationsPixels[y][x] = iterations;
         }
       });
@@ -532,49 +519,53 @@ public class Mandelbrot {
     zoomModeComboBox.valueProperty().bindBidirectional(this.zoomModeProperty);
 
     // Current position
-    TextField regionXcTextField = new TextField();
-    TextField regionYcTextField = new TextField();
-    TextField regionSizeTextField = new TextField();
-    Label xLabel = new Label("re");
-    Label yLabel = new Label("im");
+    this.regionReCenterTextField = new TextField();
+    this.regionImCenterTextField = new TextField();
+    this.regionSizeTextField = new TextField();
+    Label reLabel = new Label("re");
+    Label imLabel = new Label("im");
     Label sizeLabel = new Label("size");
-    xLabel.setPrefWidth(25);
-    yLabel.setPrefWidth(25);
+    reLabel.setPrefWidth(25);
+    imLabel.setPrefWidth(25);
     sizeLabel.setPrefWidth(25);
-    HBox xcBox = new HBox(GAP, xLabel, regionXcTextField);
-    HBox ycBox = new HBox(GAP, yLabel, regionYcTextField);
-    HBox sizeBox = new HBox(GAP, sizeLabel, regionSizeTextField);
+    HBox xcBox = new HBox(GAP, reLabel, this.regionReCenterTextField);
+    HBox ycBox = new HBox(GAP, imLabel, this.regionImCenterTextField);
+    HBox sizeBox = new HBox(GAP, sizeLabel, this.regionSizeTextField);
     xcBox.setAlignment(Pos.CENTER_LEFT);
     ycBox.setAlignment(Pos.CENTER_LEFT);
     sizeBox.setAlignment(Pos.CENTER_LEFT);
-    Bindings.bindBidirectional(
-      regionXcTextField.textProperty(),
-      this.regionProperty.xc(),
-      NUMBER_STRING_CONVERTER
-    );
-    Bindings.bindBidirectional(
-      regionYcTextField.textProperty(),
-      this.regionProperty.yc(),
-      NUMBER_STRING_CONVERTER
-    );
-    Bindings.bindBidirectional(
-      regionSizeTextField.textProperty(),
-      this.regionProperty.size(),
-      NUMBER_STRING_CONVERTER
-    );
-    this.regionProperty.xc().addListener((_, _, _) -> {
-      if (regionXcTextField.isFocused()) {
-        this.update();
+
+    this.regionReCenterTextField.setOnAction(_ -> {
+      if (this.regionReCenterTextField.isFocused()) {
+        try {
+          double re = Double.parseDouble(this.regionReCenterTextField.getText());
+          this.viewport.complexMoveTo(re, this.viewport.getCenterIm());
+          this.update();
+        } catch (NumberFormatException e) {
+          // Silently ignore invalid input
+        }
       }
     });
-    this.regionProperty.yc().addListener((_, _, _) -> {
-      if (regionYcTextField.isFocused()) {
-        this.update();
+    this.regionImCenterTextField.setOnAction(_ -> {
+      if (this.regionImCenterTextField.isFocused()) {
+        try {
+          double im = Double.parseDouble(this.regionImCenterTextField.getText());
+          this.viewport.complexMoveTo(this.viewport.getCenterRe(), im);
+          this.update();
+        } catch (NumberFormatException e) {
+          // Silently ignore invalid input
+        }
       }
     });
-    this.regionProperty.size().addListener((_, _, _) -> {
-      if (regionSizeTextField.isFocused()) {
-        this.update();
+    this.regionSizeTextField.setOnAction(_ -> {
+      if (this.regionSizeTextField.isFocused()) {
+        try {
+          double size = Double.parseDouble(this.regionSizeTextField.getText());
+          this.viewport.setSize(size);
+          this.update();
+        } catch (NumberFormatException e) {
+          // Silently ignore invalid input
+        }
       }
     });
 
@@ -636,6 +627,16 @@ public class Mandelbrot {
     this.snapshotProgressBar.setVisible(false);
     TitledPane snapshotPane = buildTitledPane("Snapshot", snapshotButtonsBox, this.snapshotProgressBar);
 
+    // Escape viewer
+    Slider escapeViewerSlider = newSlider(0, Configuration.ESCAPE_MAX_POINTS, 10, this.escapeViewer.getEscapeMaxPointsProperty());
+    ToggleButton escapeViewerToggleButton = new ToggleButton("Overlay");
+    escapeViewerToggleButton.setOnAction(_ -> this.escapeViewer.update(escapeViewerToggleButton.isSelected()));
+    TitledPane escapeViewerPane = buildTitledPane(
+      "Escape viewer",
+      escapeViewerSlider,
+      escapeViewerToggleButton
+    );
+
     // Select music
     ComboBox<NamedMusic> musicSelectionComboBox = new ComboBox<>();
     musicSelectionComboBox.getItems().setAll(musics);
@@ -677,6 +678,7 @@ public class Mandelbrot {
       navigationPane,
       colorPane,
       snapshotPane,
+      escapeViewerPane,
       musicPane
     );
     settingsBox.setPadding(new Insets(GAP));
@@ -686,6 +688,7 @@ public class Mandelbrot {
   }
 
   private void manageAlgorithmChange() {
+    this.escapeViewer.setFractal(this.fractal.get());
     this.fillRegionsOfInterest();
     this.reset();
   }
@@ -752,7 +755,8 @@ public class Mandelbrot {
   }
 
   void jumpToRegionOfInterest(final RegionOfInterest regionOfInterest) {
-    this.regionProperty.update(regionOfInterest.region());
+    this.viewport.update(regionOfInterest.region());
+    this.manageViewportChange();
     this.updateMaxIterations(regionOfInterest.iterations());
   }
 
@@ -762,5 +766,11 @@ public class Mandelbrot {
       case DARK -> new PrimerDark().getUserAgentStylesheet();
     };
     Application.setUserAgentStylesheet(userAgentStylesheet);
+  }
+
+  private void manageViewportChange() {
+    this.regionReCenterTextField.setText(String.valueOf(this.viewport.getCenterRe()));
+    this.regionImCenterTextField.setText(String.valueOf(this.viewport.getCenterIm()));
+    this.regionSizeTextField.setText(String.valueOf(this.viewport.getSize()));
   }
 }

@@ -5,6 +5,7 @@ import com.codesimcoe.mandelbrotfx.MandelbrotStrategy;
 import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.PrimitiveStrategy;
 import com.codesimcoe.mandelbrotfx.Region;
 import com.codesimcoe.mandelbrotfx.RegionOfInterest;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 import java.util.List;
 
@@ -41,11 +42,22 @@ public enum MandelbrotFractal implements Fractal {
   }
 
   @Override
-  public int compute(final double x0, final double y0, final int max) {
-    return this.strategy.compute(x0, y0, max);
+  public int computeEscape(final double re0, final double im0, final int max) {
+    return this.strategy.computeEscape(re0, im0, max);
   }
 
   public void setStrategy(final MandelbrotStrategy strategy) {
     this.strategy = strategy;
+  }
+
+  @Override
+  public ValueComplex computeIteration(final ValueComplex z, final ValueComplex zPrev, final ValueComplex c) {
+    double re = z.re();
+    double im = z.im();
+
+    double reSquared = re * re - im * im;
+    double imSquared = 2 * re * im;
+
+    return new ValueComplex(reSquared + c.re(), imSquared + c.im());
   }
 }
