@@ -23,6 +23,7 @@ mvn javafx:run
 
 ## Gallery
 
+![](pictures/pic0.png)
 ![](pictures/pic1.png)
 ![](pictures/pic2.png)
 ![](pictures/pic3.png)
