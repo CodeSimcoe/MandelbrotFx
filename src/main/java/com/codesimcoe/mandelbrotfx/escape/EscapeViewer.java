@@ -6,18 +6,23 @@ import com.codesimcoe.mandelbrotfx.Viewport;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class EscapeViewer {
 
   // The pane to attach viewer to
   private final Pane pane;
 
+  private final Text coordinatesText = new Text();
   private final Line[] escapeLines = new Line[Configuration.ESCAPE_MAX_POINTS];
   private final Circle[] escapeDots = new Circle[Configuration.ESCAPE_MAX_POINTS];
 
@@ -42,6 +47,10 @@ public class EscapeViewer {
   }
 
   private void initialize() {
+
+    this.coordinatesText.setStroke(Color.DARKRED);
+    this.coordinatesText.setFont(Font.font("Monospace", 12));
+
     for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
 
       Line line = new Line();
@@ -57,26 +66,37 @@ public class EscapeViewer {
       this.escapeLines[i] = line;
       this.escapeDots[i] = dot;
     }
+
+    // Color first point differently
+    this.escapeDots[0].setFill(Color.DARKRED);
   }
 
   public void update(final boolean enabled) {
+    ObservableList<Node> children = this.pane.getChildren();
     if (enabled) {
-      this.pane.getChildren().addAll(this.escapeLines);
-      this.pane.getChildren().addAll(this.escapeDots);
+      children.add(this.coordinatesText);
+      children.addAll(this.escapeLines);
+      children.addAll(this.escapeDots);
 
       this.pane.addEventHandler(MouseEvent.MOUSE_MOVED, this.escapeMouseMovedHandler);
 
     } else {
-      this.pane.getChildren().removeAll(this.escapeLines);
-      this.pane.getChildren().removeAll(this.escapeDots);
+      children.remove(this.coordinatesText);
+      children.removeAll(this.escapeLines);
+      children.removeAll(this.escapeDots);
 
       this.pane.removeEventHandler(MouseEvent.MOUSE_MOVED, this.escapeMouseMovedHandler);
     }
   }
 
   private void onEscapeMouseMoved(final MouseEvent event) {
-    double cx = this.viewport.screenToRe(event.getX());
-    double cy = this.viewport.screenToIm(event.getY());
+    double re = this.viewport.screenToRe(event.getX());
+    double im = this.viewport.screenToIm(event.getY());
+
+    String text = String.format("[%.4f, %.4f]", re, im);
+    this.coordinatesText.setText(text);
+    this.coordinatesText.setX(event.getX() + 12);
+    this.coordinatesText.setY(event.getY() + 12);
 
     for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
       this.escapeLines[i].setVisible(false);
@@ -85,9 +105,9 @@ public class EscapeViewer {
 
     int maxEscapePoints = this.escapeMaxPointsProperty.get();
 
-    Complex z = this.fractal.initialZ(cx, cy);
+    Complex z = this.fractal.initialZ(re, im);
     Complex zPrev = Complex.ZERO;
-    Complex c = this.fractal.constantC(cx, cy);
+    Complex c = this.fractal.constantC(re, im);
 
     double prevScreenX = this.viewport.complexToX(z.re());
     double prevScreenY = this.viewport.complexToY(z.im());
