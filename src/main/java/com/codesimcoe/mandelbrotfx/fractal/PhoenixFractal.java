@@ -1,5 +1,6 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
+import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
 
 public record PhoenixFractal(String name, double p) implements Fractal {
@@ -15,33 +16,46 @@ public record PhoenixFractal(String name, double p) implements Fractal {
   }
 
   @Override
-  public int compute(final double x, final double y, final int max) {
-    double zx = 0.0;
-    double zy = 0.0;
-    double zxPrev = 0.0;
-    double zyPrev = 0.0;
+  public int computeEscape(final double re, final double im, final int max) {
+    double zRe = 0.0;
+    double zIm = 0.0;
+    double zRePrev = 0.0;
+    double zImPrev = 0.0;
     int iterations = 0;
 
-    while ((zx * zx + zy * zy) < 4 && iterations < max) {
+    while ((zRe * zRe + zIm * zIm) < 4 && iterations < max) {
       // z^2
-      double zx2 = zx * zx - zy * zy;
-      double zy2 = 2 * zx * zy;
+      double zx2 = zRe * zRe - zIm * zIm;
+      double zy2 = 2 * zRe * zIm;
 
       // zNext = z^2 + c + p * zPrev
-      double zxNext = zx2 + x + this.p * zxPrev;
-      double zyNext = zy2 + y + this.p * zyPrev;
+      double zxNext = zx2 + re + this.p * zRePrev;
+      double zyNext = zy2 + im + this.p * zImPrev;
 
       // update previous z
-      zxPrev = zx;
-      zyPrev = zy;
+      zRePrev = zRe;
+      zImPrev = zIm;
 
       // update current z
-      zx = zxNext;
-      zy = zyNext;
+      zRe = zxNext;
+      zIm = zyNext;
 
       iterations++;
     }
 
     return iterations;
+  }
+
+  @Override
+  public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
+    double zr = z.re();
+    double zi = z.im();
+    double zr2 = zr * zr - zi * zi;
+    double zi2 = 2 * zr * zi;
+
+    return new Complex(
+      zr2 + c.re() + this.p * zPrev.re(),
+      zi2 + c.im() + this.p * zPrev.im()
+    );
   }
 }

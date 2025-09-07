@@ -50,7 +50,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
-import javafx.util.converter.NumberStringConverter;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -63,14 +62,10 @@ import java.util.stream.IntStream;
 
 public class Mandelbrot {
 
-  private static final NumberStringConverter NUMBER_STRING_CONVERTER
-    = new NumberStringConverter("#.##############");
-
   // Common layout gap between elements
   private static final double GAP = 5;
 
   private final BorderPane root;
-  private final Pane mainPane;
 
   // Used fractal algorithm
   private final ObjectProperty<Fractal> fractal = new SimpleObjectProperty<>();
@@ -204,7 +199,7 @@ public class Mandelbrot {
     this.imagePixels = new int[width * height];
     Canvas canvas = new Canvas(width, height);
 
-    this.mainPane = new Pane(canvas);
+    Pane mainPane = new Pane(canvas);
     BorderPane.setAlignment(canvas, Pos.TOP_CENTER);
 
     // Canvas graphics context
@@ -214,7 +209,7 @@ public class Mandelbrot {
     this.colors = this.colorPalette.get().computeColors(maxIterations);
 
     // Initialize escape viewer
-    this.escapeViewer = new EscapeViewer(this.mainPane, this.viewport);
+    this.escapeViewer = new EscapeViewer(mainPane, this.viewport, this.fractal.get());
 
     // Settings
     VBox settingsBox = this.buildSettingsBox(fractals, palettes, musics);
@@ -223,7 +218,7 @@ public class Mandelbrot {
 
     // Assemble (border pane)
     this.root = new BorderPane();
-    this.root.setCenter(this.mainPane);
+    this.root.setCenter(mainPane);
     this.root.setRight(settingsScrollPane);
 
     // Trigger UI update
@@ -333,7 +328,7 @@ public class Mandelbrot {
         double y0 = this.viewport.screenToIm(y, height);
         for (int x = 0; x < width; x++) {
           double x0 = this.viewport.screenToRe(x, width);
-          int iterations = algorithm.compute(x0, y0, max);
+          int iterations = algorithm.computeEscape(x0, y0, max);
           iterationsPixels[y][x] = iterations;
         }
       });
@@ -621,10 +616,10 @@ public class Mandelbrot {
 
     // Escape viewer
     Slider escapeViewerSlider = newSlider(0, Configuration.ESCAPE_MAX_POINTS, 10, this.escapeViewer.getEscapeMaxPointsProperty());
-    ToggleButton escapeViewerToggleButton = new ToggleButton("Mandelbrot");
+    ToggleButton escapeViewerToggleButton = new ToggleButton("Overlay");
     escapeViewerToggleButton.setOnAction(_ -> this.escapeViewer.update(escapeViewerToggleButton.isSelected()));
     TitledPane escapeViewerPane = buildTitledPane(
-      "Escape viewer (beta)",
+      "Escape viewer",
       escapeViewerSlider,
       escapeViewerToggleButton
     );
@@ -680,6 +675,7 @@ public class Mandelbrot {
   }
 
   private void manageAlgorithmChange() {
+    this.escapeViewer.setFractal(this.fractal.get());
     this.fillRegionsOfInterest();
     this.reset();
   }

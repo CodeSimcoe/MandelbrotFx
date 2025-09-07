@@ -8,7 +8,7 @@ package com.codesimcoe.mandelbrotfx;
 ///
 /// - The center of the region in the complex plane: `(xc, yc)`
 /// - The size of the region (width in complex units)
-/// - The screen resolution (`width` × `height` in pixels)
+/// - The screen resolution (`width` x `height` in pixels)
 /// Provides conversion between screen and complex plane :
 /// - Conversion from screen `(x, y)` to complex `(re, im)`
 /// - Conversion from complex `(re, im)` to screen `(x, y)`

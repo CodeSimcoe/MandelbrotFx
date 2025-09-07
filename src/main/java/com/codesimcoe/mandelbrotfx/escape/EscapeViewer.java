@@ -1,7 +1,9 @@
 package com.codesimcoe.mandelbrotfx.escape;
 
+import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Configuration;
 import com.codesimcoe.mandelbrotfx.Viewport;
+import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.EventHandler;
@@ -25,12 +27,16 @@ public class EscapeViewer {
 
   private final Viewport viewport;
 
+  private Fractal fractal;
+
   public EscapeViewer(
     final Pane pane,
-    final Viewport viewport) {
+    final Viewport viewport,
+    final Fractal fractal) {
     
     this.pane = pane;
     this.viewport = viewport;
+    this.fractal = fractal;
 
     this.initialize();
   }
@@ -69,32 +75,32 @@ public class EscapeViewer {
   }
 
   private void onEscapeMouseMoved(final MouseEvent event) {
-
-    // Map mouse position -> complex [-1,1]
     double cx = this.viewport.screenToRe(event.getX());
     double cy = this.viewport.screenToIm(event.getY());
 
-    // Hide all lines initially
     for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
       this.escapeLines[i].setVisible(false);
       this.escapeDots[i].setVisible(false);
     }
 
-    double zx = 0, zy = 0;
-    double prevScreenX = this.viewport.complexToX(0);
-    double prevScreenY = this.viewport.complexToY(0);
-
     int maxEscapePoints = this.escapeMaxPointsProperty.get();
+
+    Complex z = this.fractal.initialZ(cx, cy);
+    Complex zPrev = Complex.ZERO;
+    Complex c = this.fractal.constantC(cx, cy);
+
+    double prevScreenX = this.viewport.complexToX(z.re());
+    double prevScreenY = this.viewport.complexToY(z.im());
+
     for (int i = 0; i < maxEscapePoints; i++) {
-      // Mandelbrot iteration
-      double newZx = zx * zx - zy * zy + cx;
-      double newZy = 2 * zx * zy + cy;
+      Complex next = this.fractal.computeIteration(z, zPrev, c);
 
-      // Convert to screen coordinates
-      double screenX = this.viewport.complexToX(newZx);
-      double screenY = this.viewport.complexToY(newZy);
+      zPrev = z;
+      z = next;
 
-      // Update line
+      double screenX = this.viewport.complexToX(z.re());
+      double screenY = this.viewport.complexToY(z.im());
+
       Line line = this.escapeLines[i];
       line.setStartX(prevScreenX);
       line.setStartY(prevScreenY);
@@ -102,22 +108,22 @@ public class EscapeViewer {
       line.setEndY(screenY);
       line.setVisible(true);
 
-      // Update dot
       Circle dot = this.escapeDots[i];
       dot.setCenterX(screenX);
       dot.setCenterY(screenY);
       dot.setVisible(true);
 
-      // Stop if modulus > 2 (squared > 4)
-      if (newZx * newZx + newZy * newZy > 4.0) {
+      if (z.re() * z.re() + z.im() * z.im() > 4.0) {
         break;
       }
 
-      zx = newZx;
-      zy = newZy;
       prevScreenX = screenX;
       prevScreenY = screenY;
     }
+  }
+
+  public void setFractal(final Fractal fractal) {
+    this.fractal = fractal;
   }
 
   public IntegerProperty getEscapeMaxPointsProperty() {

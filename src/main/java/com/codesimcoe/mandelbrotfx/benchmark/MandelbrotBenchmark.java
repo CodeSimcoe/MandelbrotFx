@@ -40,7 +40,7 @@ public class MandelbrotBenchmark {
         double x0 = this.xPixelsToValue(x);
         for (int y = 0; y < this.height; y++) {
           double y0 = this.yPixelsToValue(y);
-          int iterations = this.algorithm.compute(x0, y0, this.max);
+          int iterations = this.algorithm.computeEscape(x0, y0, this.max);
           this.iterationsPixels[x][y] = iterations;
         }
       });
@@ -54,7 +54,7 @@ public class MandelbrotBenchmark {
         double y0 = this.yPixelsToValue(y);
         for (int x = 0; x < this.width; x++) {
           double x0 = this.xPixelsToValue(x);
-          int iterations = this.algorithm.compute(x0, y0, this.max);
+          int iterations = this.algorithm.computeEscape(x0, y0, this.max);
           this.iterationsPixels[x][y] = iterations;
         }
       });

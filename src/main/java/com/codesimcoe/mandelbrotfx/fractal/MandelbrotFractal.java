@@ -1,5 +1,6 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
+import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Configuration;
 import com.codesimcoe.mandelbrotfx.Region;
 import com.codesimcoe.mandelbrotfx.RegionOfInterest;
@@ -37,28 +38,39 @@ public enum MandelbrotFractal implements Fractal {
   }
 
   @Override
-  public int compute(final double x0, final double y0, final int max) {
+  public int computeEscape(final double re0, final double im0, final int max) {
 
-    double x = 0;
-    double y = 0;
+    double re = 0;
+    double im = 0;
 
     // Squared values
-    double x2 = 0;
-    double y2 = 0;
+    double re2 = 0;
+    double im2 = 0;
 
     // Iteration
     int i = 0;
 
-    double modulusSquared = x2 + y2;
+    double modulusSquared = re2 + im2;
     while (modulusSquared <= 4 && i < max) {
-      y = 2 * x * y + y0;
-      x = x2 - y2 + x0;
-      x2 = x * x;
-      y2 = y * y;
-      modulusSquared = x2 + y2;
+      im = 2 * re * im + im0;
+      re = re2 - im2 + re0;
+      re2 = re * re;
+      im2 = im * im;
+      modulusSquared = re2 + im2;
       i++;
     }
 
     return i;
+  }
+
+  @Override
+  public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
+    double re = z.re();
+    double im = z.im();
+
+    double reSquared = re * re - im * im;
+    double imSquared = 2 * re * im;
+
+    return new Complex(reSquared + c.re(), imSquared + c.im());
   }
 }
