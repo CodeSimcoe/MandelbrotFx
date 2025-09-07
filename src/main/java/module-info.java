@@ -1,4 +1,4 @@
-module MandelbrotFx {
+module mandelbrotfx {
 	requires transitive javafx.graphics;
   requires javafx.controls;
   requires javafx.media;

@@ -35,6 +35,6 @@ public class MandelbrotMain extends Application {
     mandelbrot.update();
 
     primaryStage.show();
-    primaryStage.requestFocus();
+    primaryStage.toFront();
   }
 }

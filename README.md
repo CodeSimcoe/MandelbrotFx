@@ -13,6 +13,14 @@ Multiple fractal algorithms are available :
 * Tricorn
 * Celtic
 
+## Startup
+
+Run the command
+
+```
+mvn javafx:run
+```
+
 ## Gallery
 
 ![](pictures/pic1.png)
