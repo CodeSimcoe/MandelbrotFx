@@ -1,7 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 public enum BurningShipFractal implements Fractal {
 
@@ -48,13 +48,13 @@ public enum BurningShipFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
+  public ValueComplex computeIteration(final ValueComplex z, final ValueComplex zPrev, final ValueComplex c) {
     double x = Math.abs(z.re());
     double y = Math.abs(z.im());
 
     double newX = x * x - y * y + c.re();
     double newY = 2.0 * x * y + c.im();
 
-    return new Complex(newX, newY);
+    return new ValueComplex(newX, newY);
   }
 }
