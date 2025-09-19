@@ -3,6 +3,7 @@ package com.codesimcoe.mandelbrotfx.fractal;
 import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
 
+/// Burning Ship: z_{n+1} = (|Re(z_n)| + i|Im(z_n)|)^2 + c
 public enum BurningShipFractal implements Fractal {
 
   BURNING_SHIP;
@@ -29,7 +30,6 @@ public enum BurningShipFractal implements Fractal {
     double modulusSquared = x2 + y2;
 
     while (modulusSquared <= 4.0 && i < max) {
-      // Burning Ship: z_{n+1} = (|Re(z_n)| + i|Im(z_n)|)^2 + c
       final double ax = Math.abs(x);
       final double ay = Math.abs(y);
 

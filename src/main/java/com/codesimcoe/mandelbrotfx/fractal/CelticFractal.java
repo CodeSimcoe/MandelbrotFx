@@ -3,6 +3,7 @@ package com.codesimcoe.mandelbrotfx.fractal;
 import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
 
+/// Celtic Mandelbrot: z_{n+1} = |x^2 - y^2| + 2xy * i + c
 public enum CelticFractal implements Fractal {
 
   CELTIC;
@@ -25,9 +26,8 @@ public enum CelticFractal implements Fractal {
     double mod2 = x2 + y2;
 
     while (mod2 <= 4.0 && i < max) {
-      // Celtic Mandelbrot: z_{n+1} = |x^2 - y^2| + 2xy*i + c
-      final double newX = Math.abs(x * x - y * y) + x0;
-      final double newY = 2.0 * x * y + y0;
+      double newX = Math.abs(x * x - y * y) + x0;
+      double newY = 2.0 * x * y + y0;
 
       x = newX;
       y = newY;

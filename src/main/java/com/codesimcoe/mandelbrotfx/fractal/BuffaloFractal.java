@@ -3,6 +3,7 @@ package com.codesimcoe.mandelbrotfx.fractal;
 import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
 
+// Buffalo fractal: z_{n+1} = (|Re(z_n)| - |Im(z_n)|)^2 + c
 public enum BuffaloFractal implements Fractal {
 
   BUFFALO;
@@ -19,33 +20,20 @@ public enum BuffaloFractal implements Fractal {
 
   @Override
   public int computeEscape(final double x0, final double y0, final int max) {
-    double x = 0.0;
-    double y = 0.0;
-
-    double x2 = 0.0;
-    double y2 = 0.0;
-
+    double x = 0.0, y = 0.0;
     int i = 0;
-    double modulusSquared = x2 + y2;
 
-    while (modulusSquared <= 4.0 && i < max) {
-      // Buffalo fractal: z_{n+1} = (|Re(z_n)| - |Im(z_n)|)^2 + c
-      final double ax = Math.abs(x);
-      final double ay = Math.abs(y);
+    while (x * x + y * y <= 4.0 && i < max) {
+      // z^2 = (x + i y)^2 = (x^2 - y^2) + i(2xy)
+      double re = x * x - y * y;
+      double im = 2.0 * x * y;
 
-      final double newY = 2.0 * ax * ay + y0;
-      final double newX = ax * ax - ay * ay + x0;
+      // Apply abs() on both parts
+      double newX = Math.abs(re) + x0;
+      double newY = Math.abs(im) + y0;
 
-      // Expand: (ax - ay)^2 = ax^2 - 2*ax*ay + ay^2
-      // So next x = ax^2 - 2*ax*ay + ay^2 + x0
-      final double newXBuffalo = ax * ax - 2.0 * ax * ay + ay * ay + x0;
-
-      x = newXBuffalo;
+      x = newX;
       y = newY;
-
-      x2 = x * x;
-      y2 = y * y;
-      modulusSquared = x2 + y2;
       i++;
     }
 
@@ -54,11 +42,13 @@ public enum BuffaloFractal implements Fractal {
 
   @Override
   public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
-    double x = Math.abs(z.re());
-    double y = Math.abs(z.im());
+    // z^2
+    double re = z.re() * z.re() - z.im() * z.im();
+    double im = 2.0 * z.re() * z.im();
 
-    double newY = 2.0 * x * y + c.im();
-    double newX = x * x - 2.0 * x * y + y * y + c.re();
+    // Apply abs to both parts
+    double newX = Math.abs(re) + c.re();
+    double newY = Math.abs(im) + c.im();
 
     return new Complex(newX, newY);
   }
