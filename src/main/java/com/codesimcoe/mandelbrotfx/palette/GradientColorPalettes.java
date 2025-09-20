@@ -135,6 +135,16 @@ public final class GradientColorPalettes {
     }
   );
 
+  public static final ColorPalette ELEGANT = new GradientColorPalette(
+    "Fractal Elegant",
+    new Color[] {
+      Color.rgb(15, 30, 60),
+      Color.rgb(40, 80, 120),
+      Color.rgb(90, 140, 160),
+      Color.rgb(200, 180, 120),
+      Color.rgb(240, 225, 200)
+    }
+  );
 
   private GradientColorPalettes() {
     // Constants

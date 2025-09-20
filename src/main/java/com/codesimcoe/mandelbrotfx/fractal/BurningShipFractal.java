@@ -20,28 +20,30 @@ public enum BurningShipFractal implements Fractal {
 
   @Override
   public int computeEscape(final double x0, final double y0, final int max) {
-    double x = 0.0;
-    double y = 0.0;
 
-    double x2 = 0.0;
-    double y2 = 0.0;
+    double x = 0;
+    double y = 0;
+
+    // Squared values
+    double x2;
+    double y2;
+    double modulus2 = 0;
 
     int i = 0;
-    double modulusSquared = x2 + y2;
 
-    while (modulusSquared <= 4.0 && i < max) {
-      final double ax = Math.abs(x);
-      final double ay = Math.abs(y);
+    while (modulus2 <= 4.0 && i < max) {
+      double ax = Math.abs(x);
+      double ay = Math.abs(y);
 
-      final double newY = 2.0 * ax * ay + y0;
-      final double newX = ax * ax - ay * ay + x0;
+      double newY = 2.0 * ax * ay + y0;
+      double newX = ax * ax - ay * ay + x0;
 
       x = newX;
       y = newY;
 
       x2 = x * x;
       y2 = y * y;
-      modulusSquared = x2 + y2;
+      modulus2 = x2 + y2;
       i++;
     }
     return i;

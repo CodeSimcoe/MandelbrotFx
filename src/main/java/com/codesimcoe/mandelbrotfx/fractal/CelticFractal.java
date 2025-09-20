@@ -20,12 +20,18 @@ public enum CelticFractal implements Fractal {
 
   @Override
   public int computeEscape(final double x0, final double y0, final int max) {
-    double x = 0.0, y = 0.0;
-    double x2 = 0.0, y2 = 0.0;
-    int i = 0;
-    double mod2 = x2 + y2;
 
-    while (mod2 <= 4.0 && i < max) {
+    double x = 0;
+    double y = 0;
+
+    // Squared values
+    double x2;
+    double y2;
+    double modulus2 = 0;
+
+    int i = 0;
+
+    while (modulus2 <= 4.0 && i < max) {
       double newX = Math.abs(x * x - y * y) + x0;
       double newY = 2.0 * x * y + y0;
 
@@ -34,7 +40,7 @@ public enum CelticFractal implements Fractal {
 
       x2 = x * x;
       y2 = y * y;
-      mod2 = x2 + y2;
+      modulus2 = x2 + y2;
       i++;
     }
     return i;
@@ -44,8 +50,10 @@ public enum CelticFractal implements Fractal {
   public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
     double zr = z.re();
     double zi = z.im();
+
     double newX = Math.abs(zr * zr - zi * zi) + c.re();
     double newY = 2 * zr * zi + c.im();
+
     return new Complex(newX, newY);
   }
 }

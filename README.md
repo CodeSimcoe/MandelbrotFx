@@ -38,6 +38,9 @@ mvn javafx:run
 
 ## Escape viewer
 
+It is possible to enable the "escape" overlay.
+When enabled, it shows the first iteration points on the complex plane, starting from the cursor's position.
+
 ![](pictures/escape1.png)
 ![](pictures/escape2.png)
 

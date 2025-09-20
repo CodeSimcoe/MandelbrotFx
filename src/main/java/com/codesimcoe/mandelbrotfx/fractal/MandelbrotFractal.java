@@ -46,17 +46,17 @@ public enum MandelbrotFractal implements Fractal {
     // Squared values
     double re2 = 0;
     double im2 = 0;
+    double modulus2 = 0;
 
     // Iteration
     int i = 0;
 
-    double modulusSquared = re2 + im2;
-    while (modulusSquared <= 4 && i < max) {
+    while (modulus2 <= 4 && i < max) {
       im = 2 * re * im + im0;
       re = re2 - im2 + re0;
       re2 = re * re;
       im2 = im * im;
-      modulusSquared = re2 + im2;
+      modulus2 = re2 + im2;
       i++;
     }
 
@@ -68,9 +68,10 @@ public enum MandelbrotFractal implements Fractal {
     double re = z.re();
     double im = z.im();
 
-    double reSquared = re * re - im * im;
-    double imSquared = 2 * re * im;
+    // Square
+    double re2 = re * re - im * im;
+    double im2 = 2 * re * im;
 
-    return new Complex(reSquared + c.re(), imSquared + c.im());
+    return new Complex(re2 + c.re(), im2 + c.im());
   }
 }

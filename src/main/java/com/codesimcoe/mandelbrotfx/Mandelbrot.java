@@ -169,6 +169,7 @@ public class Mandelbrot {
       new GrayscaleColorPalette(),
       GradientColorPalettes.OCEAN,
       GradientColorPalettes.SUNSET,
+      GradientColorPalettes.ELEGANT,
       GradientColorPalettes.NEON,
       GradientColorPalettes.NATURE,
       GradientColorPalettes.COFFEE,
