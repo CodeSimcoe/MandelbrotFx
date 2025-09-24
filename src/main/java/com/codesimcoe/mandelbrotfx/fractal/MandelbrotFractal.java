@@ -42,16 +42,16 @@ public enum MandelbrotFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double re0, final double im0, final int max) {
+  public int computeEscape(double re0, double im0, int max) {
     return this.strategy.computeEscape(re0, im0, max);
   }
 
-  public void setStrategy(final MandelbrotStrategy strategy) {
+  public void setStrategy(MandelbrotStrategy strategy) {
     this.strategy = strategy;
   }
 
   @Override
-  public ValueComplex computeIteration(final ValueComplex z, final ValueComplex zPrev, final ValueComplex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     double re = z.re();
     double im = z.im();
 

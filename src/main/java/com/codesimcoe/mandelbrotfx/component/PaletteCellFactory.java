@@ -12,12 +12,12 @@ import java.util.Arrays;
 
 public final class PaletteCellFactory {
 
-  public static void apply(final ComboBox<ColorPalette> comboBox) {
+  public static void apply(ComboBox<ColorPalette> comboBox) {
     comboBox.setCellFactory(_ -> createCell());
     comboBox.setButtonCell(createCell());
   }
 
-  private static void setupKeyColors(final ColorPalette palette, final Pane pane) {
+  private static void setupKeyColors(ColorPalette palette, Pane pane) {
 
     pane.getChildren().removeIf(node -> node instanceof Rectangle);
 
@@ -36,7 +36,7 @@ public final class PaletteCellFactory {
       }
 
       @Override
-      protected void updateItem(final ColorPalette palette, final boolean empty) {
+      protected void updateItem(ColorPalette palette, boolean empty) {
         super.updateItem(palette, empty);
 
         if (empty || palette == null) {

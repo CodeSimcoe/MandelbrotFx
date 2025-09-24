@@ -16,7 +16,7 @@ public record JuliaFractal(String name, double re0, double im0) implements Fract
   }
 
   @Override
-  public int computeEscape(final double re, final double im, final int max) {
+  public int computeEscape(double re, double im, int max) {
 
     double zRe = re;
     double zIm = im;
@@ -40,7 +40,7 @@ public record JuliaFractal(String name, double re0, double im0) implements Fract
   }
 
   @Override
-  public ValueComplex computeIteration(final ValueComplex z, final ValueComplex zPrev, final ValueComplex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     double zr = z.re();
     double zi = z.im();
 
@@ -52,13 +52,13 @@ public record JuliaFractal(String name, double re0, double im0) implements Fract
   }
 
   @Override
-  public ValueComplex initialZ(final double re, final double im) {
+  public ValueComplex initialZ(double re, double im) {
     // Start at the pixel coordinate
     return new ValueComplex(re, im);
   }
 
   @Override
-  public ValueComplex constantC(final double re, final double im) {
+  public ValueComplex constantC(double re, double im) {
     return new ValueComplex(this.re0, this.im0);
   }
 }

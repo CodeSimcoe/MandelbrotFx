@@ -14,15 +14,15 @@ public interface Fractal extends Named {
   Region getDefaultRegion();
 
   // Compute a single iteration (Zn+1 given Zn, possibly Zn-1, and c)
-  ValueComplex computeIteration(final ValueComplex z, ValueComplex zPrev, final ValueComplex c);
+  ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c);
 
   // Returns initial z for a given point
-  default ValueComplex initialZ(final double re, final double im) {
+  default ValueComplex initialZ(double re, double im) {
     return ValueComplex.ZERO;
   }
 
   // Returns constant c for a given point
-  default ValueComplex constantC(final double re, final double im) {
+  default ValueComplex constantC(double re, double im) {
     return new ValueComplex(re, im);
   }
 

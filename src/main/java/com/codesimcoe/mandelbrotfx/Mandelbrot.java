@@ -133,9 +133,9 @@ public class Mandelbrot {
   private Theme currentTheme = Theme.LIGHT;
 
   public Mandelbrot(
-    final int width,
-    final int height,
-    final int maxIterations) {
+    int width,
+    int height,
+    int maxIterations) {
 
     // Fractals
     Fractal[] fractals = {
@@ -252,7 +252,7 @@ public class Mandelbrot {
     });
   }
 
-  private void zoomOnCenter(final boolean zoomIn) {
+  private void zoomOnCenter(boolean zoomIn) {
     if (zoomIn) {
       this.zoomIn();
     } else {
@@ -260,7 +260,7 @@ public class Mandelbrot {
     }
   }
 
-  private void zoomOnPointer(final double mouseX, final double mouseY, final boolean zoomIn) {
+  private void zoomOnPointer(double mouseX, double mouseY, boolean zoomIn) {
     // Step 1: fractal coordinates under mouse before zoom
     double fxBefore = this.viewport.screenToRe(mouseX);
     double fyBefore = this.viewport.screenToIm(mouseY);
@@ -293,9 +293,7 @@ public class Mandelbrot {
     return this.root;
   }
 
-  private void move(
-    final double x,
-    final double y) {
+  private void move(double x, double y) {
 
     this.viewport.screenMoveTo(x, y);
     this.manageViewportChange();
@@ -313,11 +311,11 @@ public class Mandelbrot {
   }
 
   void update(
-    final Fractal algorithm,
-    final int max,
-    final int width,
-    final int height,
-    final int[][] iterationsPixels) {
+    Fractal algorithm,
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
 
     long startTime = System.nanoTime();
 
@@ -363,12 +361,12 @@ public class Mandelbrot {
   }
 
   private void computeColors(
-    final int max,
-    final int width,
-    final int height,
-    final int[][] iterationsPixels,
-    final int[] colors,
-    final int[] imagePixels) {
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels,
+    int[] colors,
+    int[] imagePixels) {
 
     if (max == 0) {
       return;
@@ -407,10 +405,10 @@ public class Mandelbrot {
   }
 
   private static Slider newSlider(
-    final double min,
-    final double max,
-    final double majorTickUnit,
-    final Property<Number> property) {
+    double min,
+    double max,
+    double majorTickUnit,
+    Property<Number> property) {
 
     Slider slider = new Slider();
 
@@ -438,9 +436,9 @@ public class Mandelbrot {
   }
 
   private VBox buildSettingsBox(
-    final Fractal[] fractals,
-    final ColorPalette[] palettes,
-    final NamedMusic[] musics) {
+    Fractal[] fractals,
+    ColorPalette[] palettes,
+    NamedMusic[] musics) {
 
     // Theme
     ToggleGroup themeToggleGroup = new ToggleGroup();
@@ -693,7 +691,7 @@ public class Mandelbrot {
     this.reset();
   }
 
-  private void updateMaxIterations(final int iterations) {
+  private void updateMaxIterations(int iterations) {
     this.maxIterations.set(iterations);
     this.colors = this.colorPalette.get().computeColors(iterations);
     this.computeColors();
@@ -711,7 +709,7 @@ public class Mandelbrot {
     this.regionsOfInterestComboBox.setValue(home);
   }
 
-  private static TitledPane buildTitledPane(final String title, final Node... content) {
+  private static TitledPane buildTitledPane(String title, Node... content) {
     VBox vBox = new VBox(GAP, content);
     TitledPane titledPane = new TitledPane(title, vBox);
     titledPane.setCollapsible(false);
@@ -722,7 +720,7 @@ public class Mandelbrot {
     return titledPane;
   }
 
-  private void takeSnapshot(final SnapshotMode mode) {
+  private void takeSnapshot(SnapshotMode mode) {
 
     int w = mode.getResolution();
     int h = mode.getResolution();
@@ -754,7 +752,7 @@ public class Mandelbrot {
     }
   }
 
-  void jumpToRegionOfInterest(final RegionOfInterest regionOfInterest) {
+  void jumpToRegionOfInterest(RegionOfInterest regionOfInterest) {
     this.viewport.update(regionOfInterest.region());
     this.manageViewportChange();
     this.updateMaxIterations(regionOfInterest.iterations());

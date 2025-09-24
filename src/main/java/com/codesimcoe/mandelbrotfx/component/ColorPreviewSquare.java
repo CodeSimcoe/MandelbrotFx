@@ -10,7 +10,7 @@ public final class ColorPreviewSquare {
     // Non-instantiable
   }
 
-  public static Node newColorPreviewSquare(final Color color) {
+  public static Node newColorPreviewSquare(Color color) {
     Rectangle rectangle = new Rectangle(12, 12, color);
     rectangle.setStroke(Color.BLACK);
     return rectangle;

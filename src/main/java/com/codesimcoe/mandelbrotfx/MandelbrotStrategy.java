@@ -12,7 +12,7 @@ public sealed interface MandelbrotStrategy {
     private final String name;
     private final MandelbrotStrategy strategy;
 
-    MandelbrotStrategyType(final String name, final MandelbrotStrategy strategy) {
+    MandelbrotStrategyType(String name, MandelbrotStrategy strategy) {
       this.name = name;
       this.strategy = strategy;
     }
@@ -32,7 +32,7 @@ public sealed interface MandelbrotStrategy {
     INSTANCE;
 
     @Override
-    public int computeEscape(final double re0, final double im0, final int max) {
+    public int computeEscape(double re0, double im0, int max) {
 
       double re = 0;
       double y = 0;
@@ -63,7 +63,7 @@ public sealed interface MandelbrotStrategy {
     INSTANCE;
 
     @Override
-    public int computeEscape(final double re0, final double im0, final int max) {
+    public int computeEscape(double re0, double im0, int max) {
       Complex c = new Complex(re0, im0);
       Complex z = new Complex(0, 0);
       int i = 0;
@@ -82,7 +82,7 @@ public sealed interface MandelbrotStrategy {
     INSTANCE;
 
     @Override
-    public int computeEscape(final double re0, final double im0, final int max) {
+    public int computeEscape(double re0, double im0, int max) {
       ValueComplex c = new ValueComplex(re0, im0);
       ValueComplex z = ValueComplex.ZERO;
       int i = 0;

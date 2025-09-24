@@ -18,7 +18,7 @@ public enum BurningShipFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double x0, final double y0, final int max) {
+  public int computeEscape(double x0, double y0, int max) {
     double x = 0.0;
     double y = 0.0;
 
@@ -30,11 +30,11 @@ public enum BurningShipFractal implements Fractal {
 
     while (modulusSquared <= 4.0 && i < max) {
       // Burning Ship: z_{n+1} = (|Re(z_n)| + i|Im(z_n)|)^2 + c
-      final double ax = Math.abs(x);
-      final double ay = Math.abs(y);
+      double ax = Math.abs(x);
+      double ay = Math.abs(y);
 
-      final double newY = 2.0 * ax * ay + y0;
-      final double newX = ax * ax - ay * ay + x0;
+      double newY = 2.0 * ax * ay + y0;
+      double newX = ax * ax - ay * ay + x0;
 
       x = newX;
       y = newY;
@@ -48,7 +48,7 @@ public enum BurningShipFractal implements Fractal {
   }
 
   @Override
-  public ValueComplex computeIteration(final ValueComplex z, final ValueComplex zPrev, final ValueComplex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     double x = Math.abs(z.re());
     double y = Math.abs(z.im());
 

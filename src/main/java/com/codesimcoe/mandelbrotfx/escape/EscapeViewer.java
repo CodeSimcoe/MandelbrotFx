@@ -35,9 +35,9 @@ public class EscapeViewer {
   private Fractal fractal;
 
   public EscapeViewer(
-    final Pane pane,
-    final Viewport viewport,
-    final Fractal fractal) {
+    Pane pane,
+    Viewport viewport,
+    Fractal fractal) {
     
     this.pane = pane;
     this.viewport = viewport;
@@ -71,7 +71,7 @@ public class EscapeViewer {
     this.escapeDots[0].setFill(Color.DARKRED);
   }
 
-  public void update(final boolean enabled) {
+  public void update(boolean enabled) {
     ObservableList<Node> children = this.pane.getChildren();
     if (enabled) {
       children.add(this.coordinatesText);
@@ -89,7 +89,7 @@ public class EscapeViewer {
     }
   }
 
-  private void onEscapeMouseMoved(final MouseEvent event) {
+  private void onEscapeMouseMoved(MouseEvent event) {
     double re = this.viewport.screenToRe(event.getX());
     double im = this.viewport.screenToIm(event.getY());
 
@@ -142,7 +142,7 @@ public class EscapeViewer {
     }
   }
 
-  public void setFractal(final Fractal fractal) {
+  public void setFractal(Fractal fractal) {
     this.fractal = fractal;
   }
 

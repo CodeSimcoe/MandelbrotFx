@@ -10,12 +10,12 @@ import java.util.Objects;
 
 public class MandelbrotMain extends Application {
 
-  static void main(final String[] args) {
-    launch(args);
+  static void main() {
+    launch();
   }
 
   @Override
-  public void start(final Stage primaryStage) {
+  public void start(Stage primaryStage) {
 
     int width = 1024;
     int height = 1024;

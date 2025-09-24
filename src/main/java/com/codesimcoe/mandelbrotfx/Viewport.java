@@ -21,69 +21,69 @@ public class Viewport {
   private final int height;
 
   public Viewport(
-    final double rec,
-    final double imc,
-    final double size,
-    final int width,
-    final int height) {
+    double centerRe,
+    double centerIm,
+    double size,
+    int width,
+    int height) {
 
-    this.centerRe = rec;
-    this.centerIm = imc;
+    this.centerRe = centerRe;
+    this.centerIm = centerIm;
     this.size = size;
     this.width = width;
     this.height = height;
   }
 
-  public double screenToRe(final double x) {
+  public double screenToRe(double x) {
     return this.screenToRe(x, this.width);
   }
 
-  public double screenToRe(final double x, final double width) {
+  public double screenToRe(double x, double width) {
     return this.centerRe + (x - width / 2.0) * (this.size / width);
   }
 
-  public double screenToIm(final double y) {
+  public double screenToIm(double y) {
     return this.screenToIm(y, this.height);
   }
 
-  public double screenToIm(final double y, final double height) {
+  public double screenToIm(double y, double height) {
     return this.centerIm + (y - height / 2.0) * (this.size / height);
   }
 
-  public int complexToX(final double re) {
+  public int complexToX(double re) {
     return (int) Math.round((re - this.centerRe) * (this.width / this.size) + this.width / 2.0);
   }
 
-  public int complexToY(final double im) {
+  public int complexToY(double im) {
     return (int) Math.round((im - this.centerIm) * (this.height / this.size) + this.height / 2.0);
   }
 
-  public void moveBy(final double dre, final double dim) {
+  public void moveBy(double dre, double dim) {
     this.centerRe += dre;
     this.centerIm += dim;
   }
 
-  public void update(final Region region) {
+  public void update(Region region) {
     this.centerRe = region.centerRe();
     this.centerIm = region.centerIm();
     this.size = region.size();
   }
 
-  public void complexMoveTo(final double re, final double im) {
+  public void complexMoveTo(double re, double im) {
     this.centerRe = re;
     this.centerIm = im;
   }
 
-  public void screenMoveTo(final double x, final double y) {
+  public void screenMoveTo(double x, double y) {
     this.centerRe = this.screenToRe(x);
     this.centerIm = this.screenToIm(y);
   }
 
-  public void zoomInBy(final double factor) {
+  public void zoomInBy(double factor) {
     this.size /= factor;
   }
 
-  public void zoomOutBy(final double factor) {
+  public void zoomOutBy(double factor) {
     this.size *= factor;
   }
 
@@ -99,7 +99,7 @@ public class Viewport {
     return this.size;
   }
 
-  public void setSize(final double size) {
+  public void setSize(double size) {
     this.size = size;
   }
 }

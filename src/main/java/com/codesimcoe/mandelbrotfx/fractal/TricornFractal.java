@@ -18,7 +18,7 @@ public enum TricornFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double x0, final double y0, final int max) {
+  public int computeEscape(double x0, double y0, int max) {
     double x = 0.0;
     double y = 0.0;
 
@@ -32,8 +32,8 @@ public enum TricornFractal implements Fractal {
       // Tricorn: z_{n+1} = (conj(z_n))^2 + c
       // => x_{n+1} = x^2 - y^2 + x0
       //    y_{n+1} = -2xy + y0
-      final double newX = x * x - y * y + x0;
-      final double newY = -2.0 * x * y + y0;
+      double newX = x * x - y * y + x0;
+      double newY = -2.0 * x * y + y0;
 
       x = newX;
       y = newY;
@@ -47,7 +47,7 @@ public enum TricornFractal implements Fractal {
   }
 
   @Override
-  public ValueComplex computeIteration(final ValueComplex z, final ValueComplex zPrev, final ValueComplex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     double x = z.re();
     double y = z.im();
     double newX = x * x - y * y + c.re();

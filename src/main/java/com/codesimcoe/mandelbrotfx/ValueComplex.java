@@ -2,9 +2,9 @@ package com.codesimcoe.mandelbrotfx;
 
 public value record ValueComplex(double re, double im) {
 
-  public static final ValueComplex ZERO = new ValueComplex(0, 0);
+  public static ValueComplex ZERO = new ValueComplex(0, 0);
 
-  public ValueComplex add(final ValueComplex other) {
+  public ValueComplex add(ValueComplex other) {
     return new ValueComplex(this.re + other.re(), this.im + other.im());
   }
 
