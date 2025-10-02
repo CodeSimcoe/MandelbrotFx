@@ -8,11 +8,7 @@ import javafx.stage.Stage;
 import java.io.InputStream;
 import java.util.Objects;
 
-public class MandelbrotMain extends Application {
-
-  static void main() {
-    launch();
-  }
+public class MandelbrotApp extends Application {
 
   @Override
   public void start(Stage primaryStage) {

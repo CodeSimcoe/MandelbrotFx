@@ -18,34 +18,24 @@ public enum BuffaloFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(double x0, double y0, int max) {
-    double x = 0.0;
-    double y = 0.0;
+  public int computeEscape(final double x0, final double y0, final int max) {
 
-    double x2 = 0.0;
-    double y2 = 0.0;
+    double x = 0;
+    double y = 0;
 
     int i = 0;
-    double modulusSquared = x2 + y2;
 
-    while (modulusSquared <= 4.0 && i < max) {
-      // Buffalo fractal: z_{n+1} = (|Re(z_n)| - |Im(z_n)|)^2 + c
-      double ax = Math.abs(x);
-      double ay = Math.abs(y);
+    while (x * x + y * y <= 4.0 && i < max) {
+      // z^2 = (x + i y)^2 = (x^2 - y^2) + i(2xy)
+      double re = x * x - y * y;
+      double im = 2.0 * x * y;
 
-      double newY = 2.0 * ax * ay + y0;
-      double newX = ax * ax - ay * ay + x0;
+      // Apply abs() on both parts
+      double newX = Math.abs(re) + x0;
+      double newY = Math.abs(im) + y0;
 
-      // Expand: (ax - ay)^2 = ax^2 - 2*ax*ay + ay^2
-      // So next x = ax^2 - 2*ax*ay + ay^2 + x0
-      double newXBuffalo = ax * ax - 2.0 * ax * ay + ay * ay + x0;
-
-      x = newXBuffalo;
+      x = newX;
       y = newY;
-
-      x2 = x * x;
-      y2 = y * y;
-      modulusSquared = x2 + y2;
       i++;
     }
 
