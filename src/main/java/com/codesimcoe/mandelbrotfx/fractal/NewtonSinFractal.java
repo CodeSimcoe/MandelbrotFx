@@ -17,7 +17,7 @@ public enum NewtonSinFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double re, final double im, final int max) {
+  public int computeEscape(double re, double im, int max) {
     double zr = re;
     double zi = im;
 
@@ -59,18 +59,18 @@ public enum NewtonSinFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
+  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
     // Unmanaged
     return Complex.ZERO;
   }
 
   @Override
-  public Complex initialZ(final double re, final double im) {
+  public Complex initialZ(double re, double im) {
     return new Complex(re, im);
   }
 
   @Override
-  public Complex constantC(final double re, final double im) {
+  public Complex constantC(double re, double im) {
     return Complex.ZERO;
   }
 }

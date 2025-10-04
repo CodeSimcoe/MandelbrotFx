@@ -9,7 +9,7 @@ public enum ZoomMode implements Named {
 
   private final String name;
 
-  ZoomMode(final String name) {
+  ZoomMode(String name) {
     this.name = name;
   }
 

@@ -19,7 +19,7 @@ public enum BurningShipFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double x0, final double y0, final int max) {
+  public int computeEscape(double x0, double y0, int max) {
 
     double x = 0;
     double y = 0;
@@ -50,7 +50,7 @@ public enum BurningShipFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
+  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
     double x = Math.abs(z.re());
     double y = Math.abs(z.im());
 

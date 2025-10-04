@@ -21,18 +21,30 @@ public record Complex(double re, double im) {
     return new Complex(real, imag);
   }
 
-  public Complex div(final Complex other) {
+  public Complex div(Complex other) {
     double denom = other.re * other.re + other.im * other.im;
     double real = (this.re * other.re + this.im * other.im) / denom;
     double imag = (this.im * other.re - this.re * other.im) / denom;
     return new Complex(real, imag);
   }
 
-  public Complex sub(final Complex other) {
+  public Complex square() {
+    return new Complex(this.re * this.re - this.im * this.im, 2 * this.re * this.im);
+  }
+
+  public Complex add(Complex other) {
+    return new Complex(this.re + other.re, this.im + other.im);
+  }
+
+  public Complex sub(Complex other) {
     return new Complex(this.re - other.re, this.im - other.im);
   }
 
-  public Complex scale(final double factor) {
+  public Complex scale(double factor) {
     return new Complex(this.re * factor, this.im * factor);
+  }
+
+  public Complex componentwiseAbs() {
+    return new Complex(Math.abs(this.re), Math.abs(this.im));
   }
 }

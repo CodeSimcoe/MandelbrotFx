@@ -60,11 +60,11 @@ public class MandelbrotBenchmark {
       });
   }
 
-  private double xPixelsToValue(final int x) {
+  private double xPixelsToValue(int x) {
     return (x - this.width / 2.0) * 4.0 / this.width;
   }
 
-  private double yPixelsToValue(final int y) {
+  private double yPixelsToValue(int y) {
     return (y - this.height / 2.0) * 4.0 / this.width;
   }
 }

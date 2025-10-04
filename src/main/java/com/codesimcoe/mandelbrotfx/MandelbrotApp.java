@@ -11,7 +11,7 @@ import java.util.Objects;
 public class MandelbrotApp extends Application {
 
   @Override
-  public void start(final Stage primaryStage) {
+  public void start(Stage primaryStage) {
 
     int width = 1024;
     int height = 1024;
