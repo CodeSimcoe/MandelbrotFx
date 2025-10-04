@@ -9,6 +9,7 @@
         <junit.version>5.13.4</junit.version>
         <javafx.version>25</javafx.version>
         <jmh.version>1.37</jmh.version>
+        <junit.version>6.0.0</junit.version>
     </properties>
 
     <dependencies>
@@ -45,13 +46,20 @@
             <version>${jmh.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>3.14.1</version>
                 <configuration>
                     <release>25</release>
                     <annotationProcessorPaths>

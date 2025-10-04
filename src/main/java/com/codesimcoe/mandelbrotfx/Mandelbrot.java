@@ -252,6 +252,20 @@ public class Mandelbrot {
       this.manageViewportChange();
       this.update();
     });
+
+    // Zoom (on center) upon key press
+    this.root.setOnKeyPressed(e -> {
+      switch (e.getCode()) {
+        case PLUS, ADD -> {
+          this.zoomIn();
+          this.update();
+        }
+        case MINUS, SUBTRACT -> {
+          this.zoomOut();
+          this.update();
+        }
+      }
+    });
   }
 
   private void zoomOnCenter(final boolean zoomIn) {
