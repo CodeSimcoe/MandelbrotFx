@@ -52,12 +52,6 @@ public enum MandelbrotFractal implements Fractal {
 
   @Override
   public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
-    double re = z.re();
-    double im = z.im();
-
-    double reSquared = re * re - im * im;
-    double imSquared = 2 * re * im;
-
-    return new ValueComplex(reSquared + c.re(), imSquared + c.im());
+    return z.square().add(c);
   }
 }

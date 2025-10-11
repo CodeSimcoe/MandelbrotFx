@@ -3,6 +3,7 @@ package com.codesimcoe.mandelbrotfx.fractal;
 import com.codesimcoe.mandelbrotfx.Region;
 import com.codesimcoe.mandelbrotfx.ValueComplex;
 
+// Buffalo fractal: z_{n+1} = (|Re(z_n)| - |Im(z_n)|)^2 + c
 public enum BuffaloFractal implements Fractal {
 
   BUFFALO;
@@ -18,7 +19,7 @@ public enum BuffaloFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double x0, final double y0, final int max) {
+  public int computeEscape(double x0, double y0, int max) {
 
     double x = 0;
     double y = 0;

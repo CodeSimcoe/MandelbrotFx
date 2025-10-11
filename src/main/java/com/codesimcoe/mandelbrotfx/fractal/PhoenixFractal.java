@@ -17,10 +17,13 @@ public record PhoenixFractal(String name, double p) implements Fractal {
 
   @Override
   public int computeEscape(double re, double im, int max) {
-    double zRe = 0.0;
-    double zIm = 0.0;
-    double zRePrev = 0.0;
-    double zImPrev = 0.0;
+
+    double zRe = 0;
+    double zIm = 0;
+
+    double zRePrev = 0;
+    double zImPrev = 0;
+
     int iterations = 0;
 
     while ((zRe * zRe + zIm * zIm) < 4 && iterations < max) {

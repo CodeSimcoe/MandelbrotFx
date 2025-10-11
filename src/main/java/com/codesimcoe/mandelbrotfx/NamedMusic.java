@@ -6,7 +6,8 @@ import java.io.File;
 
 record NamedMusic(String name, Media media) implements Named {
   NamedMusic(String name, String path) {
-    this(name, new Media(new File(path).toURI().toString()));
+    String file = new File(path).toURI().toString();
+    this(name, new Media(file));
   }
 
   @Override

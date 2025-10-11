@@ -1,7 +1,7 @@
 # Mandelbrot / Julia Set / ... explorer
 
 * Left click : move to pointed position
-* Mouse wheel : Zoom in / out
+* Mouse wheel : Zoom in / out (zooming can be performed relative to cursor position or current area's center)
 
 ## Algorithms
 
@@ -12,6 +12,8 @@ Multiple fractal algorithms are available :
 * Burning ship
 * Tricorn
 * Celtic
+* Newton Sine
+* ...
 
 ## Startup
 
@@ -37,6 +39,9 @@ mvn javafx:run
 ![](pictures/pic11.png)
 
 ## Escape viewer
+
+It is possible to enable the "escape" overlay.
+When enabled, it shows the first iteration points on the complex plane, starting from the cursor's position.
 
 ![](pictures/escape1.png)
 ![](pictures/escape2.png)

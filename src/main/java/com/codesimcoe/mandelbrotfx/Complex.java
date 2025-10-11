@@ -1,18 +1,50 @@
 package com.codesimcoe.mandelbrotfx;
 
 public record Complex(double re, double im) {
+  public static final Complex ZERO = new Complex(0, 0);
 
-  public Complex add(Complex other) {
-    return new Complex(re + other.re(), im + other.im());
+  public double magnitudeSquared() {
+    return this.re * this.re + this.im * this.im;
+  }
+
+  public Complex sin() {
+    // sin(x + i y) = sin(x) cosh(y) + i cos(x) sinh(y)
+    double real = Math.sin(this.re) * Math.cosh(this.im);
+    double imag = Math.cos(this.re) * Math.sinh(this.im);
+    return new Complex(real, imag);
+  }
+
+  public Complex cos() {
+    // cos(x + i y) = cos(x) cosh(y) - i sin(x) sinh(y)
+    double real = Math.cos(this.re) * Math.cosh(this.im);
+    double imag = -Math.sin(this.re) * Math.sinh(this.im);
+    return new Complex(real, imag);
+  }
+
+  public Complex div(Complex other) {
+    double denom = other.re * other.re + other.im * other.im;
+    double real = (this.re * other.re + this.im * other.im) / denom;
+    double imag = (this.im * other.re - this.re * other.im) / denom;
+    return new Complex(real, imag);
   }
 
   public Complex square() {
-    double newReal = re * re - im * im;
-    double newImaginary = 2 * re * im;
-    return new Complex(newReal, newImaginary);
+    return new Complex(this.re * this.re - this.im * this.im, 2 * this.re * this.im);
   }
 
-  public double magnitudeSquared() {
-    return re * re + im * im;
+  public Complex add(Complex other) {
+    return new Complex(this.re + other.re, this.im + other.im);
+  }
+
+  public Complex sub(Complex other) {
+    return new Complex(this.re - other.re, this.im - other.im);
+  }
+
+  public Complex scale(double factor) {
+    return new Complex(this.re * factor, this.im * factor);
+  }
+
+  public Complex componentwiseAbs() {
+    return new Complex(Math.abs(this.re), Math.abs(this.im));
   }
 }

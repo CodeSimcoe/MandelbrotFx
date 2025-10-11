@@ -12,6 +12,7 @@ import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.NewtonSinFractal;
 import com.codesimcoe.mandelbrotfx.fractal.PhoenixFractal;
 import com.codesimcoe.mandelbrotfx.fractal.TricornFractal;
 import com.codesimcoe.mandelbrotfx.music.Music;
@@ -154,7 +155,8 @@ public class Mandelbrot {
       new JuliaFractal("Julia - Dendrite", 0, 1),
       new PhoenixFractal("Phoenix 0.56667", 0.56667),
       new PhoenixFractal("Phoenix 0.75", 0.75),
-      new PhoenixFractal("Phoenix 1", 1)
+      new PhoenixFractal("Phoenix 1", 1),
+      NewtonSinFractal.INSTANCE
     };
 
     Fractal selectedFractal = fractals[0];
@@ -170,6 +172,7 @@ public class Mandelbrot {
       new GrayscaleColorPalette(),
       GradientColorPalettes.OCEAN,
       GradientColorPalettes.SUNSET,
+      GradientColorPalettes.ELEGANT,
       GradientColorPalettes.NEON,
       GradientColorPalettes.NATURE,
       GradientColorPalettes.COFFEE,
@@ -249,6 +252,20 @@ public class Mandelbrot {
 
       this.manageViewportChange();
       this.update();
+    });
+
+    // Zoom (on center) upon key press
+    this.root.setOnKeyPressed(e -> {
+      switch (e.getCode()) {
+        case PLUS, ADD -> {
+          this.zoomIn();
+          this.update();
+        }
+        case MINUS, SUBTRACT -> {
+          this.zoomOut();
+          this.update();
+        }
+      }
     });
   }
 
