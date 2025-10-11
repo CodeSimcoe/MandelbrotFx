@@ -16,7 +16,7 @@ public record PhoenixFractal(String name, double p) implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double re, final double im, final int max) {
+  public int computeEscape(double re, double im, int max) {
 
     double zRe = 0;
     double zIm = 0;
@@ -50,7 +50,7 @@ public record PhoenixFractal(String name, double p) implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
+  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
     double zr = z.re();
     double zi = z.im();
     double zr2 = zr * zr - zi * zi;

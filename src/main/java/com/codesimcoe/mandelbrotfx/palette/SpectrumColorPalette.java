@@ -17,7 +17,7 @@ public class SpectrumColorPalette implements ColorPalette {
   }
 
   @Override
-  public int[] computeColors(final int max) {
+  public int[] computeColors(int max) {
     int[] colors = new int[max + 1];
     for (int i = 0; i <= max; i++) {
       double hue = 360.0 * i / max;

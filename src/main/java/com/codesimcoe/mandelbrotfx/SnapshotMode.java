@@ -11,7 +11,7 @@ public enum SnapshotMode {
   private final String name;
   private final int resolution;
 
-  SnapshotMode(final String name, final int resolution) {
+  SnapshotMode(String name, int resolution) {
     this.name = name;
     this.resolution = resolution;
   }

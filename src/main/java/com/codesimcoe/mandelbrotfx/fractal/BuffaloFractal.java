@@ -19,7 +19,7 @@ public enum BuffaloFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double x0, final double y0, final int max) {
+  public int computeEscape(double x0, double y0, int max) {
 
     double x = 0;
     double y = 0;
@@ -44,7 +44,7 @@ public enum BuffaloFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
+  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
     // z^2
     double re2 = z.re() * z.re() - z.im() * z.im();
     double im2 = 2.0 * z.re() * z.im();

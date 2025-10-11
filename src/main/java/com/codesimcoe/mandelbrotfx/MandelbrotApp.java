@@ -8,14 +8,10 @@ import javafx.stage.Stage;
 import java.io.InputStream;
 import java.util.Objects;
 
-public class MandelbrotMain extends Application {
-
-  public static void main(final String[] args) {
-    launch(args);
-  }
+public class MandelbrotApp extends Application {
 
   @Override
-  public void start(final Stage primaryStage) {
+  public void start(Stage primaryStage) {
 
     int width = 1024;
     int height = 1024;

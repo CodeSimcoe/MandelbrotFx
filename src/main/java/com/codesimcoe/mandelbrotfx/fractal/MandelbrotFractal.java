@@ -38,7 +38,7 @@ public enum MandelbrotFractal implements Fractal {
   }
 
   @Override
-  public int computeEscape(final double re0, final double im0, final int max) {
+  public int computeEscape(double re0, double im0, int max) {
 
     double re = 0;
     double im = 0;
@@ -64,14 +64,7 @@ public enum MandelbrotFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(final Complex z, final Complex zPrev, final Complex c) {
-    double re = z.re();
-    double im = z.im();
-
-    // Square
-    double re2 = re * re - im * im;
-    double im2 = 2 * re * im;
-
-    return new Complex(re2 + c.re(), im2 + c.im());
+  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
+    return z.square().add(c);
   }
 }
