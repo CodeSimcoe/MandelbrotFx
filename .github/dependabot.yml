@@ -10,6 +10,7 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "*"
-        versions:
-          - "*-ea*"
+      - dependency-name: "javafx-controls"
+        versions: [ "*-ea*" ]
+      - dependency-name: "javafx-media"
+        versions: [ "*-ea*" ]
