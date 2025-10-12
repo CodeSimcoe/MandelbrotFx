@@ -2,15 +2,16 @@
 # package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 updates:
-  - package-ecosystem: "maven" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "maven"
+    directory: "/"
     schedule:
       interval: "daily"
+    allow:
+      - dependency-type: "direct"
     ignore:
       - dependency-name: "javafx-controls"
-        versions: [ "*-ea*" ]
+        update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
       - dependency-name: "javafx-media"
-        versions: [ "*-ea*" ]
+        update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
