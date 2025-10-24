@@ -1,7 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 /// Celtic Mandelbrot: z_{n+1} = |x^2 - y^2| + 2xy * i + c
 public enum CelticFractal implements Fractal {
@@ -21,6 +21,7 @@ public enum CelticFractal implements Fractal {
   @Override
   public int computeEscape(double x0, double y0, int max) {
 
+
     double x = 0;
     double y = 0;
 
@@ -28,7 +29,6 @@ public enum CelticFractal implements Fractal {
     double x2;
     double y2;
     double modulus2 = 0;
-
     int i = 0;
 
     while (modulus2 <= 4.0 && i < max) {
@@ -47,13 +47,13 @@ public enum CelticFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     double zr = z.re();
     double zi = z.im();
 
     double newX = Math.abs(zr * zr - zi * zi) + c.re();
     double newY = 2 * zr * zi + c.im();
 
-    return new Complex(newX, newY);
+    return new ValueComplex(newX, newY);
   }
 }

@@ -1,7 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 public enum NewtonSinFractal implements Fractal {
 
@@ -59,18 +59,18 @@ public enum NewtonSinFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     // Unmanaged
-    return Complex.ZERO;
+    return ValueComplex.ZERO;
   }
 
   @Override
-  public Complex initialZ(double re, double im) {
-    return new Complex(re, im);
+  public ValueComplex initialZ(double re, double im) {
+    return new ValueComplex(re, im);
   }
 
   @Override
-  public Complex constantC(double re, double im) {
-    return Complex.ZERO;
+  public ValueComplex constantC(double re, double im) {
+    return ValueComplex.ZERO;
   }
 }

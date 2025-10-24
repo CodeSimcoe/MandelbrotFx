@@ -1,7 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 public enum TricornFractal implements Fractal {
 
@@ -49,11 +49,11 @@ public enum TricornFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     double x = z.re();
     double y = z.im();
     double newX = x * x - y * y + c.re();
     double newY = -2 * x * y + c.im();
-    return new Complex(newX, newY);
+    return new ValueComplex(newX, newY);
   }
 }

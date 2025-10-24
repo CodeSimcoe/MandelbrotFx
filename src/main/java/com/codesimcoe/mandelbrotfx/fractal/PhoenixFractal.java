@@ -1,7 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 public record PhoenixFractal(String name, double p) implements Fractal {
 
@@ -50,13 +50,13 @@ public record PhoenixFractal(String name, double p) implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     double zr = z.re();
     double zi = z.im();
     double zr2 = zr * zr - zi * zi;
     double zi2 = 2 * zr * zi;
 
-    return new Complex(
+    return new ValueComplex(
       zr2 + c.re() + this.p * zPrev.re(),
       zi2 + c.im() + this.p * zPrev.im()
     );
