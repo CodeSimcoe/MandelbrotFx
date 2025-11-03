@@ -9,7 +9,7 @@
         <junit.version>5.13.4</junit.version>
         <javafx.version>25</javafx.version>
         <jmh.version>1.37</jmh.version>
-        <junit.version>6.0.0</junit.version>
+        <junit.version>6.0.1</junit.version>
     </properties>
 
     <dependencies>
