@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import jdk.incubator.vector.DoubleVector;
 
 import java.io.InputStream;
 import java.util.Objects;
@@ -12,6 +13,8 @@ public class MandelbrotApp extends Application {
 
   @Override
   public void start(Stage primaryStage) {
+
+    IO.println("Vector-API : Preferred species: " + DoubleVector.SPECIES_PREFERRED);
 
     int width = 1024;
     int height = 1024;

@@ -9,6 +9,8 @@ import com.codesimcoe.mandelbrotfx.escape.EscapeViewer;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
 import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
+import com.codesimcoe.mandelbrotfx.fractal.DoubleVectorMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.FloatVectorMandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
@@ -56,6 +58,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import jdk.incubator.vector.DoubleVector;
+import jdk.incubator.vector.FloatVector;
+import jdk.incubator.vector.VectorSpecies;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -145,6 +150,8 @@ public class Mandelbrot {
     // Fractals
     Fractal[] fractals = {
       MandelbrotFractal.MANDELBROT,
+      DoubleVectorMandelbrotFractal.DOUBLE_VECTOR_MANDELBROT,
+      FloatVectorMandelbrotFractal.FLOAT_VECTOR_MANDELBROT,
       BurningShipFractal.BURNING_SHIP,
       BuffaloFractal.BUFFALO,
       TricornFractal.TRICORN,
@@ -349,6 +356,20 @@ public class Mandelbrot {
     int height,
     int[][] iterationsPixels) {
 
+    return switch (algorithm) {
+      case DoubleVectorMandelbrotFractal _ -> this.computeIterationPixelsVectorizedDouble(max, width, height, iterationsPixels);
+      case FloatVectorMandelbrotFractal _ -> this.computeIterationPixelsVectorizedFloat(max, width, height, iterationsPixels);
+      default -> this.computeIterationPixelsRegular(algorithm, max, width, height, iterationsPixels);
+    };
+  }
+
+  private long computeIterationPixelsRegular(
+    Fractal algorithm,
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
     long startTime = System.nanoTime();
 
     // Parallelize computations
@@ -368,7 +389,114 @@ public class Mandelbrot {
     return elapsed;
   }
 
+  private long computeIterationPixelsVectorizedDouble(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
+    long startTime = System.nanoTime();
+
+    // Vector species: 256-bit, 4 doubles
+    VectorSpecies<Double> FS = DoubleVector.SPECIES_256;
+
+    IntStream.range(0, height)
+      .parallel()
+      .forEach(py -> {
+
+        double y0 = this.viewport.screenToIm(py, height);
+
+        int vecLen = FS.length();
+
+        // Temporary arrays for SIMD inputs
+        double[] x0Arr = new double[vecLen];
+        double[] y0Arr = new double[vecLen];
+
+        int[] iterOut = new int[vecLen];
+
+        for (int px = 0; px < width; px += vecLen) {
+
+          // Prepare up to 8 pixel coordinates
+          int remaining = Math.min(vecLen, width - px);
+
+          for (int i = 0; i < remaining; i++) {
+            x0Arr[i] = this.viewport.screenToRe(px + i, width);
+            y0Arr[i] = y0;
+          }
+
+          // Zero-fill unused lanes if at end of row
+          for (int i = remaining; i < vecLen; i++) {
+            x0Arr[i] = 0f;
+            y0Arr[i] = 0f;
+          }
+
+          // Perform vectorized mandelbrot
+          MandelbrotDoubleVector.mandelbrotVector(x0Arr, y0Arr, iterOut, max);
+
+          // Store only valid lanes
+          System.arraycopy(iterOut, 0, iterationsPixels[py], px, remaining);
+        }
+      });
+
+    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
+    return elapsed;
+  }
+
+  private long computeIterationPixelsVectorizedFloat(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
+    long startTime = System.nanoTime();
+
+    // Vector species: 256-bit, 8 floats
+    VectorSpecies<Float> FS = FloatVector.SPECIES_256;
+
+    IntStream.range(0, height)
+      .parallel()
+      .forEach(py -> {
+
+        float y0 = (float) this.viewport.screenToIm(py, height);
+
+        int vecLen = FS.length();
+
+        // Temporary arrays for SIMD inputs
+        float[] x0Arr = new float[vecLen];
+        float[] y0Arr = new float[vecLen];
+
+        int[] iterOut = new int[vecLen];
+
+        for (int px = 0; px < width; px += vecLen) {
+
+          // Prepare up to 8 pixel coordinates
+          int remaining = Math.min(vecLen, width - px);
+
+          for (int i = 0; i < remaining; i++) {
+            x0Arr[i] = (float) this.viewport.screenToRe(px + i, width);
+            y0Arr[i] = y0;
+          }
+
+          // Zero-fill unused lanes if at end of row
+          for (int i = remaining; i < vecLen; i++) {
+            x0Arr[i] = 0f;
+            y0Arr[i] = 0f;
+          }
+
+          // Perform vectorized mandelbrot
+          MandelbrotFloatVector.mandelbrotVector(x0Arr, y0Arr, iterOut, max);
+
+          // Store only valid lanes
+          System.arraycopy(iterOut, 0, iterationsPixels[py], px, remaining);
+        }
+      });
+
+    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
+    return elapsed;
+  }
+
   void update() {
+
     long elapsed = this.computeIterationPixels(
       this.fractal.get(),
       this.maxIterations.get(),
@@ -727,7 +855,8 @@ public class Mandelbrot {
   private void manageAlgorithmChange() {
     this.escapeViewer.setFractal(this.fractal.get());
     this.fillRegionsOfInterest();
-    this.reset();
+//    this.reset();
+    this.update();
   }
 
   private void updateMaxIterations(int iterations) {
