@@ -54,6 +54,8 @@ Some keyboard shortcuts are available :
 * <kbd>Alt</kbd> + <kbd>O</kbd> : Enable / disable escape overlay
 * <kbd>Alt</kbd> + <kbd>P</kbd> : Play / pause music
 
+You can also press <kbd>Alt</kbd> in the app to see mnemonics on buttons that have shortcuts.
+
 ## Music
 
 Free of use, by Clavier-Music
