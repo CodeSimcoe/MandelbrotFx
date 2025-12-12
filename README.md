@@ -46,6 +46,16 @@ When enabled, it shows the first iteration points on the complex plane, starting
 ![](pictures/escape1.png)
 ![](pictures/escape2.png)
 
+## Shortcuts
+
+Some keyboard shortcuts are available :
+
+* <kbd>Alt</kbd> + <kbd>J</kbd> : Jump to selected location (from dropdown list)
+* <kbd>Alt</kbd> + <kbd>O</kbd> : Enable / disable escape overlay
+* <kbd>Alt</kbd> + <kbd>P</kbd> : Play / pause music
+
+You can also press <kbd>Alt</kbd> in the app to see mnemonics on buttons that have shortcuts.
+
 ## Music
 
 Free of use, by Clavier-Music

@@ -6,6 +6,7 @@ module mandelbrotfx {
   requires jmh.core;
   requires java.desktop;
   requires atlantafx.base;
+  requires java.logging;
 
   exports com.codesimcoe.mandelbrotfx to javafx.graphics;
   exports com.codesimcoe.mandelbrotfx.fractal to javafx.graphics;

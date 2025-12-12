@@ -52,6 +52,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -68,6 +69,7 @@ public class Mandelbrot {
   private static final double GAP = 5;
 
   private final BorderPane root;
+  private final Label logLabel = new Label();
 
   // Used fractal algorithm
   private final ObjectProperty<Fractal> fractal = new SimpleObjectProperty<>();
@@ -114,15 +116,14 @@ public class Mandelbrot {
   // Cached colors (int argb values)
   private int[] colors;
 
-  // Media player
+  // Media player (music)
   private MediaPlayer mediaPlayer;
+  private Button playPauseButton;
   private boolean musicPlaying = false;
 
   // Snapshot
   private final List<Button> snapshotButtons = new ArrayList<>();
   private final ProgressBar snapshotProgressBar = new ProgressBar(ProgressIndicator.INDETERMINATE_PROGRESS);
-
-  private int updateNumber = 0;
 
   // Points of interest
   private final ComboBox<RegionOfInterest> regionsOfInterestComboBox = new ComboBox<>();
@@ -224,6 +225,7 @@ public class Mandelbrot {
     this.root = new BorderPane();
     this.root.setCenter(mainPane);
     this.root.setRight(settingsScrollPane);
+    this.root.setBottom(this.logLabel);
 
     // Trigger UI update
     this.manageViewportChange();
@@ -327,7 +329,9 @@ public class Mandelbrot {
     this.viewport.zoomOutBy(this.zoomFactorProperty.get());
   }
 
-  void update(
+  /// Compute iteration pixels
+  /// @return the computation time, expressed in milliseconds
+  private long computeIterationPixels(
     Fractal algorithm,
     int max,
     int width,
@@ -349,19 +353,21 @@ public class Mandelbrot {
         }
       });
 
-    long elapsed = System.nanoTime() - startTime;
-    this.updateNumber++;
-    System.out.println("Mandelbrot.update " + this.updateNumber + " - Rendered in : " + (elapsed / 1e6) + "ms");
+    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
+    return elapsed;
   }
 
   void update() {
-    this.update(
+    long elapsed = this.computeIterationPixels(
       this.fractal.get(),
       this.maxIterations.get(),
       this.width,
       this.height,
       this.iterationsPixels
     );
+
+    this.writeLog("Rendered in " + elapsed + "ms", LogLevel.NORMAL);
+
     this.computeColors();
     this.drawImage();
   }
@@ -502,7 +508,8 @@ public class Mandelbrot {
     });
 
     this.regionsOfInterestComboBox.setConverter(new NamedConverter<>());
-    Button jumpToRegionOfInterestButton = new Button("Jump");
+    Button jumpToRegionOfInterestButton = new Button("_Jump");
+    jumpToRegionOfInterestButton.setMnemonicParsing(true);
     jumpToRegionOfInterestButton.setOnAction(_ -> this.jumpToRegionOfInterest(this.regionsOfInterestComboBox.getValue()));
     HBox regionOfInterestBox = new HBox(GAP, this.regionsOfInterestComboBox, jumpToRegionOfInterestButton);
 
@@ -644,7 +651,8 @@ public class Mandelbrot {
 
     // Escape viewer
     Slider escapeViewerSlider = newSlider(0, Configuration.ESCAPE_MAX_POINTS, 10, this.escapeViewer.getEscapeMaxPointsProperty());
-    ToggleButton escapeViewerToggleButton = new ToggleButton("Overlay");
+    ToggleButton escapeViewerToggleButton = new ToggleButton("_Overlay");
+    escapeViewerToggleButton.setMnemonicParsing(true);
     escapeViewerToggleButton.setOnAction(_ -> this.escapeViewer.update(escapeViewerToggleButton.isSelected()));
     TitledPane escapeViewerPane = buildTitledPane(
       "Escape viewer",
@@ -666,24 +674,15 @@ public class Mandelbrot {
     Label musicVolumeLabel = new Label("\uD83D\uDD08 Volume");
     Slider musicVolumeSlider = newSlider(0, 1, .25, this.musicVolumeProperty);
 
-    Button playPauseButton = new Button("▶ Play");
-    playPauseButton.setOnAction(_ -> {
-      if (this.musicPlaying) {
-        this.mediaPlayer.pause();
-        playPauseButton.setText("▶ Play");
-        this.musicPlaying = false;
-      } else {
-        this.mediaPlayer.play();
-        playPauseButton.setText("⏸ Pause");
-        this.musicPlaying = true;
-      }
-    });
+    this.playPauseButton = new Button("▶ _Play");
+    this.playPauseButton.setMnemonicParsing(true);
+    this.playPauseButton.setOnAction(_ -> this.toggleMusicPlay());
     TitledPane musicPane = buildTitledPane(
       "\uD83C\uDFB5 Ambient music",
       musicSelectionComboBox,
       musicVolumeLabel,
       musicVolumeSlider,
-      playPauseButton
+      this.playPauseButton
     );
 
     VBox settingsBox = new VBox(
@@ -700,6 +699,18 @@ public class Mandelbrot {
     settingsBox.setPrefWidth(Configuration.SETTINGS_WIDTH);
 
     return settingsBox;
+  }
+
+  private void toggleMusicPlay() {
+    if (this.musicPlaying) {
+      this.mediaPlayer.pause();
+      this.playPauseButton.setText("▶ Play");
+      this.musicPlaying = false;
+    } else {
+      this.mediaPlayer.play();
+      this.playPauseButton.setText("⏸ Pause");
+      this.musicPlaying = true;
+    }
   }
 
   private void manageAlgorithmChange() {
@@ -747,20 +758,20 @@ public class Mandelbrot {
     int max = this.maxIterations.get();
     int[] colors = this.colorPalette.get().computeColors(max);
 
-    this.update(this.fractal.get(), max, w, h, itPixels);
+    long elapsed = this.computeIterationPixels(this.fractal.get(), max, w, h, itPixels);
     this.computeColors(max, w, h, itPixels, colors, pixels);
 
     BufferedImage bufferedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     bufferedImage.setRGB(0, 0, w, h, pixels, 0, w);
 
-    File outputFile = null;
+    long suffix = System.currentTimeMillis();
+    String filename = this.fractal.get().getName() + "-" + mode.getName() + "-" + suffix + ".png";
+    File outputFile = new File(filename);
     try {
-      String filename = this.fractal.get().getName() + "-" + mode.getName() + "-" + this.updateNumber + ".png";
-      outputFile = new File(filename);
       ImageIO.write(bufferedImage, "png", outputFile);
-      System.out.println("PNG image saved as " + outputFile.getAbsolutePath());
+      this.writeLog("Rendered in " + elapsed + "ms - Image saved as " + outputFile.getAbsolutePath(), LogLevel.NORMAL);
     } catch (IOException e) {
-      System.err.println("Failed to save snapshot file " + outputFile.getAbsolutePath());
+      this.writeLog("Failed to save snapshot file " + outputFile.getAbsolutePath(), LogLevel.ERROR);
     } finally {
       Platform.runLater(() -> {
         this.snapshotButtons.forEach(b -> b.setDisable(false));
@@ -787,5 +798,16 @@ public class Mandelbrot {
     this.regionReCenterTextField.setText(String.valueOf(this.viewport.getCenterRe()));
     this.regionImCenterTextField.setText(String.valueOf(this.viewport.getCenterIm()));
     this.regionSizeTextField.setText(String.valueOf(this.viewport.getSize()));
+  }
+
+  private void writeLog(String text, LogLevel level) {
+    Color color = switch (level) {
+      case NORMAL -> Color.WHITE;
+      case ERROR -> Color.DARKRED;
+    };
+    Platform.runLater(() -> {
+      this.logLabel.setTextFill(color);
+      this.logLabel.setText(text);
+    });
   }
 }
