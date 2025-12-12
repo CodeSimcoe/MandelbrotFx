@@ -47,7 +47,10 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -220,6 +223,14 @@ public class Mandelbrot {
     VBox settingsBox = this.buildSettingsBox(fractals, palettes, musics);
     ScrollPane settingsScrollPane = new ScrollPane(settingsBox);
     settingsScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
+
+    // Log label : setup a background for better readability
+    this.logLabel.setPadding(new Insets(10));
+    this.logLabel.setBackground(new Background(new BackgroundFill(
+      Color.rgb(0, 0, 0, 0.7),
+      new CornerRadii(5),
+      new Insets(5)
+    )));
 
     // Assemble (border pane)
     this.root = new BorderPane();
