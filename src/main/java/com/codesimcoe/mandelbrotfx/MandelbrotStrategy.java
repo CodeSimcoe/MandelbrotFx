@@ -35,7 +35,7 @@ public sealed interface MandelbrotStrategy {
     public int computeEscape(double re0, double im0, int max) {
 
       double re = 0;
-      double y = 0;
+      double im = 0;
 
       // Squared values
       double x2 = 0;
@@ -46,10 +46,10 @@ public sealed interface MandelbrotStrategy {
 
       double modulusSquared = 0;
       while (modulusSquared <= 4 && i < max) {
-        y = 2 * re * y + im0;
+        im = 2 * re * im + im0;
         re = x2 - y2 + re0;
         x2 = re * re;
-        y2 = y * y;
+        y2 = im * im;
         modulusSquared = x2 + y2;
         i++;
       }
