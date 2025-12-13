@@ -21,14 +21,14 @@ public class Viewport {
   private final int height;
 
   public Viewport(
-    double rec,
-    double imc,
+    double centerRe,
+    double centerIm,
     double size,
     int width,
     int height) {
 
-    this.centerRe = rec;
-    this.centerIm = imc;
+    this.centerRe = centerRe;
+    this.centerIm = centerIm;
     this.size = size;
     this.width = width;
     this.height = height;
