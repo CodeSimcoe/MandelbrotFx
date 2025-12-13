@@ -19,54 +19,43 @@ public final class MandelbrotDoubleVector {
 
     int length = DS.length();
 
+    // Hoist constants outside loop
+    DoubleVector four = DoubleVector.broadcast(DS, 4.0);
+    IntVector one = IntVector.broadcast(IS, 1);
+    IntVector maxV = IntVector.broadcast(IS, maxIter);
+
     for (int base = 0; base < x0Arr.length; base += length) {
 
-      DoubleVector x = DoubleVector.fromArray(DS, x0Arr, base);
-      DoubleVector y = DoubleVector.fromArray(DS, y0Arr, base);
-      DoubleVector x0 = x;
-      DoubleVector y0 = y;
+      DoubleVector x0 = DoubleVector.fromArray(DS, x0Arr, base);
+      DoubleVector y0 = DoubleVector.fromArray(DS, y0Arr, base);
+      DoubleVector x = x0;
+      DoubleVector y = y0;
 
       IntVector iter = IntVector.zero(IS);
-      VectorMask<Double> active = VectorMask.fromLong(DS, -1L);
-
-      DoubleVector four = DoubleVector.broadcast(DS, 4.0);
-      IntVector maxV = IntVector.broadcast(IS, maxIter);
+      VectorMask<Integer> active = VectorMask.fromLong(IS, -1L);
 
       while (active.anyTrue()) {
 
-        // xx = x^2, yy = y^2
+        // z² = (x + iy)² = x² - y² + 2ixy
         DoubleVector xx = x.mul(x);
         DoubleVector yy = y.mul(y);
+        DoubleVector xy = x.mul(y);
 
-        // ab = xx + yy
-        DoubleVector ab = xx.add(yy);
-
-        // xy = 2*x*y
-        DoubleVector xy = x.mul(y).add(x.mul(y));
-
-        // x = xx - yy + x0
+        // New z = z² + c
         x = xx.sub(yy).add(x0);
+        y = xy.add(xy).add(y0);  // Fused: 2xy + y0
 
-        // y = xy + y0
-        y = xy.add(y0);
+        // Magnitude check: |z|² < 4
+        DoubleVector magSq = xx.add(yy);
+        VectorMask<Double> inside = magSq.compare(VectorOperators.LT, four);
 
-        // inside = ab < 4
-        VectorMask<Double> inside =
-          ab.compare(VectorOperators.LT, four);
+        // Update active mask: inside && iter < maxIter
+        VectorMask<Integer> insideInt = inside.cast(IS);
+        VectorMask<Integer> belowMax = iter.compare(VectorOperators.LT, maxV);
+        active = insideInt.and(belowMax);
 
-        // reachedMax = iter == max
-        VectorMask<Integer> reachedMax =
-          iter.compare(VectorOperators.EQ, maxV);
-
-        // nextActive = inside && !reachedMax
-        VectorMask<Integer> nextActive =
-          inside.cast(IS).and(reachedMax.not());
-
-        // iter += 1 where active
-        iter = iter.add(IntVector.broadcast(IS, 1), nextActive);
-
-        // convert integer mask → double mask for loop
-        active = nextActive.cast(DS);
+        // Increment counter for active lanes
+        iter = iter.add(one, active);
       }
 
       // Store results
