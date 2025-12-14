@@ -11,6 +11,7 @@ import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
 import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
 import com.codesimcoe.mandelbrotfx.fractal.DoubleVectorMandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.FFMAVXMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.FFMCudaMandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.FloatVectorMandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
@@ -150,7 +151,8 @@ public class Mandelbrot {
       MandelbrotFractal.MANDELBROT,
       DoubleVectorMandelbrotFractal.DOUBLE_VECTOR_MANDELBROT,
       FloatVectorMandelbrotFractal.FLOAT_VECTOR_MANDELBROT,
-      FFMAVXMandelbrotFractal.FFX_AVX_MANDELBROT,
+      FFMAVXMandelbrotFractal.FFM_AVX_MANDELBROT,
+      FFMCudaMandelbrotFractal.FFM_CUDA_MANDELBROT,
       BurningShipFractal.BURNING_SHIP,
       BuffaloFractal.BUFFALO,
       TricornFractal.TRICORN,
@@ -355,22 +357,26 @@ public class Mandelbrot {
     int height,
     int[][] iterationsPixels) {
 
-    return switch (algorithm) {
+    long startTime = System.nanoTime();
+
+    switch (algorithm) {
       case DoubleVectorMandelbrotFractal _ -> this.computeIterationPixelsVectorizedDouble(max, width, height, iterationsPixels);
       case FloatVectorMandelbrotFractal _ -> this.computeIterationPixelsVectorizedFloat(max, width, height, iterationsPixels);
-      case FFMAVXMandelbrotFractal _ -> this.computeIterationPixelsFfm(max, width, height, iterationsPixels);
+      case FFMAVXMandelbrotFractal _ -> this.computeIterationPixelsFFMAVX(max, width, height, iterationsPixels);
+      case FFMCudaMandelbrotFractal _ -> this.computeIterationPixelsCudaFloat(max, width, height, iterationsPixels);
       default -> this.computeIterationPixelsRegular(algorithm, max, width, height, iterationsPixels);
-    };
+    }
+
+    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
+    return elapsed;
   }
 
-  private long computeIterationPixelsRegular(
+  private void computeIterationPixelsRegular(
     Fractal algorithm,
     int max,
     int width,
     int height,
     int[][] iterationsPixels) {
-
-    long startTime = System.nanoTime();
 
     // Parallelize computations
     // Cache locality : order matters
@@ -384,18 +390,13 @@ public class Mandelbrot {
           iterationsPixels[y][x] = iterations;
         }
       });
-
-    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
-    return elapsed;
   }
 
-  private long computeIterationPixelsFfm(
+  private void computeIterationPixelsFFMAVX(
     int max,
     int width,
     int height,
     int[][] iterationsPixels) {
-
-    long startTime = System.nanoTime();
 
     float xRes = (float) (this.viewport.getSize() / width);
     float yRes = (float) (this.viewport.getSize() / height);
@@ -417,18 +418,55 @@ public class Mandelbrot {
           iterationsPixels[y]
         )
       );
-
-    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
-    return elapsed;
   }
 
-  private long computeIterationPixelsVectorizedDouble(
+  private void computeIterationPixelsCudaFloat(
     int max,
     int width,
     int height,
     int[][] iterationsPixels) {
 
-    long startTime = System.nanoTime();
+    float cx0 = (float) this.viewport.getCenterRe();
+    float cy0 = (float) this.viewport.getCenterIm();
+    float scale = (float) (this.viewport.getSize() / width);
+
+    MandelbrotFFMCuda.computeFloat(
+      cx0,
+      cy0,
+      scale,
+      width,
+      height,
+      max,
+      iterationsPixels
+    );
+  }
+
+  private void computeIterationPixelsCudaDouble(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
+    double cx0 = this.viewport.getCenterRe();
+    double cy0 = this.viewport.getCenterIm();
+    double scale = this.viewport.getSize() / width;
+
+    MandelbrotFFMCuda.computeDouble(
+      cx0,
+      cy0,
+      scale,
+      width,
+      height,
+      max,
+      iterationsPixels
+    );
+  }
+
+  private void computeIterationPixelsVectorizedDouble(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
 
     IntStream.range(0, height)
       .parallel()
@@ -437,18 +475,13 @@ public class Mandelbrot {
         double y0 = this.viewport.screenToIm(py, height);
         iterationsPixels[py] = MandelbrotVector.computeLineDouble(width, this.viewport, y0, max);
       });
-
-    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
-    return elapsed;
   }
 
-  private long computeIterationPixelsVectorizedFloat(
+  private void computeIterationPixelsVectorizedFloat(
     int max,
     int width,
     int height,
     int[][] iterationsPixels) {
-
-    long startTime = System.nanoTime();
 
     IntStream.range(0, height)
       .parallel()
@@ -457,9 +490,6 @@ public class Mandelbrot {
         float y0 = (float) this.viewport.screenToIm(py, height);
         iterationsPixels[py] = MandelbrotVector.computeLineFloat(width, this.viewport, y0, max);
       });
-
-    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
-    return elapsed;
   }
 
   void update() {

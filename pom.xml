@@ -60,9 +60,6 @@
                     <target>26</target>
                     <compilerArgs>
                         <arg>--enable-preview</arg>
-<!--                        <arg>&#45;&#45;add-exports=java.base/jdk.internal.vm.annotation=ALL-UNNAMED</arg>-->
-<!--                        <arg>&#45;&#45;add-exports=java.base/jdk.internal.value=ALL-UNNAMED</arg>-->
-<!--                        <arg>&#45;&#45;add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>-->
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>
