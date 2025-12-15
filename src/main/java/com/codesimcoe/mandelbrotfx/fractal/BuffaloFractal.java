@@ -1,7 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 // Buffalo fractal: z_{n+1} = (|Re(z_n)| - |Im(z_n)|)^2 + c
 public enum BuffaloFractal implements Fractal {
@@ -44,15 +44,13 @@ public enum BuffaloFractal implements Fractal {
   }
 
   @Override
-  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
-    // z^2
-    double re2 = z.re() * z.re() - z.im() * z.im();
-    double im2 = 2.0 * z.re() * z.im();
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
+    double x = Math.abs(z.re());
+    double y = Math.abs(z.im());
 
-    // Apply abs to both parts
-    double newX = Math.abs(re2) + c.re();
-    double newY = Math.abs(im2) + c.im();
+    double newY = 2.0 * x * y + c.im();
+    double newX = x * x - 2.0 * x * y + y * y + c.re();
 
-    return new Complex(newX, newY);
+    return new ValueComplex(newX, newY);
   }
 }

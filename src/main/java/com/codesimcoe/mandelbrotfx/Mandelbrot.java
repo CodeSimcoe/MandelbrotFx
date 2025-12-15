@@ -3,6 +3,7 @@ package com.codesimcoe.mandelbrotfx;
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import atlantafx.base.theme.Styles;
+import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.MandelbrotStrategyType;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.escape.EscapeViewer;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
@@ -14,6 +15,11 @@ import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.NewtonSinFractal;
 import com.codesimcoe.mandelbrotfx.fractal.PhoenixFractal;
 import com.codesimcoe.mandelbrotfx.fractal.TricornFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.DoubleVectorMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.FFMAVXFloatMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.FFMCudaDoubleMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.FFMCudaFloatMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.FloatVectorMandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.music.Music;
 import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
@@ -144,6 +150,11 @@ public class Mandelbrot {
     // Fractals
     Fractal[] fractals = {
       MandelbrotFractal.MANDELBROT,
+      new DoubleVectorMandelbrotFractal(),
+      new FloatVectorMandelbrotFractal(),
+      new FFMAVXFloatMandelbrotFractal(),
+      new FFMCudaDoubleMandelbrotFractal(),
+      new FFMCudaFloatMandelbrotFractal(),
       BurningShipFractal.BURNING_SHIP,
       BuffaloFractal.BUFFALO,
       TricornFractal.TRICORN,
@@ -322,9 +333,7 @@ public class Mandelbrot {
     return this.root;
   }
 
-  private void move(
-    double x,
-    double y) {
+  private void move(double x, double y) {
 
     this.viewport.screenMoveTo(x, y);
     this.manageViewportChange();
@@ -352,6 +361,26 @@ public class Mandelbrot {
 
     long startTime = System.nanoTime();
 
+    switch (algorithm) {
+      case DoubleVectorMandelbrotFractal _ -> this.computeIterationPixelsVectorizedDouble(max, width, height, iterationsPixels);
+      case FloatVectorMandelbrotFractal _ -> this.computeIterationPixelsVectorizedFloat(max, width, height, iterationsPixels);
+      case FFMAVXFloatMandelbrotFractal _ -> this.computeIterationPixelsFFMAVX(max, width, height, iterationsPixels);
+      case FFMCudaFloatMandelbrotFractal _ -> this.computeIterationPixelsCudaFloat(max, width, height, iterationsPixels);
+      case FFMCudaDoubleMandelbrotFractal _ -> this.computeIterationPixelsCudaDouble(max, width, height, iterationsPixels);
+      default -> this.computeIterationPixelsRegular(algorithm, max, width, height, iterationsPixels);
+    }
+
+    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
+    return elapsed;
+  }
+
+  private void computeIterationPixelsRegular(
+    Fractal algorithm,
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
     // Parallelize computations
     // Cache locality : order matters
     IntStream.range(0, height)
@@ -364,12 +393,110 @@ public class Mandelbrot {
           iterationsPixels[y][x] = iterations;
         }
       });
+  }
 
-    long elapsed = (System.nanoTime() - startTime) / 1_000_000;
-    return elapsed;
+  private void computeIterationPixelsFFMAVX(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
+    float xRes = (float) (this.viewport.getSize() / width);
+    float yRes = (float) (this.viewport.getSize() / height);
+
+    float xl = (float) (this.viewport.getCenterRe() - (width * 0.5) * xRes);
+    float yl = (float) ((height * 0.5) * yRes - this.viewport.getCenterIm());
+
+    IntStream.range(0, height)
+      .parallel()
+      .forEach(y ->
+        MandelbrotFFMAVX.computeLine(
+          y,
+          width,
+          max,
+          xl,
+          yl,
+          xRes,
+          yRes,
+          iterationsPixels[y]
+        )
+      );
+  }
+
+  private void computeIterationPixelsCudaFloat(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
+    float cx0 = (float) this.viewport.getCenterRe();
+    float cy0 = (float) this.viewport.getCenterIm();
+    float scale = (float) (this.viewport.getSize() / width);
+
+    MandelbrotFFMCuda.computeFloat(
+      cx0,
+      cy0,
+      scale,
+      width,
+      height,
+      max,
+      iterationsPixels
+    );
+  }
+
+  private void computeIterationPixelsCudaDouble(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
+    double cx0 = this.viewport.getCenterRe();
+    double cy0 = this.viewport.getCenterIm();
+    double scale = this.viewport.getSize() / width;
+
+    MandelbrotFFMCuda.computeDouble(
+      cx0,
+      cy0,
+      scale,
+      width,
+      height,
+      max,
+      iterationsPixels
+    );
+  }
+
+  private void computeIterationPixelsVectorizedDouble(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
+    IntStream.range(0, height)
+      .parallel()
+      .forEach(py -> {
+
+        double y0 = this.viewport.screenToIm(py, height);
+        iterationsPixels[py] = MandelbrotVector.computeLineDouble(width, this.viewport, y0, max);
+      });
+  }
+
+  private void computeIterationPixelsVectorizedFloat(
+    int max,
+    int width,
+    int height,
+    int[][] iterationsPixels) {
+
+    IntStream.range(0, height)
+      .parallel()
+      .forEach(py -> {
+
+        float y0 = (float) this.viewport.screenToIm(py, height);
+        iterationsPixels[py] = MandelbrotVector.computeLineFloat(width, this.viewport, y0, max);
+      });
   }
 
   void update() {
+
     long elapsed = this.computeIterationPixels(
       this.fractal.get(),
       this.maxIterations.get(),
@@ -525,11 +652,23 @@ public class Mandelbrot {
     jumpToRegionOfInterestButton.setOnAction(_ -> this.jumpToRegionOfInterest(this.regionsOfInterestComboBox.getValue()));
     HBox regionOfInterestBox = new HBox(GAP, this.regionsOfInterestComboBox, jumpToRegionOfInterestButton);
 
+    Label strategyLabel = new Label("Strategy");
+    ComboBox<MandelbrotStrategyType> strategyTypeComboBox = new ComboBox<>();
+    strategyTypeComboBox.setValue(MandelbrotStrategyType.PRIMITIVE);
+    strategyTypeComboBox.setConverter(new NamedConverter<>());
+    strategyTypeComboBox.getItems().setAll(MandelbrotStrategyType.values());
+    strategyTypeComboBox.setOnAction(_ -> {
+      MandelbrotStrategy strategy = strategyTypeComboBox.getValue().getStrategy();
+      MandelbrotFractal.MANDELBROT.setStrategy(strategy);
+    });
+
     TitledPane algorithmPane = buildTitledPane(
       "∑ Algorithm",
       fractalComboBox,
       new Label("Max iterations"),
       maxIterationsSlider,
+      strategyLabel,
+      strategyTypeComboBox,
       new Label("Regions of interest"),
       regionOfInterestBox
     );
@@ -716,7 +855,10 @@ public class Mandelbrot {
   private void manageAlgorithmChange() {
     this.escapeViewer.setFractal(this.fractal.get());
     this.fillRegionsOfInterest();
-    this.reset();
+
+    // XXX : no viewport reset so we can switch algorithms, staying on the same location
+//    this.reset();
+    this.update();
   }
 
   private void updateMaxIterations(int iterations) {
@@ -732,7 +874,8 @@ public class Mandelbrot {
       this.fractal.get().getDefaultRegion(),
       Configuration.DEFAULT_MAX_ITERATIONS
     );
-    this.regionsOfInterestComboBox.getItems().setAll(this.fractal.get().getRegionsOfInterest());
+    this.regionsOfInterestComboBox.getItems().clear();
+    this.regionsOfInterestComboBox.getItems().addAll(this.fractal.get().getRegionsOfInterest());
     this.regionsOfInterestComboBox.getItems().addFirst(home);
     this.regionsOfInterestComboBox.setValue(home);
   }
@@ -780,7 +923,7 @@ public class Mandelbrot {
     }
   }
 
-  private void jumpToRegionOfInterest(RegionOfInterest regionOfInterest) {
+  void jumpToRegionOfInterest(RegionOfInterest regionOfInterest) {
     this.viewport.update(regionOfInterest.region());
     this.manageViewportChange();
     this.updateMaxIterations(regionOfInterest.iterations());

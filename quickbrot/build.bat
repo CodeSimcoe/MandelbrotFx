@@ -1,0 +1,1 @@
+cl /O2 /arch:AVX2 /LD quickbrot.c /Fe:quickbrot.dll

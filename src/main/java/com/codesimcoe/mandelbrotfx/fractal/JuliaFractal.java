@@ -1,7 +1,7 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Region;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 public record JuliaFractal(String name, double re0, double im0) implements Fractal {
 
@@ -40,7 +40,7 @@ public record JuliaFractal(String name, double re0, double im0) implements Fract
   }
 
   @Override
-  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     double zr = z.re();
     double zi = z.im();
 
@@ -48,17 +48,17 @@ public record JuliaFractal(String name, double re0, double im0) implements Fract
     double zi2 = 2 * zr * zi;
 
     // Julia constant (fixed for whole fractal)
-    return new Complex(zr2 + this.re0, zi2 + this.im0);
+    return new ValueComplex(zr2 + this.re0, zi2 + this.im0);
   }
 
   @Override
-  public Complex initialZ(double re, double im) {
+  public ValueComplex initialZ(double re, double im) {
     // Start at the pixel coordinate
-    return new Complex(re, im);
+    return new ValueComplex(re, im);
   }
 
   @Override
-  public Complex constantC(double re, double im) {
-    return new Complex(this.re0, this.im0);
+  public ValueComplex constantC(double re, double im) {
+    return new ValueComplex(this.re0, this.im0);
   }
 }
