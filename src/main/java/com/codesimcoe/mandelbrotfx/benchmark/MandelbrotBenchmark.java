@@ -1,6 +1,7 @@
 package com.codesimcoe.mandelbrotfx.benchmark;
 
 import com.codesimcoe.mandelbrotfx.MandelbrotFFMAVX;
+import com.codesimcoe.mandelbrotfx.MandelbrotFFMCuda;
 import com.codesimcoe.mandelbrotfx.MandelbrotVector;
 import com.codesimcoe.mandelbrotfx.Viewport;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
@@ -16,10 +17,12 @@ import org.openjdk.jmh.annotations.State;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-
-/// Benchmark                             Mode  Cnt    Score   Error  Units
-/// MandelbrotBenchmark.regularBenchmark  avgt   25  225,686 ± 0,922  ms/op
-/// MandelbrotBenchmark.vectorBenchmark   avgt   25   98,194 ± 0,370  ms/op
+// Benchmark                                  Mode  Cnt    Score   Error  Units
+// MandelbrotBenchmark.regularBenchmark       avgt   25  214,994 ± 1,989  ms/op
+// MandelbrotBenchmark.doubleVectorBenchmark  avgt   25   99,247 ± 0,914  ms/op
+// MandelbrotBenchmark.floatVectorBenchmark   avgt   25   52,212 ± 0,852  ms/op
+// MandelbrotBenchmark.avxFFMBenchmark        avgt   25   29,983 ± 0,123  ms/op
+// MandelbrotBenchmark.cudaFFMBenchmark       avgt   25    3,958 ± 0,039  ms/op
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
@@ -107,5 +110,22 @@ public class MandelbrotBenchmark {
           this.iterationsPixels[y]
         );
       });
+  }
+
+  @Benchmark
+  public void cudaFFMBenchmark() {
+    float cx0 = (float) this.viewport.getCenterRe();
+    float cy0 = (float) this.viewport.getCenterIm();
+    float scale = (float) (this.viewport.getSize() / this.width);
+
+    MandelbrotFFMCuda.computeFloat(
+      cx0,
+      cy0,
+      scale,
+      this.width,
+      this.height,
+      this.max,
+      this.iterationsPixels
+    );
   }
 }

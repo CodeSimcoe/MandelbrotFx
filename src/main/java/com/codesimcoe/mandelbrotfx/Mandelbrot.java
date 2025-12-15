@@ -871,7 +871,8 @@ public class Mandelbrot {
       this.fractal.get().getDefaultRegion(),
       Configuration.DEFAULT_MAX_ITERATIONS
     );
-    this.regionsOfInterestComboBox.getItems().setAll(this.fractal.get().getRegionsOfInterest());
+    this.regionsOfInterestComboBox.getItems().clear();
+    this.regionsOfInterestComboBox.getItems().addAll(this.fractal.get().getRegionsOfInterest());
     this.regionsOfInterestComboBox.getItems().addFirst(home);
     this.regionsOfInterestComboBox.setValue(home);
   }

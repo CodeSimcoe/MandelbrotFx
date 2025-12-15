@@ -46,7 +46,8 @@ public sealed interface MandelbrotStrategy {
 
       double modulusSquared = 0;
       while (modulusSquared <= 4 && i < max) {
-        im = 2 * re * im + im0;
+        // fma : 2 * re * im + im0
+        im = Math.fma(2 * re, im, im0);
         re = x2 - y2 + re0;
         x2 = re * re;
         y2 = im * im;
