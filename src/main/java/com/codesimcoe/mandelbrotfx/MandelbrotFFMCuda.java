@@ -11,15 +11,19 @@ import java.nio.file.Path;
 
 public final class MandelbrotFFMCuda {
 
-  private static final MethodHandle MH;
+  private static final MethodHandle FLOAT_MH;
+  private static final MethodHandle DOUBLE_MH;
 
   static {
     Arena arena = Arena.ofShared();
-    Path path = Path.of("cuda/mandelbrot_cuda.dll");
-    SymbolLookup lookup = SymbolLookup.libraryLookup(path, arena);
-    MemorySegment function = lookup.find("mandelbrot").orElseThrow();
+    Path floatPath = Path.of("cuda/mandelbrot-cuda-float.dll");
+    Path doublePath = Path.of("cuda/mandelbrot-cuda-double.dll");
+    SymbolLookup floatLookup = SymbolLookup.libraryLookup(floatPath, arena);
+    SymbolLookup doubleLookup = SymbolLookup.libraryLookup(doublePath, arena);
+    MemorySegment floatFunction = floatLookup.find("mandelbrot").orElseThrow();
+    MemorySegment doubleFunction = doubleLookup.find("mandelbrot").orElseThrow();
 
-    FunctionDescriptor descriptor = FunctionDescriptor.ofVoid(
+    FunctionDescriptor floatDescriptor = FunctionDescriptor.ofVoid(
       ValueLayout.JAVA_FLOAT, // cx0
       ValueLayout.JAVA_FLOAT, // cy0
       ValueLayout.JAVA_FLOAT, // scale
@@ -29,8 +33,19 @@ public final class MandelbrotFFMCuda {
       ValueLayout.ADDRESS     // int* hostOutput
     );
 
+    FunctionDescriptor doubleDescriptor = FunctionDescriptor.ofVoid(
+      ValueLayout.JAVA_DOUBLE, // cx0
+      ValueLayout.JAVA_DOUBLE, // cy0
+      ValueLayout.JAVA_DOUBLE, // scale
+      ValueLayout.JAVA_INT,    // width
+      ValueLayout.JAVA_INT,    // height
+      ValueLayout.JAVA_INT,    // maxIter
+      ValueLayout.ADDRESS      // int* hostOutput
+    );
+
     Linker linker = Linker.nativeLinker();
-    MH = linker.downcallHandle(function, descriptor);
+    FLOAT_MH = linker.downcallHandle(floatFunction, floatDescriptor);
+    DOUBLE_MH = linker.downcallHandle(doubleFunction, doubleDescriptor);
   }
 
   public static void computeFloat(
@@ -46,7 +61,7 @@ public final class MandelbrotFFMCuda {
 
       MemorySegment buffer = arena.allocate(ValueLayout.JAVA_INT, (long) width * height);
 
-      MH.invokeExact(
+      FLOAT_MH.invokeExact(
         cx0, cy0, scale,
         width, height,
         max,
@@ -82,7 +97,7 @@ public final class MandelbrotFFMCuda {
 
       MemorySegment buffer = arena.allocate(ValueLayout.JAVA_INT, (long) width * height);
 
-      MH.invokeExact(
+      DOUBLE_MH.invokeExact(
         cx0, cy0, scale,
         width, height,
         max,

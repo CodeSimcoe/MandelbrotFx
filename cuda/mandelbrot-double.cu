@@ -2,13 +2,13 @@
 #include <cuda.h>
 #include <cstdio>
 
-// Mandelbrot kernel
+// Mandelbrot kernel (double precision)
 extern "C" __global__
 __launch_bounds__(256, 2)
 void mandelbrotKernel(
-    float cx0, float cy0, float scale,
+    double cx0, double cy0, double scale,
     int width, int height,
-    float hw, float hh,
+    double hw, double hh,
     int maxIter,
     int* __restrict__ output) {
 
@@ -17,19 +17,19 @@ void mandelbrotKernel(
 
     if (x >= width || y >= height) return;
 
-    float cx = cx0 + (x - hw) * scale;
-    float cy = cy0 + (y - hh) * scale;
+    double cx = cx0 + (x - hw) * scale;
+    double cy = cy0 + (y - hh) * scale;
 
-    float zx = 0.0f;
-    float zy = 0.0f;
-    float zx2 = 0.0f;
-    float zy2 = 0.0f;
+    double zx  = 0.0;
+    double zy  = 0.0;
+    double zx2 = 0.0;
+    double zy2 = 0.0;
 
     int iter = 0;
 
     #pragma unroll 4
-    while ((zx2 + zy2 <= 4.0f) & (iter < maxIter)) {
-        zy = fmaf(2.0f * zx, zy, cy);
+    while ((zx2 + zy2 <= 4.0) & (iter < maxIter)) {
+        zy = fma(2.0 * zx, zy, cy);
         zx = zx2 - zy2 + cx;
 
         zx2 = zx * zx;
@@ -43,7 +43,7 @@ void mandelbrotKernel(
 // Host API
 extern "C" __declspec(dllexport)
 void mandelbrot(
-    float cx0, float cy0, float scale,
+    double cx0, double cy0, double scale,
     int width, int height,
     int maxIter,
     int* hostOutput) {
@@ -65,8 +65,8 @@ void mandelbrot(
         (height + block.y - 1) / block.y
     );
 
-    const float hw = 0.5f * width;
-    const float hh = 0.5f * height;
+    const double hw = 0.5 * width;
+    const double hh = 0.5 * height;
 
     mandelbrotKernel<<<grid, block>>>(
         cx0, cy0, scale,

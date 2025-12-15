@@ -9,16 +9,17 @@ import com.codesimcoe.mandelbrotfx.escape.EscapeViewer;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
 import com.codesimcoe.mandelbrotfx.fractal.BurningShipFractal;
 import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
-import com.codesimcoe.mandelbrotfx.fractal.DoubleVectorMandelbrotFractal;
-import com.codesimcoe.mandelbrotfx.fractal.FFMAVXMandelbrotFractal;
-import com.codesimcoe.mandelbrotfx.fractal.FFMCudaMandelbrotFractal;
-import com.codesimcoe.mandelbrotfx.fractal.FloatVectorMandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.NewtonSinFractal;
 import com.codesimcoe.mandelbrotfx.fractal.PhoenixFractal;
 import com.codesimcoe.mandelbrotfx.fractal.TricornFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.DoubleVectorMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.FFMAVXFloatMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.FFMCudaDoubleMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.FFMCudaFloatMandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.extended.FloatVectorMandelbrotFractal;
 import com.codesimcoe.mandelbrotfx.music.Music;
 import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
@@ -149,10 +150,11 @@ public class Mandelbrot {
     // Fractals
     Fractal[] fractals = {
       MandelbrotFractal.MANDELBROT,
-      DoubleVectorMandelbrotFractal.DOUBLE_VECTOR_MANDELBROT,
-      FloatVectorMandelbrotFractal.FLOAT_VECTOR_MANDELBROT,
-      FFMAVXMandelbrotFractal.FFM_AVX_MANDELBROT,
-      FFMCudaMandelbrotFractal.FFM_CUDA_MANDELBROT,
+      new DoubleVectorMandelbrotFractal(),
+      new FloatVectorMandelbrotFractal(),
+      new FFMAVXFloatMandelbrotFractal(),
+      new FFMCudaDoubleMandelbrotFractal(),
+      new FFMCudaFloatMandelbrotFractal(),
       BurningShipFractal.BURNING_SHIP,
       BuffaloFractal.BUFFALO,
       TricornFractal.TRICORN,
@@ -362,8 +364,9 @@ public class Mandelbrot {
     switch (algorithm) {
       case DoubleVectorMandelbrotFractal _ -> this.computeIterationPixelsVectorizedDouble(max, width, height, iterationsPixels);
       case FloatVectorMandelbrotFractal _ -> this.computeIterationPixelsVectorizedFloat(max, width, height, iterationsPixels);
-      case FFMAVXMandelbrotFractal _ -> this.computeIterationPixelsFFMAVX(max, width, height, iterationsPixels);
-      case FFMCudaMandelbrotFractal _ -> this.computeIterationPixelsCudaFloat(max, width, height, iterationsPixels);
+      case FFMAVXFloatMandelbrotFractal _ -> this.computeIterationPixelsFFMAVX(max, width, height, iterationsPixels);
+      case FFMCudaFloatMandelbrotFractal _ -> this.computeIterationPixelsCudaFloat(max, width, height, iterationsPixels);
+      case FFMCudaDoubleMandelbrotFractal _ -> this.computeIterationPixelsCudaDouble(max, width, height, iterationsPixels);
       default -> this.computeIterationPixelsRegular(algorithm, max, width, height, iterationsPixels);
     }
 

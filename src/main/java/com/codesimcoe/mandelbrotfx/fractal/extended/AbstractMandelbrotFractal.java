@@ -1,13 +1,14 @@
-package com.codesimcoe.mandelbrotfx.fractal;
+package com.codesimcoe.mandelbrotfx.fractal.extended;
 
 import com.codesimcoe.mandelbrotfx.Region;
 import com.codesimcoe.mandelbrotfx.RegionOfInterest;
 import com.codesimcoe.mandelbrotfx.ValueComplex;
+import com.codesimcoe.mandelbrotfx.fractal.Fractal;
+import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
 
 import java.util.List;
 
-public enum FFMAVXMandelbrotFractal implements Fractal {
-  FFM_AVX_MANDELBROT;
+public abstract class AbstractMandelbrotFractal implements Fractal {
 
   @Override
   public int computeEscape(double re, double im, int max) {
@@ -26,11 +27,6 @@ public enum FFMAVXMandelbrotFractal implements Fractal {
 
   @Override
   public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
-    throw new UnsupportedOperationException("FFMAVXMandelbrotFractal shall uses dedicated FFM computation");
-  }
-
-  @Override
-  public String getName() {
-    return "FFM AVX Mandelbrot";
+    throw new UnsupportedOperationException();
   }
 }
