@@ -66,7 +66,7 @@ public sealed interface MandelbrotStrategy {
     @Override
     public int computeEscape(double re0, double im0, int max) {
       Complex c = new Complex(re0, im0);
-      Complex z = new Complex(0, 0);
+      Complex z = Complex.ZERO;
       int i = 0;
 
       while (z.magnitudeSquared() < 4 && i < max) {
