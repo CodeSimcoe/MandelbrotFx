@@ -15,6 +15,7 @@ import com.codesimcoe.mandelbrotfx.fractal.NewtonSinFractal;
 import com.codesimcoe.mandelbrotfx.fractal.PhoenixFractal;
 import com.codesimcoe.mandelbrotfx.fractal.TricornFractal;
 import com.codesimcoe.mandelbrotfx.music.Music;
+import com.codesimcoe.mandelbrotfx.palette.BlackColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
 import com.codesimcoe.mandelbrotfx.palette.GradientColorPalettes;
 import com.codesimcoe.mandelbrotfx.palette.GrayscaleColorPalette;
@@ -172,6 +173,7 @@ public class Mandelbrot {
     ColorPalette[] palettes = {
       GradientColorPalettes.BLUE_ORANGE,
       new SpectrumColorPalette(),
+      new BlackColorPalette(),
       new GrayscaleColorPalette(),
       GradientColorPalettes.OCEAN,
       GradientColorPalettes.SUNSET,

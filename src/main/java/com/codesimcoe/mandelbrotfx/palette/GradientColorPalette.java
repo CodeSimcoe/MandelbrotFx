@@ -20,17 +20,17 @@ public record GradientColorPalette(String name, Color[] keyColors) implements Co
     Color[] gradient = this.createSmoothGradient(numColors + 1);
 
     int[] colors = new int[numColors + 1];
-    for (int i = 0; i <= numColors; i++) {
-      if (i == numColors) {
-        colors[i] = 0xFF000000; // Black for inside the set
-      } else {
-        Color c = gradient[i];
-        int r = (int) (c.getRed() * 255);
-        int g = (int) (c.getGreen() * 255);
-        int b = (int) (c.getBlue() * 255);
-        colors[i] = (0xFF << 24) | (r << 16) | (g << 8) | b;
-      }
+
+    colors[numColors] = 0xFF000000; // Black for inside the set
+
+    for (int i = 0; i < numColors; i++) {
+      Color c = gradient[i];
+      int r = (int) (c.getRed() * 255);
+      int g = (int) (c.getGreen() * 255);
+      int b = (int) (c.getBlue() * 255);
+      colors[i] = (0xFF << 24) | (r << 16) | (g << 8) | b;
     }
+
     return colors;
   }
 

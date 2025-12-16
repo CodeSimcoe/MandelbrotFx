@@ -20,15 +20,14 @@ public class GrayscaleColorPalette implements ColorPalette {
   public int[] computeColors(int max) {
     int[] colors = new int[max + 1];
 
-    for (int i = 0; i <= max; i++) {
-      if (i == max) {
-        colors[i] = 0xFF000000; // Black for points inside the set
-      } else {
-        int gray = (int) (255.0 * i / max);
-        colors[i] = (0xFF << 24) | (gray << 16) | (gray << 8) | gray;
-      }
+    colors[max] = 0xFF000000; // Black for points inside set
+
+    for (int i = 0; i < max; i++) {
+      int gray = 255 - (int) (255.0 * i / max);
+      colors[i] = (0xFF << 24) | (gray << 16) | (gray << 8) | gray;
     }
 
     return colors;
   }
+
 }
