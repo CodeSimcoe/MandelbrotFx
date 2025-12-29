@@ -1,6 +1,7 @@
 package com.codesimcoe.mandelbrotfx.component;
 
 import com.codesimcoe.mandelbrotfx.palette.ColorPalette;
+import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
@@ -32,6 +33,7 @@ public final class PaletteCellFactory {
       private final Text nameText = new Text();
 
       {
+        this.hbox.setAlignment(Pos.CENTER_LEFT);
         this.hbox.getChildren().add(this.nameText);
       }
 
