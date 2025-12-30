@@ -1,15 +1,19 @@
 package com.codesimcoe.mandelbrotfx.fractal;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Configuration;
+import com.codesimcoe.mandelbrotfx.MandelbrotStrategy;
+import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.PrimitiveStrategy;
 import com.codesimcoe.mandelbrotfx.Region;
 import com.codesimcoe.mandelbrotfx.RegionOfInterest;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 
 import java.util.List;
 
 public enum MandelbrotFractal implements Fractal {
 
   MANDELBROT;
+
+  private MandelbrotStrategy strategy = PrimitiveStrategy.INSTANCE;
 
   private final Region defaultRegion =  new Region(-0.5, 0, 2);
   private final List<RegionOfInterest> regionsOfInterest = List.of(
@@ -39,32 +43,15 @@ public enum MandelbrotFractal implements Fractal {
 
   @Override
   public int computeEscape(double re0, double im0, int max) {
+    return this.strategy.computeEscape(re0, im0, max);
+  }
 
-    double re = 0;
-    double im = 0;
-
-    // Squared values
-    double re2 = 0;
-    double im2 = 0;
-    double modulus2 = 0;
-
-    // Iteration
-    int i = 0;
-
-    while (modulus2 <= 4 && i < max) {
-      im = 2 * re * im + im0;
-      re = re2 - im2 + re0;
-      re2 = re * re;
-      im2 = im * im;
-      modulus2 = re2 + im2;
-      i++;
-    }
-
-    return i;
+  public void setStrategy(MandelbrotStrategy strategy) {
+    this.strategy = strategy;
   }
 
   @Override
-  public Complex computeIteration(Complex z, Complex zPrev, Complex c) {
+  public ValueComplex computeIteration(ValueComplex z, ValueComplex zPrev, ValueComplex c) {
     return z.square().add(c);
   }
 }

@@ -3,6 +3,7 @@ package com.codesimcoe.mandelbrotfx;
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import atlantafx.base.theme.Styles;
+import com.codesimcoe.mandelbrotfx.MandelbrotStrategy.MandelbrotStrategyType;
 import com.codesimcoe.mandelbrotfx.component.PaletteCellFactory;
 import com.codesimcoe.mandelbrotfx.escape.EscapeViewer;
 import com.codesimcoe.mandelbrotfx.fractal.BuffaloFractal;
@@ -324,9 +325,7 @@ public class Mandelbrot {
     return this.root;
   }
 
-  private void move(
-    double x,
-    double y) {
+  private void move(double x, double y) {
 
     this.viewport.screenMoveTo(x, y);
     this.manageViewportChange();
@@ -527,11 +526,23 @@ public class Mandelbrot {
     jumpToRegionOfInterestButton.setOnAction(_ -> this.jumpToRegionOfInterest(this.regionsOfInterestComboBox.getValue()));
     HBox regionOfInterestBox = new HBox(GAP, this.regionsOfInterestComboBox, jumpToRegionOfInterestButton);
 
+    Label strategyLabel = new Label("Strategy");
+    ComboBox<MandelbrotStrategyType> strategyTypeComboBox = new ComboBox<>();
+    strategyTypeComboBox.setValue(MandelbrotStrategyType.PRIMITIVE);
+    strategyTypeComboBox.setConverter(new NamedConverter<>());
+    strategyTypeComboBox.getItems().setAll(MandelbrotStrategyType.values());
+    strategyTypeComboBox.setOnAction(_ -> {
+      MandelbrotStrategy strategy = strategyTypeComboBox.getValue().getStrategy();
+      MandelbrotFractal.MANDELBROT.setStrategy(strategy);
+    });
+
     TitledPane algorithmPane = buildTitledPane(
       "∑ Algorithm",
       fractalComboBox,
       new Label("Max iterations"),
       maxIterationsSlider,
+      strategyLabel,
+      strategyTypeComboBox,
       new Label("Regions of interest"),
       regionOfInterestBox
     );
@@ -782,7 +793,7 @@ public class Mandelbrot {
     }
   }
 
-  private void jumpToRegionOfInterest(RegionOfInterest regionOfInterest) {
+  void jumpToRegionOfInterest(RegionOfInterest regionOfInterest) {
     this.viewport.update(regionOfInterest.region());
     this.manageViewportChange();
     this.updateMaxIterations(regionOfInterest.iterations());

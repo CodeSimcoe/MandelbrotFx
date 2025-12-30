@@ -1,7 +1,7 @@
 package com.codesimcoe.mandelbrotfx.escape;
 
-import com.codesimcoe.mandelbrotfx.Complex;
 import com.codesimcoe.mandelbrotfx.Configuration;
+import com.codesimcoe.mandelbrotfx.ValueComplex;
 import com.codesimcoe.mandelbrotfx.Viewport;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import javafx.beans.property.IntegerProperty;
@@ -115,15 +115,15 @@ public class EscapeViewer {
 
     int maxEscapePoints = this.escapeMaxPointsProperty.get();
 
-    Complex z = this.fractal.initialZ(re, im);
-    Complex zPrev = Complex.ZERO;
-    Complex c = this.fractal.constantC(re, im);
+    ValueComplex z = this.fractal.initialZ(re, im);
+    ValueComplex zPrev = ValueComplex.ZERO;
+    ValueComplex c = this.fractal.constantC(re, im);
 
     double prevScreenX = this.viewport.complexToX(z.re());
     double prevScreenY = this.viewport.complexToY(z.im());
 
     for (int i = 0; i < maxEscapePoints; i++) {
-      Complex next = this.fractal.computeIteration(z, zPrev, c);
+      ValueComplex next = this.fractal.computeIteration(z, zPrev, c);
 
       zPrev = z;
       z = next;
