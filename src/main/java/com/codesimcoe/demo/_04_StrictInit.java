@@ -1,47 +1,52 @@
-value
-class SafeComplex {
+package com.codesimcoe.demo;
 
-  private final double re;
-  private final double im;
+public class _04_StrictInit {
 
-  // JEP 513 : Flexible Constructor Bodies
-  public SafeComplex(double re, double im) {
+  class SafeComplex {
 
-    // Prologue
-    // Can initialize field or perform checks
+    private final double re;
+    private final double im;
 
-    this.re = re;
-    this.im = im;
+    // JEP 513 : Flexible Constructor Bodies
+    public SafeComplex(double re, double im) {
 
-    // Cannot reference 'this' before superclass constructor is called
+      // Prologue
+      // Can initialize field or perform checks
+
+      this.re = re;
+      this.im = im;
+
+      // Cannot reference 'this' before superclass constructor is called
 //    this.prettyPrint();
 
 
-    super();
+      super();
 
-    // Validation
-    if (Double.isNaN(re)) {
-      throw new IllegalArgumentException("re is NaN");
-    }
-    if (Double.isNaN(im)) {
-      throw new IllegalArgumentException("im is NaN");
-    }
+      // Validation
+      if (Double.isNaN(re)) {
+        throw new IllegalArgumentException("re is NaN");
+      }
+      if (Double.isNaN(im)) {
+        throw new IllegalArgumentException("im is NaN");
+      }
 
-    // Epilogue
-    // "this" becomes available
+      // Epilogue
+      // "this" becomes available
 
-    // strict field re is not initialized before the supertype constructor has been called
+      // strict field re is not initialized before the supertype constructor has been called
 //    this.re = re;
 //    this.im = im;
 
-    this.prettyPrint();
+      this.prettyPrint();
+    }
+
+    void prettyPrint() {
+      IO.println("re = " + this.re + ", im = " + this.im);
+    }
   }
 
-  void prettyPrint() {
-    IO.println("re = " + this.re + ", im = " + this.im);
+  void main() {
+    var c = new SafeComplex(0, 1);
+    IO.println(c);
   }
-}
-
-void main() {
-  var c = new SafeComplex(0, 1);
 }

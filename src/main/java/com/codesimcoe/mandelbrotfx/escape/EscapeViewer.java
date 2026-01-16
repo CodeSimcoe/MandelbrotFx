@@ -17,6 +17,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.util.Locale;
+
 public class EscapeViewer {
 
   // The pane to attach viewer to
@@ -27,18 +29,20 @@ public class EscapeViewer {
   private final Circle[] escapeDots = new Circle[Configuration.ESCAPE_MAX_POINTS];
 
   private final IntegerProperty escapeMaxPointsProperty = new SimpleIntegerProperty(Configuration.DEFAULT_ESCAPE_POINTS);
-  
+
   private final EventHandler<MouseEvent> escapeMouseMovedHandler = this::onEscapeMouseMoved;
 
   private final Viewport viewport;
 
   private Fractal fractal;
+  private double x;
+  private double y;
 
   public EscapeViewer(
     Pane pane,
     Viewport viewport,
     Fractal fractal) {
-    
+
     this.pane = pane;
     this.viewport = viewport;
     this.fractal = fractal;
@@ -90,13 +94,19 @@ public class EscapeViewer {
   }
 
   private void onEscapeMouseMoved(MouseEvent event) {
-    double re = this.viewport.screenToRe(event.getX());
-    double im = this.viewport.screenToIm(event.getY());
+    this.x = event.getX();
+    this.y = event.getY();
+    this.updateUI();
+  }
 
-    String text = String.format("[%.4f, %.4f]", re, im);
+  public void updateUI() {
+    double re = this.viewport.screenToRe(this.x);
+    double im = this.viewport.screenToIm(this.y);
+
+    String text = String.format(Locale.ROOT, "[%.2f, %.2f]", re, im);
     this.coordinatesText.setText(text);
-    this.coordinatesText.setX(event.getX() + 12);
-    this.coordinatesText.setY(event.getY() + 12);
+    this.coordinatesText.setX(this.x + 12);
+    this.coordinatesText.setY(this.y + 12);
 
     for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
       this.escapeLines[i].setVisible(false);

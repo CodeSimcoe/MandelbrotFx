@@ -6,8 +6,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.13.4</junit.version>
-        <javafx.version>25</javafx.version>
+        <javafx.version>25.0.1</javafx.version>
         <jmh.version>1.37</jmh.version>
         <junit.version>6.0.0</junit.version>
     </properties>
@@ -41,13 +40,6 @@
             <version>${jmh.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -60,6 +52,13 @@
                     <target>26</target>
                     <compilerArgs>
                         <arg>--enable-preview</arg>
+                        <arg>--add-exports=java.base/jdk.internal.vm.annotation=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.base/jdk.internal.value=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
+
+                        <arg>--add-exports=java.base/jdk.internal.vm.annotation=mandelbrotfx</arg>
+                        <arg>--add-exports=java.base/jdk.internal.value=mandelbrotfx</arg>
+                        <arg>--add-exports=java.base/jdk.internal.misc=mandelbrotfx</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>
