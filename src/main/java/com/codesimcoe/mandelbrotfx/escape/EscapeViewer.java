@@ -27,6 +27,7 @@ public class EscapeViewer {
   private final Text coordinatesText = new Text();
   private final Line[] escapeLines = new Line[Configuration.ESCAPE_MAX_POINTS];
   private final Circle[] escapeDots = new Circle[Configuration.ESCAPE_MAX_POINTS];
+  private final Text[] escapeTexts = new Text[Configuration.ESCAPE_MAX_POINTS];
 
   private final IntegerProperty escapeMaxPointsProperty = new SimpleIntegerProperty(Configuration.DEFAULT_ESCAPE_POINTS);
 
@@ -37,6 +38,8 @@ public class EscapeViewer {
   private Fractal fractal;
   private double x;
   private double y;
+
+  private boolean textsVisible = true;
 
   public EscapeViewer(
     Pane pane,
@@ -67,8 +70,16 @@ public class EscapeViewer {
       dot.setMouseTransparent(true);
       dot.setOpacity(.75);
 
+      Text text;
+      if (i == 0) {
+        text = new Text("");
+      } else {
+        text = new Text("z" + (i + 1));
+      }
+
       this.escapeLines[i] = line;
       this.escapeDots[i] = dot;
+      this.escapeTexts[i] = text;
     }
 
     // Color first point differently
@@ -81,6 +92,7 @@ public class EscapeViewer {
       children.add(this.coordinatesText);
       children.addAll(this.escapeLines);
       children.addAll(this.escapeDots);
+      children.addAll(this.escapeTexts);
 
       this.pane.addEventHandler(MouseEvent.MOUSE_MOVED, this.escapeMouseMovedHandler);
 
@@ -88,6 +100,7 @@ public class EscapeViewer {
       children.remove(this.coordinatesText);
       children.removeAll(this.escapeLines);
       children.removeAll(this.escapeDots);
+      children.removeAll(this.escapeTexts);
 
       this.pane.removeEventHandler(MouseEvent.MOUSE_MOVED, this.escapeMouseMovedHandler);
     }
@@ -103,14 +116,15 @@ public class EscapeViewer {
     double re = this.viewport.screenToRe(this.x);
     double im = this.viewport.screenToIm(this.y);
 
-    String text = String.format(Locale.ROOT, "[%.2f, %.2f]", re, im);
-    this.coordinatesText.setText(text);
+    String coordsText = String.format(Locale.ROOT, "z1 = c = [%.2f, %.2f]", re, im);
+    this.coordinatesText.setText(coordsText);
     this.coordinatesText.setX(this.x + 12);
     this.coordinatesText.setY(this.y + 12);
 
     for (int i = 0; i < Configuration.ESCAPE_MAX_POINTS; i++) {
       this.escapeLines[i].setVisible(false);
       this.escapeDots[i].setVisible(false);
+      this.escapeTexts[i].setVisible(false);
     }
 
     int maxEscapePoints = this.escapeMaxPointsProperty.get();
@@ -143,6 +157,11 @@ public class EscapeViewer {
       dot.setCenterY(screenY);
       dot.setVisible(true);
 
+      Text text = this.escapeTexts[i];
+      text.setX(screenX + 5);
+      text.setY(screenY + 5);
+      text.setVisible(this.textsVisible);
+
       if (z.re() * z.re() + z.im() * z.im() > 4.0) {
         break;
       }
@@ -158,5 +177,15 @@ public class EscapeViewer {
 
   public IntegerProperty getEscapeMaxPointsProperty() {
     return this.escapeMaxPointsProperty;
+  }
+
+  void updateMaxPoints(int value) {
+    this.escapeMaxPointsProperty.set(value);
+    this.updateUI();
+  }
+
+  void toggleTextVisible() {
+    this.textsVisible = !this.textsVisible;
+    this.updateUI();
   }
 }

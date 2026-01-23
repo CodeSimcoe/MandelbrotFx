@@ -13,19 +13,27 @@ class _03_Properties {
     var c2 = new ValueComplex(2, -1);
     IO.println(c1);
 
-    IO.println("isValue " + c1.getClass().isValue());
-    IO.println("isIdentity " + c1.getClass().isIdentity());
+    IO.println("isValue : " + c1.getClass().isValue());
+    IO.println("isIdentity : " + c1.getClass().isIdentity());
 
-    IO.println(c1 == c2);
+    IO.println("c1 == c2 : " + (c1 == c2));
+
+    IO.println("==============");
 
     IO.println(System.identityHashCode(c1));
     IO.println(System.identityHashCode(c2));
+
+    IO.println("==============");
+
+    IO.println(System.identityHashCode(new Object()));
+    IO.println(System.identityHashCode(new Object()));
 
 //  synchronized (c1) {}
 
 //  Object o1 = c1;
 //  synchronized (o1) {}
 
+    // Objects::requireIdentity
 //    new java.lang.ref.WeakReference<>(c1);
   }
 }

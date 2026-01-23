@@ -2,7 +2,7 @@ package com.codesimcoe.demo;
 
 public class _04_StrictInit {
 
-  /* value */ class SafeComplex {
+    /* value */ class SafeComplex {
 
     private final double re;
     private final double im;

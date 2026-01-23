@@ -6,18 +6,22 @@ import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
 import javafx.application.Application;
 import javafx.beans.property.IntegerProperty;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
+import java.io.InputStream;
+import java.util.Objects;
+
 public class EscapeViewerDemo extends Application {
 
   private static final int WIDTH = 800;
   private static final int HEIGHT = 800;
-  private IntegerProperty escapeMaxPointsProperty;
   private EscapeViewer escapeViewer;
 
   @Override
@@ -30,30 +34,37 @@ public class EscapeViewerDemo extends Application {
     Viewport viewport = new Viewport(
       0.0, 0.0,
       2.0,
-      WIDTH, HEIGHT
+      WIDTH,
+      HEIGHT
     );
 
     // Axes
     Line xAxis = new Line(
       0, HEIGHT / 2.0,
-      WIDTH, HEIGHT / 2.0
+      WIDTH,
+      HEIGHT / 2.0
     );
-    xAxis.setStroke(Color.GRAY);
+    xAxis.setStroke(Color.BLACK);
+    xAxis.setStrokeWidth(1);
 
     Line yAxis = new Line(
       WIDTH / 2.0, 0,
-      WIDTH / 2.0, HEIGHT
+      WIDTH / 2.0,
+      HEIGHT
     );
-    yAxis.setStroke(Color.GRAY);
+    yAxis.setStroke(Color.BLACK);
+    yAxis.setStrokeWidth(1);
 
     root.getChildren().addAll(xAxis, yAxis);
 
     // Fractal
     // Escape viewer
     this.escapeViewer = new EscapeViewer(root, viewport, MandelbrotFractal.MANDELBROT);
-    this.escapeMaxPointsProperty = this.escapeViewer.getEscapeMaxPointsProperty();
-    this.escapeMaxPointsProperty.set(1);
+    this.escapeViewer.getEscapeMaxPointsProperty().set(1);
     this.escapeViewer.update(true);
+
+    InputStream iconResource = Objects.requireNonNull(this.getClass().getResourceAsStream("/icon.png"));
+    stage.getIcons().add(new Image(iconResource));
 
     Scene scene = new Scene(root);
     stage.setTitle("Escape Viewer");
@@ -79,12 +90,20 @@ public class EscapeViewerDemo extends Application {
       }
     );
 
+    scene.addEventFilter(
+      MouseEvent.MOUSE_PRESSED, e -> {
+        if (e.isSecondaryButtonDown()) {
+          this.escapeViewer.toggleTextVisible();
+        }
+      }
+    );
+
     stage.show();
   }
 
   private void adjustEscapePoints(int delta) {
-    int value = Math.clamp(this.escapeMaxPointsProperty.get() + delta, 1, Configuration.DEFAULT_ESCAPE_POINTS);
-    this.escapeMaxPointsProperty.set(value);
-    this.escapeViewer.updateUI();
+    IntegerProperty property = this.escapeViewer.getEscapeMaxPointsProperty();
+    int value = Math.clamp(property.get() + delta, 1, Configuration.DEFAULT_ESCAPE_POINTS);
+    this.escapeViewer.updateMaxPoints(value);
   }
 }

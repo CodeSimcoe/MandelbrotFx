@@ -2,8 +2,7 @@ package com.codesimcoe.demo;
 
 import jdk.internal.vm.annotation.NullRestricted;
 
-// -XX:+UnlockDiagnosticVMOptions -XX:+PrintInlineLayout
-// --add-exports=java.base/jdk.internal.value=mandelbrotfx
+// -XX:+UnlockDiagnosticVMOptions -XX:+PrintInlineLayout --add-exports=java.base/jdk.internal.value=mandelbrotfx
 public class _07_NullRestricted {
 
   record Data(

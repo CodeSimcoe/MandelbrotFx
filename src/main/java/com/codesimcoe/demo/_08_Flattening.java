@@ -19,8 +19,13 @@ public class _08_Flattening {
     //    1:       1000000       24000000  com.codesimcoe.demo._08_Flattening$Orbit (mandelbrotfx)
     //    2:       1000000       24000000  com.codesimcoe.demo._08_Flattening$ValueOrbit (mandelbrotfx)
     //    3:             1        8000016  [Lcom.codesimcoe.demo._08_Flattening$NonNullValueOrbit; (mandelbrotfx)
+    // Orbit[]
     var data1 = new Orbit[size];
+
+    // value Orbit[]
     var data2 = (ValueOrbit[]) ValueClass.newNullableAtomicArray(ValueOrbit.class, size);
+
+    // Orbit![]
     var data3 = (NonNullValueOrbit[]) ValueClass.newNullRestrictedAtomicArray(NonNullValueOrbit.class, size, new NonNullValueOrbit(0, 0));
 
     for (int i = 0; i < size; i++) {
