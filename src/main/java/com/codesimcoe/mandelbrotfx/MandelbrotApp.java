@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import jdk.incubator.vector.DoubleVector;
+import jdk.incubator.vector.FloatVector;
 
 import java.io.InputStream;
 import java.util.Objects;
@@ -14,7 +15,8 @@ public class MandelbrotApp extends Application {
   @Override
   public void start(Stage primaryStage) {
 
-    IO.println("Vector-API : Preferred species: " + DoubleVector.SPECIES_PREFERRED);
+    IO.println("Vector-API : Preferred species: " + FloatVector.SPECIES_PREFERRED
+                 + ", " + DoubleVector.SPECIES_PREFERRED);
 
     int width = 1024;
     int height = 1024;
@@ -30,6 +32,7 @@ public class MandelbrotApp extends Application {
     primaryStage.setOnCloseRequest(_ -> System.exit(0));
     InputStream iconResource = Objects.requireNonNull(this.getClass().getResourceAsStream("/icon.png"));
     primaryStage.getIcons().add(new Image(iconResource));
+    primaryStage.setTitle("Mandelbrot FX");
 
     mandelbrot.update();
 

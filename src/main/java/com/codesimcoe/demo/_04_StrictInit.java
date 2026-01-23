@@ -2,7 +2,7 @@ package com.codesimcoe.demo;
 
 public class _04_StrictInit {
 
-  class SafeComplex {
+  /* value */ class SafeComplex {
 
     private final double re;
     private final double im;
@@ -12,13 +12,11 @@ public class _04_StrictInit {
 
       // Prologue
       // Can initialize field or perform checks
-
-      this.re = re;
-      this.im = im;
+//      this.re = re;
+//      this.im = im;
 
       // Cannot reference 'this' before superclass constructor is called
-//    this.prettyPrint();
-
+//      this.prettyPrint();
 
       super();
 
@@ -34,8 +32,8 @@ public class _04_StrictInit {
       // "this" becomes available
 
       // strict field re is not initialized before the supertype constructor has been called
-//    this.re = re;
-//    this.im = im;
+      this.re = re;
+      this.im = im;
 
       this.prettyPrint();
     }

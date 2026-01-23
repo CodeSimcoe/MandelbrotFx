@@ -6,9 +6,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javafx.version>25.0.1</javafx.version>
+        <javafx.version>25.0.2</javafx.version>
         <jmh.version>1.37</jmh.version>
-        <junit.version>6.0.0</junit.version>
     </properties>
 
     <dependencies>
@@ -67,14 +66,6 @@
                             <version>${jmh.version}</version>
                         </path>
                     </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <mainClass>mandelbrotfx/com.codesimcoe.mandelbrotfx.MandelbrotApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
