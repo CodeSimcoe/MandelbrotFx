@@ -754,7 +754,7 @@ public class Mandelbrot {
 
     int w = mode.getResolution();
     int h = mode.getResolution();
-    int[][] itPixels = new int[w][h];
+    int[][] itPixels = new int[h][w];
     int[] pixels = new int[w * h];
 
     int max = this.maxIterations.get();
