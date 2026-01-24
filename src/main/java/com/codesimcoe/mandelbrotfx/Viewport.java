@@ -16,22 +16,29 @@ public class Viewport {
 
   private double centerRe;
   private double centerIm;
-  private double size;
+  private double sizeRe;
+  private double sizeIm;
   private final int width;
   private final int height;
 
   public Viewport(
     double rec,
     double imc,
-    double size,
+    double sizeRe,
     int width,
     int height) {
 
     this.centerRe = rec;
     this.centerIm = imc;
-    this.size = size;
     this.width = width;
     this.height = height;
+
+    this.updateSize(sizeRe);
+  }
+
+  public final void updateSize(double sizeRe) {
+    this.sizeRe = sizeRe;
+    this.sizeIm = sizeRe * this.height / (double) this.width;
   }
 
   public double screenToRe(double x) {
@@ -39,7 +46,7 @@ public class Viewport {
   }
 
   public double screenToRe(double x, double width) {
-    return this.centerRe + (x - width / 2.0) * (this.size / width);
+    return this.centerRe + (x - width / 2.0) * (this.sizeRe / width);
   }
 
   public double screenToIm(double y) {
@@ -47,15 +54,15 @@ public class Viewport {
   }
 
   public double screenToIm(double y, double height) {
-    return this.centerIm + (y - height / 2.0) * (this.size / height);
+    return this.centerIm + (y - height / 2.0) * (this.sizeIm / height);
   }
 
   public int complexToX(double re) {
-    return (int) Math.round((re - this.centerRe) * (this.width / this.size) + this.width / 2.0);
+    return (int) Math.round((re - this.centerRe) * (this.width / this.sizeRe) + this.width / 2.0);
   }
 
   public int complexToY(double im) {
-    return (int) Math.round((im - this.centerIm) * (this.height / this.size) + this.height / 2.0);
+    return (int) Math.round((im - this.centerIm) * (this.height / this.sizeIm) + this.height / 2.0);
   }
 
   public void moveBy(double dre, double dim) {
@@ -66,7 +73,7 @@ public class Viewport {
   public void update(Region region) {
     this.centerRe = region.centerRe();
     this.centerIm = region.centerIm();
-    this.size = region.size();
+    this.updateSize(region.size());
   }
 
   public void complexMoveTo(double re, double im) {
@@ -80,11 +87,11 @@ public class Viewport {
   }
 
   public void zoomInBy(double factor) {
-    this.size /= factor;
+    this.updateSize(this.sizeRe / factor);
   }
 
   public void zoomOutBy(double factor) {
-    this.size *= factor;
+    this.updateSize(this.sizeRe * factor);
   }
 
   public double getCenterRe() {
@@ -95,11 +102,11 @@ public class Viewport {
     return this.centerIm;
   }
 
-  public double getSize() {
-    return this.size;
+  public double getSizeRe() {
+    return this.sizeRe;
   }
 
-  public void setSize(double size) {
-    this.size = size;
+  public double getSizeIm() {
+    return this.sizeIm;
   }
 }

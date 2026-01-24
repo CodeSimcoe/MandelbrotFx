@@ -254,7 +254,7 @@ public class Mandelbrot {
     canvas.setOnScroll(e -> {
 
       boolean zoomIn = e.getDeltaY() > 0;
-      if (!zoomIn && this.viewport.getSize() >= Configuration.MAX_REGION_SIZE) {
+      if (!zoomIn && this.viewport.getSizeRe() >= Configuration.MAX_REGION_SIZE) {
         // Prevent zooming out too far
         return;
       }
@@ -585,7 +585,7 @@ public class Mandelbrot {
       if (this.regionSizeTextField.isFocused()) {
         try {
           double size = Double.parseDouble(this.regionSizeTextField.getText());
-          this.viewport.setSize(size);
+          this.viewport.updateSize(size);
           this.update();
         } catch (NumberFormatException e) {
           // Silently ignore invalid input
@@ -752,8 +752,10 @@ public class Mandelbrot {
 
   private void takeSnapshot(SnapshotMode mode) {
 
+    // Current mode applies to width, but keep viewport's aspect ratio
     int w = mode.getResolution();
-    int h = mode.getResolution();
+    int h = (int) Math.round(w * this.viewport.getSizeIm() / this.viewport.getSizeRe());
+
     int[][] itPixels = new int[h][w];
     int[] pixels = new int[w * h];
 
@@ -799,7 +801,7 @@ public class Mandelbrot {
   private void manageViewportChange() {
     this.regionReCenterTextField.setText(String.valueOf(this.viewport.getCenterRe()));
     this.regionImCenterTextField.setText(String.valueOf(this.viewport.getCenterIm()));
-    this.regionSizeTextField.setText(String.valueOf(this.viewport.getSize()));
+    this.regionSizeTextField.setText(String.valueOf(this.viewport.getSizeRe()));
   }
 
   private void writeLog(String text, LogLevel level) {
