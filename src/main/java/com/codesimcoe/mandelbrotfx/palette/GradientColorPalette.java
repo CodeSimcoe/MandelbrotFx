@@ -35,6 +35,10 @@ public record GradientColorPalette(String name, Color[] keyColors) implements Co
   }
 
   private Color[] createSmoothGradient(int numColors) {
+    // Guard against division by zero when numColors <= 1
+    if (numColors <= 1) {
+      return new Color[] { this.keyColors[0] };
+    }
     Color[] gradient = new Color[numColors];
 
     for (int i = 0; i < numColors; i++) {
