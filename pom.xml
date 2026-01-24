@@ -6,10 +6,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.13.4</junit.version>
-        <javafx.version>25.0.1</javafx.version>
+        <javafx.version>25.0.2</javafx.version>
         <jmh.version>1.37</jmh.version>
-        <junit.version>6.0.0</junit.version>
     </properties>
 
     <dependencies>
@@ -40,13 +38,6 @@
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>${jmh.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
