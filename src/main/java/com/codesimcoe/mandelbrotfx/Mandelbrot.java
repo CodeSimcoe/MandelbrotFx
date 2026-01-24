@@ -422,7 +422,7 @@ public class Mandelbrot {
           color = colors[colorIndex];
         }
 
-        imagePixels[y * height + x] = color;
+        imagePixels[y * width + x] = color;
       }
     }
   }
