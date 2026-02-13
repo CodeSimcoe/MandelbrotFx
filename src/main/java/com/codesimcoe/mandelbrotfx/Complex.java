@@ -22,7 +22,12 @@ public record Complex(double re, double im) {
   }
 
   public Complex div(Complex other) {
+    // Division by zero in complex arithmetic is undefined (yields complex infinity)
+    // |z|² = re² + im² = 0 only when z = 0 + 0i
     double denom = other.re * other.re + other.im * other.im;
+    if (denom == 0) {
+      throw new ArithmeticException("Complex division by zero: divisor has zero magnitude");
+    }
     double real = (this.re * other.re + this.im * other.im) / denom;
     double imag = (this.im * other.re - this.re * other.im) / denom;
     return new Complex(real, imag);
