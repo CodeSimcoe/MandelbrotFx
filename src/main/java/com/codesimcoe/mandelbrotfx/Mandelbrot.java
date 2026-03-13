@@ -11,6 +11,7 @@ import com.codesimcoe.mandelbrotfx.fractal.CelticFractal;
 import com.codesimcoe.mandelbrotfx.fractal.Fractal;
 import com.codesimcoe.mandelbrotfx.fractal.JuliaFractal;
 import com.codesimcoe.mandelbrotfx.fractal.MandelbrotFractal;
+import com.codesimcoe.mandelbrotfx.fractal.MultibrotFractal;
 import com.codesimcoe.mandelbrotfx.fractal.NewtonSinFractal;
 import com.codesimcoe.mandelbrotfx.fractal.PhoenixFractal;
 import com.codesimcoe.mandelbrotfx.fractal.TricornFractal;
@@ -157,6 +158,9 @@ public class Mandelbrot {
       new JuliaFractal("Julia - Siegel Disk", -0.391, -0.587),
       new JuliaFractal("Julia - San Marco", -0.75, 0),
       new JuliaFractal("Julia - Dendrite", 0, 1),
+      new MultibrotFractal(3),
+      new MultibrotFractal(4),
+      new MultibrotFractal(5),
       new PhoenixFractal("Phoenix 0.56667", 0.56667),
       new PhoenixFractal("Phoenix 0.75", 0.75),
       new PhoenixFractal("Phoenix 1", 1),

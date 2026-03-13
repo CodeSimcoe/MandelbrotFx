@@ -63,6 +63,10 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>mandelbrotfx/com.codesimcoe.mandelbrotfx.MandelbrotApp</mainClass>
+                    <options>
+                        <option>--enable-native-access=javafx.graphics</option>
+                        <option>--enable-native-access=javafx.media</option>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>

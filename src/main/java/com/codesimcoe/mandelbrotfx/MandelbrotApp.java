@@ -22,8 +22,9 @@ public class MandelbrotApp extends Application {
     switch (args.size()) {
       case 1 -> {
         try {
-          width = Integer.parseInt(args.getFirst());
-          height = width;
+          int value = Integer.parseInt(args.getFirst());
+          width = value;
+          height = value;
         } catch (NumberFormatException e) {
           System.err.println("Provided parameter shall be size, in pixels");
           System.exit(1);
@@ -34,12 +35,11 @@ public class MandelbrotApp extends Application {
           width = Integer.parseInt(args.get(0));
           height = Integer.parseInt(args.get(1));
         } catch (NumberFormatException e) {
-          System.err.println("Provided parameters shall be width and height, in pixels (or only ");
+          System.err.println("Provided parameters shall be width and height, in pixels (or only width for square viewport)");
           System.exit(1);
         }
       }
     }
-
 
     Mandelbrot mandelbrot = new Mandelbrot(
       width,
