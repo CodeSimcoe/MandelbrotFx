@@ -69,7 +69,7 @@ public sealed interface MandelbrotStrategy {
       Complex z = Complex.ZERO;
       int i = 0;
 
-      while (z.magnitudeSquared() < 4 && i < max) {
+      while (z.magnitudeSquared() <= 4 && i < max) {
         z = z.square().add(c);
         i++;
       }
@@ -88,7 +88,7 @@ public sealed interface MandelbrotStrategy {
       ValueComplex z = ValueComplex.ZERO;
       int i = 0;
 
-      while (z.magnitudeSquared() < 4 && i < max) {
+      while (z.magnitudeSquared() <= 4 && i < max) {
         z = z.square().add(c);
         i++;
       }
