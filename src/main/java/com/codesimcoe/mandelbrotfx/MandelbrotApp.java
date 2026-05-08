@@ -15,8 +15,9 @@ public class MandelbrotApp extends Application {
   @Override
   public void start(Stage primaryStage) {
 
-    IO.println("Vector-API : Preferred species: " + FloatVector.SPECIES_PREFERRED
-                 + ", " + DoubleVector.SPECIES_PREFERRED);
+    IO.println("Vector-API preferred species :");
+    IO.println("\t- " + FloatVector.SPECIES_PREFERRED);
+    IO.println("\t- " + DoubleVector.SPECIES_PREFERRED);
 
     int width = 1024;
     int height = 1024;
@@ -39,6 +40,7 @@ public class MandelbrotApp extends Application {
     primaryStage.show();
     primaryStage.toFront();
 
+    // -XX:StartFlightRecording=filename=xxx.jfr,duration=5m,settings=profile
     // Scenario to generate JFR files, using different strategies
 //    MandelbrotFractal.MANDELBROT.setStrategy(ValueRecordStrategy.INSTANCE);
 //
